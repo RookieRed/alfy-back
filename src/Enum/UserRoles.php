@@ -12,5 +12,6 @@ namespace App\Enum;
 class UserRoles
 {
     const ADMIN = 'ADMIN';
+    const SPONSOR = 'SPONSOR';
     const STUDENT = 'STUDENT';
 }

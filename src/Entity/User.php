@@ -6,11 +6,12 @@ use App\Enum\UserRoles;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  */
-class User
+class User implements UserInterface
 {
     /**
      * @ORM\Id()
@@ -20,7 +21,7 @@ class User
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, unique=true)
      */
     private $userName;
 
@@ -35,14 +36,19 @@ class User
     private $lastName;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $password;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $salt;
+
+    /**
+     * @var string
+     */
+    private $clearPassword;
 
     /**
      * @ORM\Column(type="datetime")
@@ -67,21 +73,21 @@ class User
     private $universities;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\User", mappedBy="godfather")
+     * @ORM\OneToMany(targetEntity="App\Entity\User", mappedBy="sponsor")
      */
-    private $godsons;
+    private $sponsoredUsers;
 
     /**
      * @var User|null
-     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="godsons")
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="sponsoredUsers")
      */
-    private $godfather;
+    private $sponsor;
 
     public function __construct()
     {
         $this->roles = new ArrayCollection();
         $this->universities = new ArrayCollection();
-        $this->godsons = new ArrayCollection();
+        $this->sponsoredUsers = new ArrayCollection();
     }
 
     public function getId()
@@ -253,28 +259,28 @@ class User
     /**
      * @return Collection|User[]
      */
-    public function getGodsons(): Collection
+    public function getSponsoredUsers(): Collection
     {
-        return $this->godsons;
+        return $this->sponsoredUsers;
     }
 
-    public function addGodson(User $godson): self
+    public function addSponsoredUser(User $sponsored): self
     {
-        if (!$this->godsons->contains($godson)) {
-            $this->godsons[] = $godson;
-            $godson->setGodfather($this);
+        if (!$this->sponsoredUsers->contains($sponsored)) {
+            $this->sponsoredUsers[] = $sponsored;
+            $sponsored->setSponsor($this);
         }
 
         return $this;
     }
 
-    public function removeGodson(User $godson): self
+    public function removeSponsoredUser(User $sponsored): self
     {
-        if ($this->godsons->contains($godson)) {
-            $this->godsons->removeElement($godson);
+        if ($this->sponsoredUsers->contains($sponsored)) {
+            $this->sponsoredUsers->removeElement($sponsored);
             // set the owning side to null (unless already changed)
-            if ($godson->getGodsons() === $this) {
-                $godson->setGodfather(null);
+            if ($sponsored->getSponsoredUsers() === $this) {
+                $sponsored->setSponsor(null);
             }
         }
 
@@ -282,12 +288,12 @@ class User
     }
 
     /**
-     * @param User|null $godfather
+     * @param User|null $sponsor
      * @return User
      */
-    public function setGodfather(?User $godfather): self
+    public function setSponsor(?User $sponsor): self
     {
-        $this->godfather = $godfather;
+        $this->sponsor = $sponsor;
 
         return $this;
     }
@@ -295,8 +301,44 @@ class User
     /**
      * @return User|null
      */
-    public function getGodfather(): ?User
+    public function getSponsor(): ?User
     {
-        return $this->godfather;
+        return $this->sponsor;
+    }
+
+    /**
+     * @return string
+     */
+    public function getClearPassword(): ?string
+    {
+        return $this->clearPassword;
+    }
+
+    /**
+     * @param string $clearPassword
+     * @return User
+     */
+    public function setClearPassword(string $clearPassword): self
+    {
+        $this->clearPassword = $clearPassword;
+
+        return $this;
+    }
+
+    // =====================================================
+    //                  USER INTERFACE METHODS
+    // =====================================================
+
+    /**
+     * Removes sensitive data from the user.
+     *
+     * This is important if, at any given point, sensitive information like
+     * the plain-text password is stored on this object.
+     */
+    public function eraseCredentials()
+    {
+        unset($this->salt);
+        unset($this->clearPassword);
+        unset($this->password);
     }
 }
