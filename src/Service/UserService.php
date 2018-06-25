@@ -9,14 +9,20 @@
 namespace App\Service;
 
 
-use App\Entity\Pojo\UserConnectionIn;
 use App\Entity\User;
+use App\Enum\UserRoles;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Security\Authentication\Token\JWTUserToken;
+use Lexik\Bundle\JWTAuthenticationBundle\Security\User\JWTUserInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWSProvider\JWSProviderInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\TokenExtractor\TokenExtractorInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class UserService
 {
@@ -36,42 +42,51 @@ class UserService
      * @var JWTTokenManagerInterface
      */
     private $jwtManager;
+    /**
+     * @var TokenStorageInterface
+     */
+    private $tokenStorage;
 
     public function __construct(EntityManagerInterface $em,
                                 UserPasswordEncoderInterface $encoder,
                                 JWTTokenManagerInterface $jwtManager,
+                                TokenStorageInterface $tokenStorage,
                                 UserRepository $userRepository)
     {
         $this->em = $em;
         $this->userRepo = $userRepository;
         $this->encoder = $encoder;
         $this->jwtManager = $jwtManager;
+        $this->tokenStorage = $tokenStorage;
     }
 
-    public function checkCredentials(Request $request, UserConnectionIn $user): ?string
+    public function getById(int $id): ?User
     {
-        $userFromDB = $this->userRepo->findOneBy([
-            'username' => $user->getUsername(),
+        return $this->userRepo->findOneBy([
+            'id'    => $id
         ]);
-        if ($userFromDB == null || $userFromDB->getSalt() == null || $userFromDB->getPassword() == null) {
-            throw new \Exception('User does not exist');
-        }
-
-        $encryptedPassword = $this->encoder->encodePassword($userFromDB, $user->getPassword());
-        if ($encryptedPassword === $userFromDB->getPassword()) {
-            return $this->jwtManager->create($userFromDB);
-        }
-        return null;
     }
 
-    public function getById(int $id)
+    public function getConnectedUser(): ?User
     {
-
+        $token = $this->tokenStorage->getToken();
+        $userArray = $this->jwtManager->decode($token);
+        return $this->userRepo->findOneBy(['username' => $userArray['username']]);
     }
 
-    public function getConnectedUser()
+    public function createAccount(User $user, ?string $role=null): ?string
     {
-        //return $this->jwtManager->
+        $encryptedPassword = $this->encoder->encodePassword($user, $user->getPassword());
+        $user->setPassword($encryptedPassword);
+
+        if ($role === null || ($role !== UserRoles::STUDENT && $role !== UserRoles::ADMIN && $role !== UserRoles::SPONSOR)) {
+            $user->addRole(UserRoles::STUDENT);
+        } else {
+            $user->addRole($role);
+        }
+
+        $this->em->persist($user);
+        return $this->jwtManager->create($user);
     }
 
 }

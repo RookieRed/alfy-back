@@ -1,7 +1,16 @@
 security:
+
+    encoders:
+        App\Entity\User:
+            algorithm: bcrypt
+
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:
-        in_memory: { memory: ~ }
+        db_provider:
+            entity:
+                class:    App\Entity\User
+                property: username
+
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
@@ -23,14 +32,16 @@ security:
                 require_previous_session: false
 
         main:
-            anonymous: true
+            anonymous: ~
             stateless: true
+            provider: db_provider
+
             guard:
                 authenticators:
                     - lexik_jwt_authentication.jwt_token_authenticator
 
     # Note: Only the *first* access control that matches will be used
     access_control:
-        - { path: ^/account/signin, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/account/signup, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/account/signin$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/account/signup$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/, roles: IS_AUTHENTICATED_FULLY  }

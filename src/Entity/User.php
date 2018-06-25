@@ -7,6 +7,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
@@ -17,26 +19,34 @@ class User implements UserInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"user_get"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
+     * @Assert\NotBlank()
+     * @Groups({"account_create", "user_connect", "user_get"})
      */
-    private $userName;
+    private $username;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank()
+     * @Groups({"account_create", "user_get"})
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank()
+     * @Groups({"account_create", "user_get"})
      */
     private $lastName;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"account_create", "user_connect"})
      */
     private $password;
 
@@ -51,35 +61,43 @@ class User implements UserInterface
     private $clearPassword;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="date")
+     * @Assert\NotBlank()
+     * @Groups({"account_create", "user_get"})
      */
     private $birthDay;
 
     /**
      * @ORM\Column(type="json")
-     * @var array
+     * @Assert\Collection()
+     * @var Collection
+     * @Groups({"user_get"})
      */
     private $roles;
 
     /**
      * @var Baccalaureate
      * @ORM\ManyToOne(targetEntity="App\Entity\Baccalaureate")
+     * @Groups({"user_get"})
      */
     private $baccalaureate;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\University", inversedBy="users")
+     * @Groups({"user_get"})
      */
     private $universities;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\User", mappedBy="sponsor")
+     * @Groups({"user_get"})
      */
     private $sponsoredUsers;
 
     /**
      * @var User|null
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="sponsoredUsers")
+     * @Groups({"user_get"})
      */
     private $sponsor;
 
@@ -95,14 +113,14 @@ class User implements UserInterface
         return $this->id;
     }
 
-    public function getUserName(): ?string
+    public function getUsername(): ?string
     {
-        return $this->userName;
+        return $this->username;
     }
 
-    public function setUserName(string $userName): self
+    public function setUsername(string $username): self
     {
-        $this->userName = $userName;
+        $this->username = $username;
 
         return $this;
     }
@@ -155,12 +173,12 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getBirthDay(): ?\DateTimeInterface
+    public function getBirthDay()
     {
         return $this->birthDay;
     }
 
-    public function setBirthDay(\DateTimeInterface $birthDay): self
+    public function setBirthDay($birthDay): self
     {
         $this->birthDay = $birthDay;
 
@@ -168,12 +186,13 @@ class User implements UserInterface
     }
 
     /**
-     * @return array
+     * @return Collection|null
      */
     public function getRoles(): ?array
     {
         return $this->roles;
     }
+
 
     /**
      * Check a role.
@@ -206,7 +225,7 @@ class User implements UserInterface
     public function removeRole(string $role): self
     {
         if ($this->isRole($role)) {
-            $this->roles->remove(array_search($role, $this->roles->toArray()));
+            $this->roles->removeElement($role);
         }
         return $this;
     }
