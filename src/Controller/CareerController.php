@@ -24,4 +24,23 @@ class CareerController extends Controller
     public function __construct()
     { }
 
+    /**
+     * @Route(path="",
+     *     name="career_update",
+     *     methods={"POST"})
+     */
+    public function update()
+    {
+
+    }
+
+    /**
+     * @Route(path="/{id}",
+     *     name="career_by_user",
+     *     methods={"GET"})
+     */
+    public function getByUser()
+    {
+
+    }
 }

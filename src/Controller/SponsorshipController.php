@@ -16,20 +16,42 @@ use Symfony\Component\Routing\Annotation\Route;
  * Class SponsorshipController
  * @package App\Controller
  *
- * @Route(path="/sponsorships")
+ * @Route(path="/sponsorship")
  */
 class SponsorshipController extends Controller
 {
 
+    /**
+     *
+     */
     public function __construct()
     { }
 
+    /**
+     * @Route(path="/{whos}",
+     *     methods={"GET"},
+     *     name="sponsor_get_by_user",
+     *     requirements={"whos"="^(\d+|mine)$"}
+     * )
+     */
     public function getAllSponsored()
     { }
 
-    public function updateSelfSponsored()
-    { }
+    /**
+     * @Route(path="/free",
+     *     name="sponsor_get_not_sponsored",
+     *     methods={"GET"})
+     */
+    public function getNotSponsored()
+    {
 
-    public function attributeASponsor()
+    }
+
+    /**
+     * @Route(path="",
+     *     name="sponsor_update",
+     *     methods={"POST"})
+     */
+    public function updateSponsoredList()
     { }
 }

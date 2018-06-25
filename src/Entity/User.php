@@ -78,26 +78,22 @@ class User implements UserInterface
     /**
      * @var Baccalaureate
      * @ORM\ManyToOne(targetEntity="App\Entity\Baccalaureate")
-     * @Groups({"user_get"})
      */
     private $baccalaureate;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\University", inversedBy="users")
-     * @Groups({"user_get"})
      */
     private $universities;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\User", mappedBy="sponsor")
-     * @Groups({"user_get"})
      */
     private $sponsoredUsers;
 
     /**
      * @var User|null
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="sponsoredUsers")
-     * @Groups({"user_get"})
      */
     private $sponsor;
 
