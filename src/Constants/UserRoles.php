@@ -6,7 +6,7 @@
  * Time: 17:19
  */
 
-namespace App\Enum;
+namespace App\Constants;
 
 
 class UserRoles

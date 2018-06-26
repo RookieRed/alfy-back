@@ -17,9 +17,14 @@ class Baccalaureate
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=20)
      */
     private $name;
+    /**
+     * @var string
+     * @ORM\Column(type="string", length=255)
+     */
+    private $fullName;
 
     public function getId()
     {
@@ -34,6 +39,25 @@ class Baccalaureate
     public function setName(string $name): self
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFullName(): ?string
+    {
+        return $this->fullName;
+    }
+
+    /**
+     * @param string $fullName
+     * @return Baccalaureate
+     */
+    public function setFullName(string $fullName): self
+    {
+        $this->fullName = $fullName;
 
         return $this;
     }

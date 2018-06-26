@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-use App\Enum\UserRoles;
+use App\Constants\UserRoles;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -66,6 +66,21 @@ class User implements UserInterface
      * @Groups({"account_create", "user_get"})
      */
     private $birthDay;
+
+    /**
+     * @var string
+     * @ORM\Column(type="string", length=255)
+     * @Assert\Email()
+     * @Groups({"account_create", "user_get"})
+     */
+    private $email;
+
+    /**
+     * @var string
+     * @ORM\Column(type="string", length=20)
+     * @Groups({"account_create", "user_get"})
+     */
+    private $phone;
 
     /**
      * @ORM\Column(type="json")
@@ -177,6 +192,44 @@ class User implements UserInterface
     public function setBirthDay($birthDay): self
     {
         $this->birthDay = $birthDay;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
+
+    /**
+     * @param string $email
+     * @return User
+     */
+    public function setEmail(string $email): self
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPhone(): ?string
+    {
+        return $this->phone;
+    }
+
+    /**
+     * @param string $phone
+     * @return User
+     */
+    public function setPhone(?string $phone): self
+    {
+        $this->phone = $phone;
 
         return $this;
     }

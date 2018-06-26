@@ -9,8 +9,11 @@
 namespace App\Controller;
 
 
+use App\Service\FileService;
+use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Class StudentController
@@ -21,8 +24,20 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 class StudentController extends Controller
 {
 
-    public function __construct()
+    /**
+     * @var FileService
+     */
+    private $fileService;
+    /**
+     * @var EntityManagerInterface
+     */
+    private $em;
+
+    public function __construct(FileService $fileService,
+                                EntityManagerInterface $em)
     {
+        $this->fileService = $fileService;
+        $this->em = $em;
     }
 
     /**
@@ -41,9 +56,27 @@ class StudentController extends Controller
      *     name="user_import"
      * )
      */
-    public function importFromExcel()
+    public function importFromExcel(Request $request)
     {
+        $excel = $request->get('file');
+        if ($excel === null) {
+            throw new \Exception('There is no uploaded file');
+        }
 
+        $file = $this->fileService->saveFile($excel);
+        $this->fileService->importFromExcel($file);
+        $this->em->flush();
+    }
+
+    /**
+     * @Route(path="/import",
+     *     methods={"GET"},
+     *     name="user_import_get_model"
+     * )
+     */
+    public function getImportModel() {
+        $file = $this->fileService->generateExcelImportExample();
+        return $this->file($file->getFullPath());
     }
 
     /**

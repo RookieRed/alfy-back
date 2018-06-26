@@ -10,7 +10,7 @@ namespace App\Service;
 
 
 use App\Entity\User;
-use App\Enum\UserRoles;
+use App\Constants\UserRoles;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
