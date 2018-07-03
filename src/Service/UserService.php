@@ -80,9 +80,9 @@ class UserService
         $user->setPassword($encryptedPassword);
 
         if ($role === null || ($role !== UserRoles::STUDENT && $role !== UserRoles::ADMIN && $role !== UserRoles::SPONSOR)) {
-            $user->addRole(UserRoles::STUDENT);
+            $user->setRole(UserRoles::STUDENT);
         } else {
-            $user->addRole($role);
+            $user->setRole($role);
         }
 
         $this->em->persist($user);

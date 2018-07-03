@@ -13,6 +13,7 @@ use App\Entity\User;
 use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -122,7 +123,8 @@ class AccountController extends Controller
      */
     public function singUp(Request $request)
     {
-        $userBean = $this->serializer->deserialize($request->getContent(), User::class, 'json', ['groups' => ['account_create']]);
+        $userBean = $this->serializer->deserialize($request->getContent(),
+            User::class, 'json', ['groups' => ['account_create']]);
         $userBean->setBirthDay(new \DateTime($userBean->getBirthDay()));
 
         $errors = $this->validator->validate($userBean, null, 'account_create');

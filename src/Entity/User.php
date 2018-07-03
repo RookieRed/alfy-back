@@ -69,7 +69,7 @@ class User implements UserInterface
 
     /**
      * @var string
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, unique=true)
      * @Assert\Email()
      * @Groups({"account_create", "user_get"})
      */
@@ -77,18 +77,18 @@ class User implements UserInterface
 
     /**
      * @var string
-     * @ORM\Column(type="string", length=20)
+     * @ORM\Column(type="string", length=20, nullable=true)
      * @Groups({"account_create", "user_get"})
      */
     private $phone;
 
     /**
-     * @ORM\Column(type="json")
-     * @Assert\Collection()
-     * @var Collection
+     * @ORM\Column(type="string", length=50)
+     * @Assert\NotBlank()
+     * @var string
      * @Groups({"user_get"})
      */
-    private $roles;
+    private $role;
 
     /**
      * @var Baccalaureate
@@ -114,7 +114,6 @@ class User implements UserInterface
 
     public function __construct()
     {
-        $this->roles = new ArrayCollection();
         $this->universities = new ArrayCollection();
         $this->sponsoredUsers = new ArrayCollection();
     }
@@ -234,12 +233,17 @@ class User implements UserInterface
         return $this;
     }
 
-    /**
-     * @return Collection|null
-     */
-    public function getRoles(): ?array
+    public function getRoles()
     {
-        return $this->roles;
+        return [$this->role];
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getRole(): ?string
+    {
+        return $this->role;
     }
 
 
@@ -250,32 +254,19 @@ class User implements UserInterface
      */
     public function isRole(string $role): bool
     {
-        if ($this->roles->contains(UserRoles::ADMIN))
+        if ($this->role == UserRoles::ADMIN)
             return true;
-        return $this->roles->contains($role);
+
+        return $this->role == $role;
     }
 
     /**
      * @param string $role
-     * @return User
      */
-    public function addRole(string $role): self
+    public function setRole(string $role): self
     {
-        $this->roles->add($role);
+        $this->role = $role;
 
-        return $this;
-    }
-
-    /**
-     * Removes a role.
-     * @param string $role
-     * @return User
-     */
-    public function removeRole(string $role): self
-    {
-        if ($this->isRole($role)) {
-            $this->roles->removeElement($role);
-        }
         return $this;
     }
 
