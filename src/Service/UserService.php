@@ -60,11 +60,79 @@ class UserService
         $this->tokenStorage = $tokenStorage;
     }
 
+    /**
+     * @return User[]
+     */
+    public function getAll() {
+        return $this->userRepo->findAll();
+    }
+
     public function getById(int $id): ?User
     {
         return $this->userRepo->findOneBy([
             'id'    => $id
         ]);
+    }
+
+    /**
+     * @param User $userSearched
+     * @return User[]
+     */
+    public function searchByCriteria(User $userSearched): array {
+        $whereClause = '';
+        $params = [];
+        if ($userSearched->getFirstName() != null) {
+            $whereClause .= ' AND u.firstName LIKE :firstName';
+            $params['firstName'] = '%'.$userSearched->getFirstName().'%';
+        }
+        if ($userSearched->getLastName() != null) {
+            $whereClause .= ' AND u.lastName LIKE :lastName';
+            $params['lastName'] = '%'.$userSearched->getLastName().'%';
+        }
+        if ($userSearched->getUsername() != null) {
+            $whereClause .= ' AND u.username LIKE :username';
+            $params['username'] = '%'.$userSearched->getUsername().'%';
+        }
+        if ($userSearched->getEmail() != null) {
+            $whereClause .= ' AND u.email LIKE :email';
+            $params['email'] = '%'.$userSearched->getEmail().'%';
+        }
+        if ($userSearched->getBirthDay() != null) {
+            $birthYear = $userSearched->getBirthDay();
+            if ($birthYear instanceof \DateTimeInterface) {
+                $birthYear = $birthYear->format('Y');
+            }
+            $whereClause .= ' AND YEAR(u.birthDay) = :birthYear';
+            $params['birthYear'] = $birthYear;
+        }
+
+        if (strlen($whereClause) == 0) {
+            return $this->getAll();
+        }
+
+        $whereClause = substr($whereClause, 4, strlen($whereClause));
+        return $this->em
+            ->createQuery('SELECT u FROM App\Entity\User u WHERE '.$whereClause.';')
+            ->setParameters($params)
+            ->execute();
+    }
+
+    /**
+     * @param string $name
+     * @return User[]
+     */
+    public function searchByName(string $name): array {
+        if (strlen($name) == 0) {
+            return $this->getAll();
+        }
+
+        return $this->em
+            ->createQuery('SELECT u FROM App\Entity\User u '
+            . 'WHERE u.username LIKE :name'
+            . '  OR u.firstName LIKE :name'
+            . '  OR u.lastName LIKE :name;'
+            )->setParameter('name', '%'.$name.'%')
+            ->execute();
     }
 
     public function getConnectedUser(): ?User

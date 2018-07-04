@@ -31,6 +31,12 @@ class Address
      */
     private $city;
 
+    /**
+     * @var Country
+     * @ORM\ManyToOne(targetEntity="App\Entity\Country", fetch="EAGER")
+     */
+    private $country;
+
     public function getId()
     {
         return $this->id;

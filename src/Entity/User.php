@@ -26,27 +26,27 @@ class User implements UserInterface
     /**
      * @ORM\Column(type="string", length=255, unique=true)
      * @Assert\NotBlank()
-     * @Groups({"account_create", "user_connect", "user_get"})
+     * @Groups({"account_create", "user_connect", "user_get", "user_update"})
      */
     private $username;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
-     * @Groups({"account_create", "user_get"})
+     * @Groups({"account_create", "user_get", "user_update"})
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
-     * @Groups({"account_create", "user_get"})
+     * @Groups({"account_create", "user_get", "user_update"})
      */
     private $lastName;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"account_create", "user_connect"})
+     * @Groups({"account_create", "user_connect", "user_update"})
      */
     private $password;
 
@@ -63,7 +63,7 @@ class User implements UserInterface
     /**
      * @ORM\Column(type="date")
      * @Assert\NotBlank()
-     * @Groups({"account_create", "user_get"})
+     * @Groups({"account_create", "user_get", "user_update"})
      */
     private $birthDay;
 
@@ -71,16 +71,24 @@ class User implements UserInterface
      * @var string
      * @ORM\Column(type="string", length=255, unique=true)
      * @Assert\Email()
-     * @Groups({"account_create", "user_get"})
+     * @Groups({"account_create", "user_get", "user_update"})
      */
     private $email;
 
     /**
      * @var string
      * @ORM\Column(type="string", length=20, nullable=true)
-     * @Groups({"account_create", "user_get"})
+     * @Groups({"account_create", "user_get", "user_update"})
      */
     private $phone;
+
+    /**
+     * @var Address|null
+     * @ORM\OneToOne(targetEntity="App\Entity\Address", fetch="EAGER")
+     * @ORM\JoinColumn(name="address_id", referencedColumnName="id", nullable=true)
+     * @Groups({"user_get", "user_update"})
+     */
+    private $address;
 
     /**
      * @ORM\Column(type="string", length=50)
@@ -91,8 +99,37 @@ class User implements UserInterface
     private $role;
 
     /**
+     * @var File|null
+     * @ORM\OneToOne(targetEntity="App\Entity\File", fetch="EAGER")
+     * @ORM\JoinColumn(name="picture_id", referencedColumnName="id", nullable=true)
+     * @Groups({"user_get"})
+     */
+    private $profilePicture;
+
+    /**
+     * @var string|null
+     * @ORM\Column(type="string", length=50)
+     * @Groups({"user_get", "user_update"})
+     */
+    private $facebook;
+
+    /**
+     * @var string|null
+     * @ORM\Column(type="string", length=50)
+     * @Groups({"user_get", "user_update"})
+     */
+    private $linkedIn;
+
+    /**
+     * @var string|null
+     * @ORM\Column(type="string", length=50)
+     * @Groups({"user_get", "user_update"})
+     */
+    private $twitter;
+
+    /**
      * @var Baccalaureate
-     * @ORM\ManyToOne(targetEntity="App\Entity\Baccalaureate")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Baccalaureate", fetch="EAGER")
      */
     private $baccalaureate;
 
@@ -171,18 +208,6 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getSalt(): ?string
-    {
-        return $this->salt;
-    }
-
-    public function setSalt(string $salt): self
-    {
-        $this->salt = $salt;
-
-        return $this;
-    }
-
     public function getBirthDay()
     {
         return $this->birthDay;
@@ -231,11 +256,6 @@ class User implements UserInterface
         $this->phone = $phone;
 
         return $this;
-    }
-
-    public function getRoles()
-    {
-        return [$this->role];
     }
 
     /**
@@ -384,6 +404,97 @@ class User implements UserInterface
         return $this;
     }
 
+    /**
+     * @return Address|null
+     */
+    public function getAddress(): ?Address
+    {
+        return $this->address;
+    }
+
+    /**
+     * @param Address|null $address
+     * @return User
+     */
+    public function setAddress(?Address $address): self
+    {
+        $this->address = $address;
+        return $this;
+    }
+
+    /**
+     * @return File|null
+     */
+    public function getProfilePicture(): ?File
+    {
+        return $this->profilePicture;
+    }
+
+    /**
+     * @param File|null $profilePicture
+     * @return User
+     */
+    public function setProfilePicture(?File $profilePicture): self
+    {
+        $this->profilePicture = $profilePicture;
+        return $this;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getFacebook(): ?string
+    {
+        return $this->facebook;
+    }
+
+    /**
+     * @param null|string $facebook
+     * @return User
+     */
+    public function setFacebook(?string $facebook): self
+    {
+        $this->facebook = $facebook;
+        return $this;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getLinkedIn(): ?string
+    {
+        return $this->linkedIn;
+    }
+
+    /**
+     * @param null|string $linkedIn
+     * @return User
+     */
+    public function setLinkedIn(?string $linkedIn): self
+    {
+        $this->linkedIn = $linkedIn;
+        return $this;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getTwitter(): ?string
+    {
+        return $this->twitter;
+    }
+
+    /**
+     * @param null|string $twitter
+     * @return User
+     */
+    public function setTwitter(?string $twitter): self
+    {
+        $this->twitter = $twitter;
+        return $this;
+    }
+
+
     // =====================================================
     //                  USER INTERFACE METHODS
     // =====================================================
@@ -399,5 +510,22 @@ class User implements UserInterface
         unset($this->salt);
         unset($this->clearPassword);
         unset($this->password);
+    }
+
+    public function getRoles()
+    {
+        return [$this->role];
+    }
+
+    public function getSalt(): ?string
+    {
+        return $this->salt;
+    }
+
+    public function setSalt(string $salt): self
+    {
+        $this->salt = $salt;
+
+        return $this;
     }
 }
