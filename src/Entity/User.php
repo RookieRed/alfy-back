@@ -19,28 +19,28 @@ class User implements UserInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"user_get"})
+     * @Groups({"user_get", "user_get_list"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
      * @Assert\NotBlank()
-     * @Groups({"account_create", "user_connect", "user_get", "user_update"})
+     * @Groups({"account_create", "user_connect", "user_get", "user_update", "user_get_list"})
      */
     private $username;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
-     * @Groups({"account_create", "user_get", "user_update"})
+     * @Groups({"account_create", "user_get", "user_update", "user_get_list"})
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
-     * @Groups({"account_create", "user_get", "user_update"})
+     * @Groups({"account_create", "user_get", "user_update", "user_get_list"})
      */
     private $lastName;
 
@@ -84,7 +84,7 @@ class User implements UserInterface
 
     /**
      * @var Address|null
-     * @ORM\OneToOne(targetEntity="App\Entity\Address", fetch="EAGER")
+     * @ORM\OneToOne(targetEntity="App\Entity\Address", fetch="LAZY")
      * @ORM\JoinColumn(name="address_id", referencedColumnName="id", nullable=true)
      * @Groups({"user_get", "user_update"})
      */
@@ -102,27 +102,27 @@ class User implements UserInterface
      * @var File|null
      * @ORM\OneToOne(targetEntity="App\Entity\File", fetch="EAGER")
      * @ORM\JoinColumn(name="picture_id", referencedColumnName="id", nullable=true)
-     * @Groups({"user_get"})
+     * @Groups({"user_get", "user_get_list"})
      */
     private $profilePicture;
 
     /**
      * @var string|null
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=50, nullable=true)
      * @Groups({"user_get", "user_update"})
      */
     private $facebook;
 
     /**
      * @var string|null
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=50, nullable=true)
      * @Groups({"user_get", "user_update"})
      */
     private $linkedIn;
 
     /**
      * @var string|null
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=50, nullable=true)
      * @Groups({"user_get", "user_update"})
      */
     private $twitter;

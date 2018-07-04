@@ -64,7 +64,7 @@ class UserService
      * @return User[]
      */
     public function getAll() {
-        return $this->userRepo->findAll();
+        return $this->userRepo->findBy([], ['lastName' => 'ASC','firstName' => 'ASC']);
     }
 
     public function getById(int $id): ?User
@@ -112,7 +112,7 @@ class UserService
 
         $whereClause = substr($whereClause, 4, strlen($whereClause));
         return $this->em
-            ->createQuery('SELECT u FROM App\Entity\User u WHERE '.$whereClause.';')
+            ->createQuery('SELECT u FROM App\Entity\User u WHERE '.$whereClause.' ORDER BY u.lastName, u.firstName')
             ->setParameters($params)
             ->execute();
     }
@@ -121,17 +121,25 @@ class UserService
      * @param string $name
      * @return User[]
      */
-    public function searchByName(string $name): array {
-        if (strlen($name) == 0) {
+    public function searchByName(?string $name): array {
+        if ($name == null || trim($name) == '') {
             return $this->getAll();
         }
 
+        $namesArray = explode(' ', $name);
+        $whereClause = '';
+        $params = [];
+        $i = 0;
+        foreach ($namesArray as $val) {
+            $key = 'name' . $i++;
+            $whereClause .= " AND (u.username LIKE :$key OR u.firstName LIKE :$key OR u.lastName LIKE :$key)";
+            $params[$key] = '%'.$val.'%';
+        }
+
+        $whereClause = substr($whereClause, 4, strlen($whereClause));
         return $this->em
-            ->createQuery('SELECT u FROM App\Entity\User u '
-            . 'WHERE u.username LIKE :name'
-            . '  OR u.firstName LIKE :name'
-            . '  OR u.lastName LIKE :name;'
-            )->setParameter('name', '%'.$name.'%')
+            ->createQuery('SELECT u FROM App\Entity\User u WHERE '.$whereClause.' ORDER BY u.lastName, u.firstName')
+            ->setParameters($params)
             ->execute();
     }
 

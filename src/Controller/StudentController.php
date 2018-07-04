@@ -10,10 +10,13 @@ namespace App\Controller;
 
 
 use App\Service\FileService;
+use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * Class StudentController
@@ -32,22 +35,39 @@ class StudentController extends Controller
      * @var EntityManagerInterface
      */
     private $em;
+    /**
+     * @var UserService
+     */
+    private $userService;
+    /**
+     * @var SerializerInterface
+     */
+    private $serializer;
 
     public function __construct(FileService $fileService,
+                                UserService $userService,
+                                SerializerInterface $serializer,
                                 EntityManagerInterface $em)
     {
         $this->fileService = $fileService;
+        $this->userService = $userService;
         $this->em = $em;
+        $this->serializer = $serializer;
     }
 
     /**
      * @Route(path="",
      *     methods={"GET"},
-     *     name="user_search")
+     *     name="students_search")
+     * @param Request $request
+     * @return Response
      */
-    public function search()
+    public function search(Request $request)
     {
-
+        $matches = $this->userService->searchByName($request->get('search'));
+        $jsonResponse = new Response($this->serializer->serialize($matches, 'json', ['groups' => ['user_get_list']]));
+        $jsonResponse->headers->set('Content-type', 'application/json');
+        return $jsonResponse;
     }
 
     /**

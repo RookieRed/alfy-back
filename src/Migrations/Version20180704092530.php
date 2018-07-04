@@ -18,7 +18,7 @@ final class Version20180704092530 extends AbstractMigration
         $this->addSql('ALTER TABLE address ADD country_id INT DEFAULT NULL');
         $this->addSql('ALTER TABLE address ADD CONSTRAINT FK_D4E6F81F92F3E70 FOREIGN KEY (country_id) REFERENCES country (id)');
         $this->addSql('CREATE INDEX IDX_D4E6F81F92F3E70 ON address (country_id)');
-        $this->addSql('ALTER TABLE user ADD address_id INT DEFAULT NULL, ADD picture_id INT DEFAULT NULL, ADD facebook VARCHAR(50) NOT NULL, ADD linked_in VARCHAR(50) NOT NULL, ADD twitter VARCHAR(50) NOT NULL');
+        $this->addSql('ALTER TABLE user ADD address_id INT DEFAULT NULL, ADD picture_id INT DEFAULT NULL, ADD facebook VARCHAR(50) DEFAULT NULL, ADD linked_in VARCHAR(50) DEFAULT NULL, ADD twitter VARCHAR(50) DEFAULT NULL');
         $this->addSql('ALTER TABLE user ADD CONSTRAINT FK_8D93D649F5B7AF75 FOREIGN KEY (address_id) REFERENCES address (id)');
         $this->addSql('ALTER TABLE user ADD CONSTRAINT FK_8D93D649EE45BDBF FOREIGN KEY (picture_id) REFERENCES file (id)');
         $this->addSql('CREATE UNIQUE INDEX UNIQ_8D93D649F5B7AF75 ON user (address_id)');
