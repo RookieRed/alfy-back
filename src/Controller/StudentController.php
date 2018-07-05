@@ -10,6 +10,7 @@ namespace App\Controller;
 
 
 use App\Service\FileService;
+use App\Service\PaginationService;
 use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -43,9 +44,14 @@ class StudentController extends Controller
      * @var SerializerInterface
      */
     private $serializer;
+    /**
+     * @var PaginationService
+     */
+    private $pagination;
 
     public function __construct(FileService $fileService,
                                 UserService $userService,
+                                PaginationService $pagination,
                                 SerializerInterface $serializer,
                                 EntityManagerInterface $em)
     {
@@ -53,6 +59,7 @@ class StudentController extends Controller
         $this->userService = $userService;
         $this->em = $em;
         $this->serializer = $serializer;
+        $this->pagination = $pagination;
     }
 
     /**
@@ -65,7 +72,11 @@ class StudentController extends Controller
     public function search(Request $request)
     {
         $matches = $this->userService->searchByName($request->get('search'));
-        $jsonResponse = new Response($this->serializer->serialize($matches, 'json', ['groups' => ['user_get_list']]));
+        $paginatedResults = $this->pagination->generatePaginatedResults($request, $matches);
+
+        $jsonResponse = new Response(
+            $this->serializer->serialize($paginatedResults, 'json', ['groups' => ['user_get_list', 'pagination']])
+        );
         $jsonResponse->headers->set('Content-type', 'application/json');
         return $jsonResponse;
     }
