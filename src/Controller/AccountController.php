@@ -93,7 +93,25 @@ class AccountController extends Controller
      */
     public function getById(Request $request)
     {
+        $userId = $request->get('id');
+        if ($userId == null){
+            return $this->json('No id provided', Response::HTTP_BAD_REQUEST);
+        }
 
+        $user = $this->userService->getById($userId);
+        if ($user == null) {
+            return $this->json('User not find', Response::HTTP_NOT_FOUND);
+        }
+
+        if ($this->userService->getConnectedUser()->getId() == $userId) {
+            $options = ['groups' => ['user_get']];
+        } else {
+            $options = ['groups' => ['user_get_list']];
+        }
+
+        $jsonResponse = new Response($this->serializer->serialize($user, 'json', $options));
+        $jsonResponse->headers->set('Content-type', 'application/json');
+        return $jsonResponse;
     }
 
     /**
