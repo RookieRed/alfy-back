@@ -165,7 +165,7 @@ class User implements UserInterface
         return $this->username;
     }
 
-    public function setUsername(string $username): self
+    public function setUsername(?string $username): self
     {
         $this->username = $username;
 
@@ -177,7 +177,7 @@ class User implements UserInterface
         return $this->firstName;
     }
 
-    public function setFirstName(string $firstName): self
+    public function setFirstName(?string $firstName): self
     {
         $this->firstName = $firstName;
 
@@ -189,7 +189,7 @@ class User implements UserInterface
         return $this->lastName;
     }
 
-    public function setLastName(string $lastName): self
+    public function setLastName(?string $lastName): self
     {
         $this->lastName = $lastName;
 
@@ -201,7 +201,7 @@ class User implements UserInterface
         return $this->password;
     }
 
-    public function setPassword(string $password): self
+    public function setPassword(?string $password): self
     {
         $this->password = $password;
 
@@ -232,7 +232,7 @@ class User implements UserInterface
      * @param string $email
      * @return User
      */
-    public function setEmail(string $email): self
+    public function setEmail(?string $email): self
     {
         $this->email = $email;
 
@@ -272,7 +272,7 @@ class User implements UserInterface
      * @param string $role
      * @return bool
      */
-    public function isRole(string $role): bool
+    public function isRole(?string $role): bool
     {
         if ($this->role == UserRoles::ADMIN)
             return true;
@@ -283,7 +283,7 @@ class User implements UserInterface
     /**
      * @param string $role
      */
-    public function setRole(string $role): self
+    public function setRole(?string $role): self
     {
         $this->role = $role;
 
@@ -397,7 +397,7 @@ class User implements UserInterface
      * @param string $clearPassword
      * @return User
      */
-    public function setClearPassword(string $clearPassword): self
+    public function setClearPassword(?string $clearPassword): self
     {
         $this->clearPassword = $clearPassword;
 
@@ -522,7 +522,7 @@ class User implements UserInterface
         return $this->salt;
     }
 
-    public function setSalt(string $salt): self
+    public function setSalt(?string $salt): self
     {
         $this->salt = $salt;
 

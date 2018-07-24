@@ -143,6 +143,12 @@ class UserService
             ->execute();
     }
 
+    public function usernameExists(string $username): boolean {
+        return null != $this->userRepo->findOneBy([
+            'username' => $username
+        ]);
+    }
+
     public function getConnectedUser(): ?User
     {
         $token = $this->tokenStorage->getToken();

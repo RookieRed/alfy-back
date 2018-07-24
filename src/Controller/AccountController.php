@@ -8,19 +8,23 @@
 
 namespace App\Controller;
 
+use App\Constants\ErrorType;
+use App\Constants\FileConstants;
+use App\Entity\File;
 use App\Entity\Pojo\UserConnectionIn;
 use App\Entity\User;
 use App\Service\UserService;
+use App\Service\ValidationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Config\Definition\Exception\Exception;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Exception\ValidatorException;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Class AccountController
@@ -35,7 +39,7 @@ class AccountController extends Controller
      */
     private $userService;
     /**
-     * @var ValidatorInterface
+     * @var ValidationService
      */
     private $validator;
     /**
@@ -52,12 +56,12 @@ class AccountController extends Controller
      * @param UserService $userService
      * @param EntityManagerInterface $em
      * @param SerializerInterface $serializer
-     * @param ValidatorInterface $validator
+     * @param ValidationService $validator
      */
     public function __construct(UserService $userService,
                                 EntityManagerInterface $em,
                                 SerializerInterface $serializer,
-                                ValidatorInterface $validator)
+                                ValidationService $validator)
     {
         $this->userService = $userService;
         $this->validator = $validator;
@@ -75,7 +79,10 @@ class AccountController extends Controller
     {
         $user = $this->userService->getConnectedUser();
         if ($user === null) {
-            throw new \Exception('How do you do this ?');
+            return $this->validator->generateErrorResponse(
+                ErrorType::EXCEPTION['code'],
+                ErrorType::EXCEPTION['message']
+            );
         }
 
         $jsonResponse = new Response($this->serializer->serialize($user, 'json', ['groups' => ['user_get']]));
@@ -145,9 +152,9 @@ class AccountController extends Controller
             User::class, 'json', ['groups' => ['account_create']]);
         $userBean->setBirthDay(new \DateTime($userBean->getBirthDay()));
 
-        $errors = $this->validator->validate($userBean, null, 'account_create');
-        if ($errors->count() > 0) { // TODO Validation du pojo
-            throw new ValidatorException('Pojo');
+        $errorResponse = $this->validator->validateBean($userBean, ['account_create']);
+        if ($errorResponse !== null) {
+           return $errorResponse;
         }
 
         $jwtToken = $this->userService->createAccount($userBean);
@@ -156,6 +163,28 @@ class AccountController extends Controller
         }
         $this->em->flush();
         return $this->json(['token' => $jwtToken], Response::HTTP_CREATED);
+    }
+
+
+    /**
+     * @Route(path="/login/{username}",
+     *     methods={"GET"},
+     *     name="check_username"
+     * )
+     * @param string $login
+     */
+    public function checkUsernameValidity(string $username) {
+        $response = new \stdClass();
+        $response->valid = true;
+        $response->message = "OK";
+
+        // Vérification de l'unicité
+        if($this->userService->usernameExists($username)) {
+            $response->valid = false;
+            $response->message = "Username already exists.";
+        }
+
+        return $this->json($response);
     }
 
     /**
@@ -167,5 +196,40 @@ class AccountController extends Controller
     public function removeMine()
     {
 
+    }
+
+    /**
+     * @Route(path="/{id}/pictures",
+     *     methods={"POST"},
+     *     name="update_profile_picture"
+     * )
+     * @param Request $request
+     * @return JsonResponse|Response
+     */
+    public function updateProfilePicture(Request $request)
+    {
+        $user = $this->userService->getById($request->get('id'));
+        if ($user == null) {
+            return $this->json('No user found', Response::HTTP_NOT_FOUND);
+        }
+
+        /** @var UploadedFile $file */
+        $file = $request->files->get('picture');
+        if ($file == null) {
+            return $this->json('No picture found', Response::HTTP_BAD_REQUEST);
+        }
+        $fileName = md5(uniqid()) . $file->guessExtension();
+        $file->move(FileConstants::PROFILE_PICTURES_DIR, $fileName);
+
+        $picture = $user->getProfilePicture() ?? new File();
+        $picture->setCreatedAt(new \DateTime());
+        $picture->setPath(FileConstants::PROFILE_PICTURES_DIR);
+        $picture->setName($fileName);
+        $picture->setOwner($user);
+        $user->setProfilePicture($picture);
+
+        $this->em->persist($picture);
+        $this->em->flush();
+        return new Response('', Response::HTTP_NO_CONTENT);
     }
 }

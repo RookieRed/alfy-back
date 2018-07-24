@@ -35,6 +35,11 @@ class File
      */
     private $createdAt;
 
+    /**
+     * @ORM\Column(type="App\Entity\User", nullable=true)
+     */
+    private $owner;
+
     public function getId()
     {
         return $this->id;
@@ -79,5 +84,24 @@ class File
     public function getFullPath(): string
     {
         return $this->path . $this->name;
+    }
+
+    /**
+     * @return User
+     */
+    public function getOwner()
+    {
+        return $this->owner;
+    }
+
+    /**
+     * @param mixed $owner
+     * @return File
+     */
+    public function setOwner(?User $owner): self
+    {
+        $this->owner = $owner;
+
+        return $this;
     }
 }
