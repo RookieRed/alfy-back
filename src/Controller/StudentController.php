@@ -90,11 +90,12 @@ class StudentController extends Controller
     public function importFromExcel(Request $request)
     {
         $excel = $request->get('file');
+        var_dump($request->files); die;
         if ($excel === null) {
             throw new \Exception('There is no uploaded file');
         }
 
-        $file = $this->fileService->saveFile($excel);
+        $file = $this->fileService->saveFile($excel, $this->userService->getConnectedUser());
         $this->fileService->importFromExcel($file);
         $this->em->flush();
     }

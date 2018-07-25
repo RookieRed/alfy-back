@@ -40,21 +40,25 @@ class FileService
         $this->userRepo = $userRepo;
     }
 
-    public function saveFile(\Symfony\Component\HttpFoundation\File\File &$symfonyFile): File
+    public function saveFile(\Symfony\Component\HttpFoundation\File\File &$symfonyFile,
+                             ?User $owner = null,
+                             string $path = FileConstants::UPLOAD_DIR): File
     {
-        $hashedName = md5(uniqid()) . '.' . $symfonyFile->getExtension();
-        $symfonyFile = $symfonyFile->move(FileConstants::UPLOAD_DIR, $hashedName);
+        $hashedName = md5(uniqid()) . '.' . $symfonyFile->guessExtension();
+        $symfonyFile = $symfonyFile->move($path, $hashedName);
         if ($symfonyFile === null) {
             throw new \Exception('Can not save file');
         }
 
         $file = new File();
         $file->setName($hashedName)
-            ->setPath(FileConstants::UPLOAD_DIR)
+            ->setPath($path)
             ->setCreatedAt(new \DateTime());
-        $this->em->persist($file);
-        $this->em->flush();
+        if ($owner !== null) {
+            $file->setOwner($owner);
+        }
 
+        $this->em->persist($file);
         return $file;
     }
 

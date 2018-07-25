@@ -14,12 +14,12 @@ class File
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"user_get", "user_get_list"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"user_get", "user_get_list"})
      */
     private $name;
 
@@ -31,12 +31,12 @@ class File
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
-     * @Groups({"user_get"})
      */
     private $createdAt;
 
     /**
-     * @ORM\Column(type="App\Entity\User", nullable=true)
+     * @ORM\ManyToOne(targetEntity="App\Entity\User")
+     * @ORM\JoinColumn(nullable=true, fieldName="owner_id")
      */
     private $owner;
 

@@ -100,7 +100,7 @@ class User implements UserInterface
 
     /**
      * @var File|null
-     * @ORM\OneToOne(targetEntity="App\Entity\File", fetch="EAGER")
+     * @ORM\OneToOne(targetEntity="App\Entity\File")
      * @ORM\JoinColumn(name="picture_id", referencedColumnName="id", nullable=true)
      * @Groups({"user_get", "user_get_list"})
      */
@@ -507,9 +507,7 @@ class User implements UserInterface
      */
     public function eraseCredentials()
     {
-        unset($this->salt);
-        unset($this->clearPassword);
-        unset($this->password);
+        $this->clearPassword = null;
     }
 
     public function getRoles()

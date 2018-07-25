@@ -13,12 +13,12 @@ use App\Constants\FileConstants;
 use App\Entity\File;
 use App\Entity\Pojo\UserConnectionIn;
 use App\Entity\User;
+use App\Service\FileService;
 use App\Service\UserService;
 use App\Service\ValidationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Config\Definition\Exception\Exception;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -50,6 +50,10 @@ class AccountController extends Controller
      * @var SerializerInterface
      */
     private $serializer;
+    /**
+     * @var FileService
+     */
+    private $fileService;
 
     /**
      * AccountController constructor.
@@ -61,11 +65,13 @@ class AccountController extends Controller
     public function __construct(UserService $userService,
                                 EntityManagerInterface $em,
                                 SerializerInterface $serializer,
+                                FileService $fileService,
                                 ValidationService $validator)
     {
         $this->userService = $userService;
         $this->validator = $validator;
         $this->em = $em;
+        $this->fileService = $fileService;
         $this->serializer = $serializer;
     }
 
@@ -199,7 +205,7 @@ class AccountController extends Controller
     }
 
     /**
-     * @Route(path="/{id}/pictures",
+     * @Route(path="/pictures",
      *     methods={"POST"},
      *     name="update_profile_picture"
      * )
@@ -208,28 +214,20 @@ class AccountController extends Controller
      */
     public function updateProfilePicture(Request $request)
     {
-        $user = $this->userService->getById($request->get('id'));
-        if ($user == null) {
-            return $this->json('No user found', Response::HTTP_NOT_FOUND);
-        }
+        $user = $this->userService->getConnectedUser();
 
-        /** @var UploadedFile $file */
+        /** @var \Symfony\Component\HttpFoundation\File\File $file */
         $file = $request->files->get('picture');
         if ($file == null) {
             return $this->json('No picture found', Response::HTTP_BAD_REQUEST);
         }
-        $fileName = md5(uniqid()) . $file->guessExtension();
-        $file->move(FileConstants::PROFILE_PICTURES_DIR, $fileName);
 
-        $picture = $user->getProfilePicture() ?? new File();
-        $picture->setCreatedAt(new \DateTime());
-        $picture->setPath(FileConstants::PROFILE_PICTURES_DIR);
-        $picture->setName($fileName);
-        $picture->setOwner($user);
+        $picture = $this->fileService->saveFile($file, $user,
+            FileConstants::PROFILE_PICTURES_DIR . $user->getUsername() . '/');
         $user->setProfilePicture($picture);
-
-        $this->em->persist($picture);
         $this->em->flush();
-        return new Response('', Response::HTTP_NO_CONTENT);
+
+        $json = $this->serializer->serialize($picture, 'json', ['groups' => ['user_get']]);
+        return new JsonResponse($json, Response::HTTP_OK, [], true);
     }
 }
