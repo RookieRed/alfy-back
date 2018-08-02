@@ -133,9 +133,22 @@ class AccountController extends Controller
      *     name="account_update"
      * )
      */
-    public function updateMine()
+    public function updateMine(Request $request)
     {
+        /** @var User $userBean */
+        $userBean = $this->serializer->deserialize($request->getContent(),
+            User::class, 'json', ['groups' => ['user_update']]);
+        $userBean->setBirthDay(new \DateTime($userBean->getBirthDay()));
+        $errors = $this->validator->validateBean($userBean, ['user_update']);
+        if ($errors != null) {
+            return $errors;
+        }
 
+        $updatedUser = $this->userService->updateConnectedUser($userBean);
+        $this->em->flush();
+
+        $json = $this->serializer->serialize($updatedUser, 'json', ['groups' => ['user_get']]);
+        return new JsonResponse($json, Response::HTTP_NO_CONTENT, [], true);
     }
 
     /**

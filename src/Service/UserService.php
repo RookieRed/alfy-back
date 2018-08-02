@@ -9,6 +9,7 @@
 namespace App\Service;
 
 
+use App\Entity\Address;
 use App\Entity\User;
 use App\Constants\UserRoles;
 use App\Repository\UserRepository;
@@ -169,6 +170,40 @@ class UserService
 
         $this->em->persist($user);
         return $this->jwtManager->create($user);
+    }
+
+    public function updateConnectedUser(User $userBean): User
+    {
+        $target = $this->getConnectedUser();
+
+        $target->setUsername($userBean->getUsername());
+        $target->setFirstName($userBean->getFirstName());
+        $target->setLastName($userBean->getLastName());
+        $target->setBirthDay($userBean->getBirthDay());
+        $target->setPhone($userBean->getPhone());
+        $target->setFacebook($userBean->getFacebook());
+        $target->setLinkedIn($userBean->getLinkedIn());
+        $target->setTwitter($userBean->getTwitter());
+
+        $actualAddress = $target->getAddress();
+        if ($actualAddress == null) {
+            $actualAddress = new Address();
+            $this->em->persist($actualAddress);
+        }
+        $newAddress = $userBean->getAddress();
+        if ($newAddress != null) {
+            $actualAddress->setLine1($newAddress->getLine1());
+            $actualAddress->setLine2($newAddress->getLine2());
+            $actualAddress->setCity($newAddress->getCity());
+
+            $target->setAddress($newAddress);
+        }
+
+        if ($userBean->getPassword() != null) {
+            $target->setPassword($this->encoder->encodePassword($userBean, $userBean->getPassword()));
+        }
+
+        return $target;
     }
 
 }

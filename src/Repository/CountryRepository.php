@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Country;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -14,9 +15,21 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  */
 class CountryRepository extends ServiceEntityRepository
 {
-    public function __construct(RegistryInterface $registry)
+    private $em;
+
+    public function __construct(EntityManagerInterface $em, RegistryInterface $registry)
     {
+        $this->em = $em;
         parent::__construct($registry, Country::class);
+    }
+
+    public function searchBy(string $search): array
+    {
+        return $this->em->createQuery('SELECT c FROM App\Entity\Country c '
+            .'WHERE (c.frName LIKE :search) '
+            .'ORDER BY c.frName ')
+            ->setMaxResults(20)
+            ->execute(['search' => $search.'%']);
     }
 
 //    /**

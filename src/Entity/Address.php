@@ -14,32 +14,31 @@ class Address
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"user_get"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"user_get"})
+     * @Groups({"user_get", "user_update"})
      */
     private $line1;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"user_get"})
+     * @Groups({"user_get", "user_update"})
      */
     private $line2;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"user_get"})
+     * @Groups({"user_get", "user_update"})
      */
     private $city;
 
     /**
      * @var Country
      * @ORM\ManyToOne(targetEntity="App\Entity\Country", fetch="EAGER")
-     * @Groups({"user_get"})
+     * @Groups({"user_get", "user_update"})
      */
     private $country;
 
