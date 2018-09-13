@@ -13,10 +13,10 @@ use App\Service\FileService;
 use App\Service\PaginationService;
 use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
@@ -83,21 +83,32 @@ class StudentController extends Controller
 
     /**
      * @Route(path="/import",
-     *     methods={"PUT"},
+     *     methods={"POST"},
      *     name="user_import"
      * )
      */
     public function importFromExcel(Request $request)
     {
-        $excel = $request->get('file');
-        var_dump($request->files); die;
+        $user = $this->userService->getConnectedUser();
+        if (!$user->isRole('ADMIN')) {
+            return $this->json('You are not admin', Response::HTTP_FORBIDDEN);
+        }
+
+        $excel = $request->files->get('file');
         if ($excel === null) {
             throw new \Exception('There is no uploaded file');
         }
 
         $file = $this->fileService->saveFile($excel, $this->userService->getConnectedUser());
-        $this->fileService->importFromExcel($file);
+        $report = $this->fileService->importFromExcel($file);
         $this->em->flush();
+
+        $jsonResponse = new Response(
+            $this->serializer->serialize($report, 'json', ['groups' => ['import_report']]),
+            Response::HTTP_OK
+        );
+        $jsonResponse->headers->add(['Content-type' => 'application/json']);
+        return $jsonResponse;
     }
 
     /**

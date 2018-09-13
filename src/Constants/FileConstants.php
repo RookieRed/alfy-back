@@ -17,6 +17,7 @@ class FileConstants
     const XLS_EMAIL = 'Email';
     const XLS_PHONE = 'Téléphone';
     const XLS_BAC = 'Bac';
+    const XLS_USERNAME = 'Nom d\'utilisateur';
 
     const UPLOAD_DIR = 'files/uploads/';
     const MODELS_DIR = 'files/models/';

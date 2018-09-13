@@ -144,10 +144,16 @@ class UserService
             ->execute();
     }
 
-    public function usernameExists(string $username): boolean {
+    public function usernameExists(string $username): bool {
         return null != $this->userRepo->findOneBy([
             'username' => $username
         ]);
+    }
+
+    public function emailExists(string $email): bool {
+        return null != $this->userRepo->findOneBy([
+                'email' => $email
+            ]);
     }
 
     public function getConnectedUser(): ?User

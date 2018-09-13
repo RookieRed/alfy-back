@@ -61,15 +61,14 @@ class User implements UserInterface
     private $clearPassword;
 
     /**
-     * @ORM\Column(type="date")
-     * @Assert\NotBlank()
+     * @ORM\Column(type="date", nullable=true)
      * @Groups({"account_create", "user_get", "user_update"})
      */
     private $birthDay;
 
     /**
      * @var string
-     * @ORM\Column(type="string", length=255, unique=true)
+     * @ORM\Column(type="string", length=255, unique=true, nullable=true)
      * @Assert\Email()
      * @Groups({"account_create", "user_get", "user_update"})
      */
@@ -85,7 +84,7 @@ class User implements UserInterface
     /**
      * @var Address|null
      * @ORM\OneToOne(targetEntity="App\Entity\Address", fetch="LAZY")
-     * @ORM\JoinColumn(name="address_id", referencedColumnName="id", nullable=true)
+     * @ORM\JoinColumn(name="address_id", referencedColumnName="id")
      * @Groups({"user_get", "user_update"})
      */
     private $address;
@@ -174,7 +173,11 @@ class User implements UserInterface
 
     public function getFirstName(): ?string
     {
-        return $this->firstName;
+        return implode( ' ',
+                array_map(function ($val) {
+                    return ucfirst($val);
+                }, preg_split('/(\s|-|_)/', $this->firstName))
+        );
     }
 
     public function setFirstName(?string $firstName): self
@@ -186,7 +189,7 @@ class User implements UserInterface
 
     public function getLastName(): ?string
     {
-        return $this->lastName;
+        return strtoupper($this->lastName);
     }
 
     public function setLastName(?string $lastName): self
@@ -223,7 +226,7 @@ class User implements UserInterface
     /**
      * @return string
      */
-    public function getEmail(): string
+    public function getEmail(): ?string
     {
         return $this->email;
     }
@@ -302,7 +305,7 @@ class User implements UserInterface
      * @param Baccalaureate $baccalaureate
      * @return User
      */
-    public function setBaccalaureate(Baccalaureate $baccalaureate): self
+    public function setBaccalaureate(?Baccalaureate $baccalaureate): self
     {
         $this->baccalaureate = $baccalaureate;
 

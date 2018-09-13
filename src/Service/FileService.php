@@ -9,12 +9,15 @@
 namespace App\Service;
 
 use App\Constants\FileConstants;
+use App\Constants\UserRoles;
+use App\Entity\Baccalaureate;
 use App\Entity\File;
+use App\Entity\ImportReport;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use http\Env\Request;
 use PhpOffice\PhpSpreadsheet\Document\Properties;
+use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Row;
@@ -32,11 +35,17 @@ class FileService
      * @var UserRepository
      */
     private $userRepo;
+    /**
+     * @var UserService
+     */
+    private $userService;
 
     public function __construct(EntityManagerInterface $em,
+                                UserService $userService,
                                 UserRepository $userRepo)
     {
         $this->em = $em;
+        $this->userService = $userService;
         $this->userRepo = $userRepo;
     }
 
@@ -62,42 +71,102 @@ class FileService
         return $file;
     }
 
-    public function importFromExcel(File $file)
+    public function importFromExcel(File $file): ImportReport
     {
         $xlsFile = IOFactory::createReaderForFile($file->getFullPath())
-            ->load($file);
+            ->load($file->getFullPath());
         $sheet = $xlsFile->getActiveSheet();
 
-        foreach($sheet->getRowIterator(2) as $row) {
-            list($firstName, $lastName, $birthDay, $email, $phone, $bac)
-                = iterator_to_array($this->getColumnValues($row));
+        $report = new ImportReport();
+        $report->setDate(new \DateTime());
 
-            $user = new User();
-            $user->setFirstName($firstName)
-                ->setLastName($lastName)
-                ->setUsername(strtolower($firstName . '.' . $lastName)) // TODO : check available username
-                ->setPassword(null)
-                // TODO ->setBaccalaureate()
-                ->setBirthDay(\DateTime::createFromFormat('d/m/Y', $birthDay))
-                ->setEmail($email)
-                ->setPhone($phone);
+        $persistedUsers = [];
+        $i = 2;
+        foreach($sheet->getRowIterator(2) as $row) {
+            list($firstName, $lastName, $birthDay, $email, $phone, $bac, $username)
+                = iterator_to_array($this->getColumnValues($row));
+            try {
+                // Check parameters
+                if ($firstName == null || $lastName == null) {
+                    throw new \Exception('first name or last name is not specified');
+                }
+                if ($email != null
+                    && ( $this->userService->emailExists($email)
+                    || !$this->isAttributeUnique($persistedUsers, 'getEmail', $email) )) {
+                    $email = null;
+                    $report->addComment("Line $i : email already exists");
+                }
+                $email = trim($email);
+                $email = strlen($email) > 0 ? $email : null;
+                if ($username == null
+                    || ( $this->userService->usernameExists($username)
+                    || !$this->isAttributeUnique($persistedUsers, 'getUsername', $username) )) {
+                    $j = 0;
+                    $formattedFN = explode(' ', $firstName)[0];
+                    $formattedLN = explode(' ', $lastName)[0];
+                    $username = strtolower($formattedFN .'.'. $formattedLN);
+                    while ($this->userService->usernameExists($username)
+                        || !$this->isAttributeUnique($persistedUsers, 'getUsername', $username)) {
+                        $j++;
+                        $username = strtolower($formattedFN .'.'. $formattedLN .$j);
+                    }
+                }
+                $username = trim($username);
+                $username = strlen($username) > 0 ? $username : null;
+                $birthDay = $birthDay != null
+                    ? \DateTime::createFromFormat('d/m/Y', $birthDay)
+                    : null;
+                $bacEntity = $this->em->getRepository(Baccalaureate::class)
+                    ->findOneBy(['name' => $bac]);
+                $phone = trim($phone);
+                $phone = strlen($phone) > 0 ? $phone : null;
+
+                $user = new User();
+                $user->setFirstName($firstName)
+                    ->setLastName($lastName)
+                    ->setUsername($username)
+                    ->setPassword(null)
+                    ->setBaccalaureate($bacEntity)
+                    ->setBirthDay($birthDay != null
+                        ? \DateTime::createFromFormat('d/m/Y', $birthDay)
+                        : null)
+                    ->setEmail($email)
+                    ->setPhone($phone)
+                    ->setRole(UserRoles::STUDENT);
+
+                $this->em->persist($user);
+                $persistedUsers[] = $user;
+                $report->incrementImported();
+            }
+            catch (\Exception $e) {
+                $report->incrementErrors();
+                $report->addComment("Line $i : ". $e->getMessage());
+            } finally {
+                $i++;
+            }
         }
+
+        $this->em->persist($report);
+        return $report;
     }
 
     public function generateExcelImportExample(): File
     {
         $xls = new Spreadsheet();
         $sheet = $xls->getActiveSheet();
-        $sheet->fromArray([
+        $columnsName = [
             FileConstants::XLS_FIRST_NAME,
             FileConstants::XLS_LAST_NAME,
             FileConstants::XLS_BIRTHDAY,
             FileConstants::XLS_EMAIL,
             FileConstants::XLS_PHONE,
-            FileConstants::XLS_BAC
-        ]);
+            FileConstants::XLS_BAC,
+            FileConstants::XLS_USERNAME,
+        ];
+        $worksheet = $sheet->fromArray($columnsName);
         // Sizing
-        foreach (range('A', 'F') as $col) {
+        $range = range('A', chr(ord('A') + count($columnsName)));
+        foreach ($range as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
@@ -111,6 +180,7 @@ class FileService
                 $user->getEmail(),
                 $user->getPhone(),
                 ($user->getBaccalaureate() == null) ? '' : $user->getBaccalaureate()->getName(),
+                $user->getUsername(),
             ];
             $sheet->fromArray($userArray, null, 'A'.$i);
             $i++;
@@ -152,5 +222,15 @@ class FileService
                 yield;
             }
         }
+    }
+
+    private function isAttributeUnique(array $entities, string $getterName, $value): bool {
+        if ($value == null || $entities === []) {
+            return true;
+        }
+        return array_reduce($entities,
+            function($carry, $actual) use ($getterName, $value) {
+                return $carry && ($actual->$getterName() != $value);
+            }, true);
     }
 }

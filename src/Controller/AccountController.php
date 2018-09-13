@@ -10,8 +10,6 @@ namespace App\Controller;
 
 use App\Constants\ErrorType;
 use App\Constants\FileConstants;
-use App\Entity\File;
-use App\Entity\Pojo\UserConnectionIn;
 use App\Entity\User;
 use App\Service\FileService;
 use App\Service\UserService;
