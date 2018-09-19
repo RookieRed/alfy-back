@@ -27,37 +27,7 @@ class CountryRepository extends ServiceEntityRepository
     {
         return $this->em->createQuery('SELECT c FROM App\Entity\Country c '
             .'WHERE (c.frName LIKE :search) '
-            .'ORDER BY c.frName ')
-            ->setMaxResults(20)
+            .'ORDER BY c.priority, c.frName ASC')
             ->execute(['search' => $search.'%']);
     }
-
-//    /**
-//     * @return Country[] Returns an array of Country objects
-//     */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('c.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?Country
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

@@ -37,7 +37,7 @@ class AddressController extends Controller
         if ($search != null) {
             $countries = $this->countryRepo->searchBy($search);
         } else {
-            $countries = $this->countryRepo->findBy([], ['frName' => 'ASC'], 20);
+            $countries = $this->countryRepo->findBy([], ['priority' => 'DESC', 'frName' => 'ASC']);
         }
         return $this->json($countries);
     }

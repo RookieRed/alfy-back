@@ -10,17 +10,25 @@ namespace App\Controller;
 
 use App\Constants\ErrorType;
 use App\Constants\FileConstants;
+use App\Constants\UserRoles;
 use App\Entity\User;
 use App\Service\FileService;
 use App\Service\UserService;
 use App\Service\ValidationService;
+use App\Utils\CustomSerializer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Role\Role;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
+use Symfony\Component\Serializer\Normalizer\JsonSerializableNormalizer;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
@@ -62,7 +70,7 @@ class AccountController extends Controller
      */
     public function __construct(UserService $userService,
                                 EntityManagerInterface $em,
-                                SerializerInterface $serializer,
+                                CustomSerializer $serializer,
                                 FileService $fileService,
                                 ValidationService $validator)
     {
@@ -136,7 +144,6 @@ class AccountController extends Controller
         /** @var User $userBean */
         $userBean = $this->serializer->deserialize($request->getContent(),
             User::class, 'json', ['groups' => ['user_update']]);
-        $userBean->setBirthDay(new \DateTime($userBean->getBirthDay()));
         $errors = $this->validator->validateBean($userBean, ['user_update']);
         if ($errors != null) {
             return $errors;
@@ -146,7 +153,7 @@ class AccountController extends Controller
         $this->em->flush();
 
         $json = $this->serializer->serialize($updatedUser, 'json', ['groups' => ['user_get']]);
-        return new JsonResponse($json, Response::HTTP_NO_CONTENT, [], true);
+        return new JsonResponse($json, Response::HTTP_OK, [], true);
     }
 
     /**
@@ -205,14 +212,30 @@ class AccountController extends Controller
     }
 
     /**
-     * @Route(path="/me",
+     * @Route(path="/{who}",
      *     methods={"DELETE"},
-     *     name="account_delete"
+     *     name="account_delete",
+     *     requirements={"who"="\d+|me"}
      * )
      */
-    public function removeMine()
+    public function delete(Request $request)
     {
+        $connectedUser = $this->userService->getConnectedUser();
+        $userId = $request->get('who');
+        if ($userId === 'me') {
+            $target = $connectedUser;
 
+        } else {
+            if (!$connectedUser->isRole(UserRoles::ADMIN)) {
+                return $this->json('You can not dlete an other account', Response::HTTP_FORBIDDEN);
+            }
+            $target = $this->userService->getById($userId);
+            if ($target == null) {
+                return $this->json('User accoutn does not exists', Response::HTTP_BAD_REQUEST);
+            }
+        }
+        $this->userService->deletePermanentlyUser($target);
+        return $this->json('ok');
     }
 
     /**

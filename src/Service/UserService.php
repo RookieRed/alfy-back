@@ -10,8 +10,10 @@ namespace App\Service;
 
 
 use App\Entity\Address;
+use App\Entity\File;
 use App\Entity\User;
 use App\Constants\UserRoles;
+use App\Repository\CountryRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
@@ -20,6 +22,8 @@ use Lexik\Bundle\JWTAuthenticationBundle\Security\User\JWTUserInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWSProvider\JWSProviderInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\TokenExtractor\TokenExtractorInterface;
+use Symfony\Component\Config\Definition\Exception\Exception;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
@@ -47,18 +51,29 @@ class UserService
      * @var TokenStorageInterface
      */
     private $tokenStorage;
+    /**
+     * @var Filesystem
+     */
+    private $fileSystem;
+    /**
+     * @var CountryRepository
+     */
+    private $countryRepository;
 
     public function __construct(EntityManagerInterface $em,
                                 UserPasswordEncoderInterface $encoder,
                                 JWTTokenManagerInterface $jwtManager,
                                 TokenStorageInterface $tokenStorage,
+                                CountryRepository $countryRepository,
                                 UserRepository $userRepository)
     {
         $this->em = $em;
         $this->userRepo = $userRepository;
+        $this->countryRepository = $countryRepository;
         $this->encoder = $encoder;
         $this->jwtManager = $jwtManager;
         $this->tokenStorage = $tokenStorage;
+        $this->fileSystem = new Filesystem();
     }
 
     /**
@@ -191,25 +206,59 @@ class UserService
         $target->setLinkedIn($userBean->getLinkedIn());
         $target->setTwitter($userBean->getTwitter());
 
-        $actualAddress = $target->getAddress();
-        if ($actualAddress == null) {
-            $actualAddress = new Address();
-            $this->em->persist($actualAddress);
-        }
         $newAddress = $userBean->getAddress();
         if ($newAddress != null) {
+
+            $countryId = $newAddress->getCountryId();
+            if ($countryId === null) {
+                throw new Exception('No country id specified');
+            } else {
+                $country = $this->countryRepository->findOneBy(['id' => $countryId]);
+                if ($country == null) {
+                    throw new Exception('The specified country does not exist');
+                }
+            }
+
+            $actualAddress = $target->getAddress();
+            if ($actualAddress == null) {
+                $actualAddress = new Address();
+            }
             $actualAddress->setLine1($newAddress->getLine1());
             $actualAddress->setLine2($newAddress->getLine2());
             $actualAddress->setCity($newAddress->getCity());
+            $actualAddress->setCountry($country);
 
-            $target->setAddress($newAddress);
+            $target->setAddress($actualAddress);
+            $this->em->persist($actualAddress);
         }
 
         if ($userBean->getPassword() != null) {
+            // TODO strong passwords
             $target->setPassword($this->encoder->encodePassword($userBean, $userBean->getPassword()));
         }
 
         return $target;
+    }
+
+    public function deletePermanentlyUser(User $target)
+    {
+        // Remove all files
+        /** @var File[] $files */
+        $files = $this->em->getRepository(File::class)->findBy([
+            'owner' => $target
+        ]);
+        foreach ($files as $file) {
+            $this->fileSystem->remove($file->getFullPath());
+            $this->em->remove($file);
+        }
+        // Remove address
+        $address = $target->getAddress();
+        if ($address) {
+            $this->em->remove($address);
+        }
+        // Remove user
+        $this->em->remove($target);
+        $this->em->flush();
     }
 
 }

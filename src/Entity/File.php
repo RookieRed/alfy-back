@@ -36,7 +36,7 @@ class File
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User")
-     * @ORM\JoinColumn(nullable=true, fieldName="owner_id")
+     * @ORM\JoinColumn(nullable=true, fieldName="owner_id", onDelete="CASCADE")
      */
     private $owner;
 

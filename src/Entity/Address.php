@@ -37,10 +37,16 @@ class Address
 
     /**
      * @var Country
-     * @ORM\ManyToOne(targetEntity="App\Entity\Country", fetch="EAGER")
-     * @Groups({"user_get", "user_update"})
+     * @ORM\ManyToOne(targetEntity="App\Entity\Country")
+     * @Groups({"user_get"})
      */
     private $country;
+
+    /**
+     * @var int
+     * @Groups({"user_update"})
+     */
+    private $countryId;
 
     public function getId()
     {
@@ -80,6 +86,35 @@ class Address
     {
         $this->city = $city;
 
+        return $this;
+    }
+
+    public function getCountry()
+    {
+        return $this->country;
+    }
+
+    public function setCountry(Country $country): self
+    {
+        $this->country = $country;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCountryId(): ?int
+    {
+        return $this->countryId;
+    }
+
+    /**
+     * @param int $countryId
+     */
+    public function setCountryId(int $countryId): self
+    {
+        $this->countryId = $countryId;
         return $this;
     }
 }

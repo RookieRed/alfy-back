@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -86,6 +87,7 @@ class User implements UserInterface
      * @ORM\OneToOne(targetEntity="App\Entity\Address", fetch="LAZY")
      * @ORM\JoinColumn(name="address_id", referencedColumnName="id")
      * @Groups({"user_get", "user_update"})
+     * @MaxDepth(2)
      */
     private $address;
 
@@ -100,7 +102,7 @@ class User implements UserInterface
     /**
      * @var File|null
      * @ORM\OneToOne(targetEntity="App\Entity\File")
-     * @ORM\JoinColumn(name="picture_id", referencedColumnName="id", nullable=true)
+     * @ORM\JoinColumn(name="picture_id", referencedColumnName="id", nullable=true, onDelete="SET NULL")
      * @Groups({"user_get", "user_get_list"})
      */
     private $profilePicture;
@@ -211,7 +213,7 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getBirthDay()
+    public function getBirthDay(): ?\DateTimeInterface
     {
         return $this->birthDay;
     }
@@ -419,7 +421,7 @@ class User implements UserInterface
      * @param Address|null $address
      * @return User
      */
-    public function setAddress(?Address $address): self
+    public function setAddress($address): self
     {
         $this->address = $address;
         return $this;
