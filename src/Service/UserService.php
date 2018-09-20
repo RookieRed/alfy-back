@@ -161,9 +161,13 @@ class UserService
     }
 
     public function usernameExists(string $username): bool {
-        return null != $this->userRepo->findOneBy([
+        $userMatch = $this->userRepo->findOneBy([
             'username' => $username
         ]);
+        if ($userMatch == null) {
+            return false;
+        }
+        return true;
     }
 
     public function emailExists(string $email): bool {

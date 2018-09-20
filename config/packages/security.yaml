@@ -21,6 +21,11 @@ security:
             anonymous: true
             stateless: true
 
+        login_check:
+            pattern: ^/account/login/
+            anonymous: true
+            stateless: true
+
         signin:
             pattern:  ^/account/signin
             stateless: true
@@ -49,4 +54,5 @@ security:
     access_control:
         - { path: ^/account/signin$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/account/signup$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/account/login/(.+)$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/, roles: IS_AUTHENTICATED_FULLY  }

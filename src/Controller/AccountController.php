@@ -195,7 +195,7 @@ class AccountController extends Controller
      *     methods={"GET"},
      *     name="check_username"
      * )
-     * @param string $login
+     * @param string $username
      */
     public function checkUsernameValidity(string $username) {
         $response = new \stdClass();
@@ -204,11 +204,10 @@ class AccountController extends Controller
 
         // Vérification de l'unicité
         if($this->userService->usernameExists($username)) {
-            $response->valid = false;
-            $response->message = "Username already exists.";
+            return new JsonResponse('', Response::HTTP_CONFLICT, [], true);
+        } else {
+            return new JsonResponse('', Response::HTTP_NO_CONTENT, [], true);
         }
-
-        return $this->json($response);
     }
 
     /**
