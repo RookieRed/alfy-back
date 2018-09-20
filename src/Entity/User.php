@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Constants\SocialNetworkUrl;
 use App\Constants\UserRoles;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -109,21 +110,21 @@ class User implements UserInterface
 
     /**
      * @var string|null
-     * @ORM\Column(type="string", length=50, nullable=true)
+     * @ORM\Column(type="string", length=150, nullable=true)
      * @Groups({"user_get", "user_update"})
      */
     private $facebook;
 
     /**
      * @var string|null
-     * @ORM\Column(type="string", length=50, nullable=true)
+     * @ORM\Column(type="string", length=150, nullable=true)
      * @Groups({"user_get", "user_update"})
      */
     private $linkedIn;
 
     /**
      * @var string|null
-     * @ORM\Column(type="string", length=50, nullable=true)
+     * @ORM\Column(type="string", length=150, nullable=true)
      * @Groups({"user_get", "user_update"})
      */
     private $twitter;
@@ -450,7 +451,13 @@ class User implements UserInterface
      */
     public function getFacebook(): ?string
     {
-        return $this->facebook;
+        if ($this->facebook != null) {
+            if (strstr($this->facebook, SocialNetworkUrl::FACEBOOK)) {
+                return $this->facebook;
+            }
+            return SocialNetworkUrl::FACEBOOK . $this->facebook;
+        }
+        return null;
     }
 
     /**
@@ -459,7 +466,8 @@ class User implements UserInterface
      */
     public function setFacebook(?string $facebook): self
     {
-        $this->facebook = $facebook;
+        $path = parse_url($facebook, PHP_URL_PATH);
+        $this->facebook = strlen($path) > 1 ? $path : null;
         return $this;
     }
 
@@ -468,7 +476,13 @@ class User implements UserInterface
      */
     public function getLinkedIn(): ?string
     {
-        return $this->linkedIn;
+        if ($this->linkedIn != null) {
+            if (strstr($this->linkedIn, SocialNetworkUrl::LINKEDIN)) {
+                return $this->linkedIn;
+            }
+            return SocialNetworkUrl::LINKEDIN . $this->linkedIn;
+        }
+        return null;
     }
 
     /**
@@ -477,7 +491,8 @@ class User implements UserInterface
      */
     public function setLinkedIn(?string $linkedIn): self
     {
-        $this->linkedIn = $linkedIn;
+        $path = parse_url($linkedIn, PHP_URL_PATH);
+        $this->linkedIn = strlen($path) > 1 ? $path : null;
         return $this;
     }
 
@@ -486,7 +501,13 @@ class User implements UserInterface
      */
     public function getTwitter(): ?string
     {
-        return $this->twitter;
+        if ($this->twitter != null) {
+            if (strstr($this->twitter, SocialNetworkUrl::TWITTER)) {
+                return $this->twitter;
+            }
+            return SocialNetworkUrl::TWITTER . $this->twitter;
+        }
+        return null;
     }
 
     /**
@@ -495,7 +516,8 @@ class User implements UserInterface
      */
     public function setTwitter(?string $twitter): self
     {
-        $this->twitter = $twitter;
+        $path = parse_url($twitter, PHP_URL_PATH);
+        $this->twitter = strlen($path) > 1 ? $path : null;
         return $this;
     }
 

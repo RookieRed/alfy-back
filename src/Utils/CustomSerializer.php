@@ -36,7 +36,7 @@ class CustomSerializer extends Serializer
         });
         parent::__construct(
             [
-                new DateTimeNormalizer('Y-m-d H:i:s'),
+                new DateTimeNormalizer('Y-m-d H:i:s', new \DateTimeZone(('Europe/Amsterdam'))),
                 new DateIntervalNormalizer(),
                 new JsonSerializableNormalizer($classMetadataFactory),
                 new ConstraintViolationListNormalizer(),

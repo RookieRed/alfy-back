@@ -27,7 +27,7 @@ class Address
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Groups({"user_get", "user_update"})
      */
-    private $line2;
+    private $region;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -65,14 +65,14 @@ class Address
         return $this;
     }
 
-    public function getLine2(): ?string
+    public function getRegion(): ?string
     {
-        return $this->line2;
+        return $this->region;
     }
 
-    public function setLine2(?string $line2): self
+    public function setRegion(?string $region): self
     {
-        $this->line2 = $line2;
+        $this->region = $region;
 
         return $this;
     }

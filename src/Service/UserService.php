@@ -16,6 +16,7 @@ use App\Constants\UserRoles;
 use App\Repository\CountryRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use http\Url;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Security\Authentication\Token\JWTUserToken;
 use Lexik\Bundle\JWTAuthenticationBundle\Security\User\JWTUserInterface;
@@ -202,9 +203,25 @@ class UserService
         $target->setLastName($userBean->getLastName());
         $target->setBirthDay($userBean->getBirthDay());
         $target->setPhone($userBean->getPhone());
-        $target->setFacebook($userBean->getFacebook());
-        $target->setLinkedIn($userBean->getLinkedIn());
-        $target->setTwitter($userBean->getTwitter());
+
+        $facebook = $userBean->getFacebook();
+        if ($facebook != null) {
+            $path = parse_url($facebook, PHP_URL_PATH);
+            $target->setFacebook($path != false ? $path : null);
+            unset($path);
+        }
+        $linkedIn = $userBean->getLinkedIn();
+        if ($linkedIn != null) {
+            $path = parse_url($linkedIn, PHP_URL_PATH);
+            $target->setLinkedIn($path != false ? $path : null);
+            unset($path);
+        }
+        $twitter = $userBean->getTwitter();
+        if ($twitter != null) {
+            $path = parse_url($twitter, PHP_URL_PATH);
+            $target->setTwitter($path != false ? $path : null);
+            unset($path);
+        }
 
         $newAddress = $userBean->getAddress();
         if ($newAddress != null) {
@@ -224,12 +241,15 @@ class UserService
                 $actualAddress = new Address();
             }
             $actualAddress->setLine1($newAddress->getLine1());
-            $actualAddress->setLine2($newAddress->getLine2());
+            $actualAddress->setRegion($newAddress->getRegion());
             $actualAddress->setCity($newAddress->getCity());
             $actualAddress->setCountry($country);
 
             $target->setAddress($actualAddress);
             $this->em->persist($actualAddress);
+        } else if ($target->getAddress() != null) {
+            $this->em->remove($target->getAddress());
+            $target->setAddress(null);
         }
 
         if ($userBean->getPassword() != null) {
