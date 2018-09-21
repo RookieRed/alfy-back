@@ -26,6 +26,11 @@ security:
             anonymous: true
             stateless: true
 
+        email_check:
+            pattern: ^/account/email/
+            anonymous: true
+            stateless: true
+
         signin:
             pattern:  ^/account/signin
             stateless: true
@@ -55,4 +60,5 @@ security:
         - { path: ^/account/signin$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/account/signup$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/account/login/(.+)$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/account/email/(.+)$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/, roles: IS_AUTHENTICATED_FULLY  }

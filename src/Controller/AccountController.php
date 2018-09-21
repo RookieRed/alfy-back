@@ -198,12 +198,24 @@ class AccountController extends Controller
      * @param string $username
      */
     public function checkUsernameValidity(string $username) {
-        $response = new \stdClass();
-        $response->valid = true;
-        $response->message = "OK";
-
         // Vérification de l'unicité
         if($this->userService->usernameExists($username)) {
+            return new JsonResponse('', Response::HTTP_CONFLICT, [], true);
+        } else {
+            return new JsonResponse('', Response::HTTP_NO_CONTENT, [], true);
+        }
+    }
+
+    /**
+     * @Route(path="/email/{email}",
+     *     methods={"GET"},
+     *     name="check_email"
+     * )
+     * @param string $email
+     */
+    public function checkEmailValidity(string $email) {
+        // Vérification de l'unicité
+        if($this->userService->emailExists($email)) {
             return new JsonResponse('', Response::HTTP_CONFLICT, [], true);
         } else {
             return new JsonResponse('', Response::HTTP_NO_CONTENT, [], true);
