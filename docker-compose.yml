@@ -1,0 +1,39 @@
+version: '3.1'
+
+services:
+  web:
+    image: nginx:latest
+    container_name: web_server
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "./:/web"
+      - "./docker/nginx/alfy-back.conf:/etc/nginx/conf.d/default.conf"
+    links:
+      - php
+
+  php:
+    container_name: php
+    build: './docker/php'
+    links:
+      - mysql
+    volumes:
+      - "./:/web"
+
+
+  mysql:
+    container_name: ${MYSQL_HOSTNAME}
+    hostname: ${MYSQL_HOSTNAME}
+    image: mysql:5.7.23
+    ports:
+      - "3306:3306"
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - "./:/web"
+    environment:
+      MYSQL_ROOT_HOST: ${MYSQL_HOSTNAME}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
