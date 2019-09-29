@@ -151,10 +151,16 @@ class User implements UserInterface
      */
     private $sponsor;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\PageContent", mappedBy="creator")
+     */
+    private $pageContents;
+
     public function __construct()
     {
         $this->universities = new ArrayCollection();
         $this->sponsoredUsers = new ArrayCollection();
+        $this->pageContents = new ArrayCollection();
     }
 
     public function getId()
@@ -550,6 +556,37 @@ class User implements UserInterface
     public function setSalt(?string $salt): self
     {
         $this->salt = $salt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|PageContent[]
+     */
+    public function getPageContents(): Collection
+    {
+        return $this->pageContents;
+    }
+
+    public function addPageContent(PageContent $pageContent): self
+    {
+        if (!$this->pageContents->contains($pageContent)) {
+            $this->pageContents[] = $pageContent;
+            $pageContent->setCreator($this);
+        }
+
+        return $this;
+    }
+
+    public function removePageContent(PageContent $pageContent): self
+    {
+        if ($this->pageContents->contains($pageContent)) {
+            $this->pageContents->removeElement($pageContent);
+            // set the owning side to null (unless already changed)
+            if ($pageContent->getCreator() === $this) {
+                $pageContent->setCreator(null);
+            }
+        }
 
         return $this;
     }

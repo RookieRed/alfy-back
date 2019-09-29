@@ -19,13 +19,13 @@ class File
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"user_get", "user_get_list"})
+     * @Groups({"user_get", "user_get_list", "get_page"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"user_get", "user_get_list"})
+     * @Groups({"user_get", "user_get_list", "get_page"})
      */
     private $path;
 

@@ -23,5 +23,6 @@ class FileConstants
     const MODELS_DIR = 'files/models/';
     const GENERATED_XLS = 'import_alfy.xls';
 
-    const PROFILE_PICTURES_DIR = 'files/pictures/';
+    const PROFILE_PICTURES_DIR = 'files/pictures/profiles/';
+    const PAGES_PICTURES_DIR = 'files/pictures/pages/';
 }

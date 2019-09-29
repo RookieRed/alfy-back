@@ -61,4 +61,5 @@ security:
         - { path: ^/account/signup$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/account/login/(.+)$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/account/email/(.+)$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/pages/(.+)$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/, roles: IS_AUTHENTICATED_FULLY  }
