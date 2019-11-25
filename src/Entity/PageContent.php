@@ -14,18 +14,19 @@ class PageContent
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"get_page"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=1024)
-     * @Groups({"get_page"})
+     * @Groups({"get_page", "update_page_content"})
      */
     private $title;
 
     /**
      * @ORM\Column(type="text")
-     * @Groups({"get_page"})
+     * @Groups({"get_page", "update_page_content"})
      */
     private $html;
 

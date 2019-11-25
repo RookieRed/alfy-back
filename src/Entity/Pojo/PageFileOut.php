@@ -8,13 +8,27 @@ use App\Entity\PageFile;
 
 class PageFileOut
 {
+    private $id;
     private $path;
     private $options;
 
-    function __construct(PageFile $pageFile)
+    public function __construct(PageFile $pageFile)
     {
-        $this->path = $pageFile->getFile()->getFullPath();
+        $file = $pageFile->getFile();
+        if ($file === null) {
+            throw new \InvalidArgumentException('File is null.');
+        }
+        $this->id = $file->getId();
+        $this->path = $file->getFullPath();
         $this->options = $pageFile->getOptions();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getId(): int
+    {
+        return $this->id;
     }
 
     /**

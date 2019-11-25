@@ -34,7 +34,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank()
+     * @Assert\NotBlank()file
      * @Groups({"account_create", "user_get", "user_update", "user_get_list"})
      */
     private $firstName;

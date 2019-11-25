@@ -8,6 +8,8 @@ use App\Entity\PageContent;
 
 class PageContentOut
 {
+    /** @var int */
+    private $id;
     /** @var string $title */
     private $title;
     /** @var string $html */
@@ -15,8 +17,17 @@ class PageContentOut
 
     function __construct(PageContent $origin)
     {
+        $this->id = $origin->getId();
         $this->title = $origin->getTitle();
         $this->html = $origin->getHtml();
+    }
+
+    /**
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->id;
     }
 
     /**

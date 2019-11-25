@@ -2,6 +2,8 @@
 
 namespace App\Repository;
 
+use App\Entity\File;
+use App\Entity\Page;
 use App\Entity\PageFile;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
@@ -19,32 +21,22 @@ class PageFileRepository extends ServiceEntityRepository
         parent::__construct($registry, PageFile::class);
     }
 
-    // /**
-    //  * @return FilePage[] Returns an array of FilePage objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('f')
-            ->andWhere('f.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('f.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+    public function findByPageOrFile($page = null, $file = null) {
+        if ($page === null && $file === null) {
+            return $this->findAll();
+        }
 
-    /*
-    public function findOneBySomeField($value): ?FilePage
-    {
-        return $this->createQueryBuilder('f')
-            ->andWhere('f.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        $criteria = [];
+        if ($page !== null) {
+            $criteria['page'] = $page;
+        }
+        if ($file !== null) {
+            $criteria['file'] = $page;
+        }
+        if (count($criteria) === 2) {
+            return $this->findOneBy($criteria);
+        } else {
+            return $this->findBy($criteria);
+        }
     }
-    */
 }

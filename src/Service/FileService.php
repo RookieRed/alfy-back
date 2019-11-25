@@ -13,6 +13,7 @@ use App\Constants\UserRoles;
 use App\Entity\Baccalaureate;
 use App\Entity\File;
 use App\Entity\ImportReport;
+use App\Entity\Pojo\PageFilesIn;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
