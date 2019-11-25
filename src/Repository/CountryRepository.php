@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Country;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -17,7 +18,7 @@ class CountryRepository extends ServiceEntityRepository
 {
     private $em;
 
-    public function __construct(EntityManagerInterface $em, RegistryInterface $registry)
+    public function __construct(EntityManagerInterface $em, ManagerRegistry $registry)
     {
         $this->em = $em;
         parent::__construct($registry, Country::class);
