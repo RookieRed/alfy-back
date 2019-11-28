@@ -4,14 +4,14 @@ namespace App\Controller;
 
 use App\Constants\FileConstants;
 use App\Constants\UserRoles;
-use App\Entity\PageContent;
+use App\Entity\HTMLSection;
 use App\Entity\PageFile;
 use App\Entity\Pojo\PageFileOut;
 use App\Entity\Pojo\PageFilesIn;
 use App\Entity\Pojo\PageOut;
 use App\Repository\PageFileRepository;
 use App\Repository\FileRepository;
-use App\Repository\PageContentRepository;
+use App\Repository\HTMLSectionRepository;
 use App\Repository\PageRepository;
 use App\Service\FileService;
 use App\Service\PageService;
@@ -42,13 +42,13 @@ class PageController extends AbstractController
     /** @var PageFileRepository */
     private $filePageRepository;
 
-    /** @var PageContentRepository */
+    /** @var HTMLSectionRepository */
     private $pageContentRepository;
 
     /** @var SerializerInterface */
     private $serializer;
 
-    /** @var PageContentRepository */
+    /** @var HTMLSectionRepository */
     private $contentRepository;
 
     /** @var FileService */
@@ -69,9 +69,9 @@ class PageController extends AbstractController
         PageService $pageService,
         PageRepository $pageRepository,
         PageFileRepository $filePageRepository,
-        PageContentRepository $contentRepository,
+        HTMLSectionRepository $contentRepository,
         SerializerInterface $serializer,
-        PageContentRepository $pageContentRepository
+        HTMLSectionRepository $pageContentRepository
     ) {
         $this->em = $em;
         $this->contentRepository = $contentRepository;
@@ -126,7 +126,7 @@ class PageController extends AbstractController
             return $this->json('Bad url params', Response::HTTP_BAD_REQUEST);
         }
         $contentPojo = $this->serializer->deserialize($request->getContent(),
-            PageContent::class, 'json', ['groups' => ['update_page_content']]);
+            HTMLSection::class, 'json', ['groups' => ['update_page_content']]);
 
         $pageContent = $this->pageContentRepository->findOneBy(['id' => $contentId]);
         if ($pageContent === null) {

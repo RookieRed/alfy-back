@@ -4,7 +4,7 @@
 namespace App\Entity\Pojo;
 
 
-use App\Entity\PageContent;
+use App\Entity\HTMLSection;
 
 class PageContentOut
 {
@@ -15,7 +15,7 @@ class PageContentOut
     /** @var string $html */
     private $html;
 
-    function __construct(PageContent $origin)
+    function __construct(HTMLSection $origin)
     {
         $this->id = $origin->getId();
         $this->title = $origin->getTitle();

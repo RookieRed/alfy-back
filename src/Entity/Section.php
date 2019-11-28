@@ -3,32 +3,20 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\PageContentRepository")
+ * @ORM\Entity
+ * @ORM\InheritanceType("JOINED")
+ * @ORM\DiscriminatorColumn(name="discr", type="string")
  */
-class PageContent
+abstract class Section
 {
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     * @Groups({"get_page"})
+     * @ORM\Column(type="int")
      */
     private $id;
-
-    /**
-     * @ORM\Column(type="string", length=1024)
-     * @Groups({"get_page", "update_page_content"})
-     */
-    private $title;
-
-    /**
-     * @ORM\Column(type="text")
-     * @Groups({"get_page", "update_page_content"})
-     */
-    private $html;
 
     /**
      * @ORM\Column(type="datetime")
@@ -58,19 +46,24 @@ class PageContent
      */
     private $page;
 
-    public function getId(): ?int
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $name;
+
+    public function getId()
     {
         return $this->id;
     }
 
-    public function getHtml(): ?string
+    public function getName(): ?string
     {
-        return $this->html;
+        return $this->name;
     }
 
-    public function setHtml(string $html): self
+    public function setName(string $name): self
     {
-        $this->html = $html;
+        $this->name = $name;
 
         return $this;
     }
@@ -135,22 +128,4 @@ class PageContent
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getTitle(): string
-    {
-        return $this->title;
-    }
-
-    /**
-     * @param mixed $title
-     * @return PageContent
-     */
-    public function setTitle(string $title): self
-    {
-        $this->title = $title;
-
-        return $this;
-    }
 }

@@ -152,7 +152,7 @@ class User implements UserInterface
     private $sponsor;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\PageContent", mappedBy="creator")
+     * @ORM\OneToMany(targetEntity="HTMLSection", mappedBy="creator")
      */
     private $pageContents;
 
@@ -561,14 +561,14 @@ class User implements UserInterface
     }
 
     /**
-     * @return Collection|PageContent[]
+     * @return Collection|HTMLSection[]
      */
     public function getPageContents(): Collection
     {
         return $this->pageContents;
     }
 
-    public function addPageContent(PageContent $pageContent): self
+    public function addPageContent(HTMLSection $pageContent): self
     {
         if (!$this->pageContents->contains($pageContent)) {
             $this->pageContents[] = $pageContent;
@@ -578,7 +578,7 @@ class User implements UserInterface
         return $this;
     }
 
-    public function removePageContent(PageContent $pageContent): self
+    public function removePageContent(HTMLSection $pageContent): self
     {
         if ($this->pageContents->contains($pageContent)) {
             $this->pageContents->removeElement($pageContent);

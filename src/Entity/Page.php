@@ -31,16 +31,15 @@ class Page
     private $link;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\PageContent", mappedBy="page", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="Section", mappedBy="page", orphanRemoval=true)
      * @Groups({"get_page"})
-     * @var PageContent[]
+     * @var Section[]
      */
     private $contents;
 
     public function __construct()
     {
         $this->contents = new ArrayCollection();
-        $this->files = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -73,14 +72,14 @@ class Page
     }
 
     /**
-     * @return Collection|PageContent[]
+     * @return Collection|HTMLSection[]
      */
     public function getContents(): Collection
     {
         return $this->contents;
     }
 
-    public function addContent(PageContent $content): self
+    public function addContent(HTMLSection $content): self
     {
         if (!$this->contents->contains($content)) {
             $this->contents[] = $content;
@@ -90,7 +89,7 @@ class Page
         return $this;
     }
 
-    public function removeContent(PageContent $content): self
+    public function removeContent(HTMLSection $content): self
     {
         if ($this->contents->contains($content)) {
             $this->contents->removeElement($content);
