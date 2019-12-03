@@ -2,7 +2,10 @@
 
 namespace App\Entity;
 
+use App\Constants\FileConstants;
 use DateTimeInterface;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -46,6 +49,16 @@ class File
      * @Groups({"get_page"})
      */
     private $config = [];
+
+    /**
+     * @ORM\ManyToMany(targetEntity="SlideShowSection", mappedBy="files")
+     */
+    private $relatedSlides;
+
+    public function __construct()
+    {
+        $this->relatedSlides = new ArrayCollection();
+    }
 
     public function getId()
     {
@@ -123,5 +136,42 @@ class File
         $this->config = $config;
 
         return $this;
+    }
+
+    /**
+     * @return Collection|SlideShowSection[]
+     */
+    public function getRelatedSlides(): Collection
+    {
+        return $this->relatedSlides;
+    }
+
+    public function addRelatedDiapo(SlideShowSection $relatedDiapo): self
+    {
+        if (!$this->relatedSlides->contains($relatedDiapo)) {
+            $this->relatedSlides[] = $relatedDiapo;
+            $relatedDiapo->addFile($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRelatedDiapo(SlideShowSection $relatedDiapo): self
+    {
+        if ($this->relatedSlides->contains($relatedDiapo)) {
+            $this->relatedSlides->removeElement($relatedDiapo);
+            $relatedDiapo->removeFile($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @ORM\PreRemove()
+     */
+    public function removePhysicalFile()
+    {
+        $filePath = '../../' . $this->getFullPath();
+        unlink($filePath);
     }
 }

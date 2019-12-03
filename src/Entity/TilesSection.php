@@ -5,33 +5,23 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\TilesSectionRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\SectionRepository")
  */
 final class TilesSection extends Section
 {
     /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
-    private $id;
-
-    /**
      * @ORM\OneToMany(targetEntity="App\Entity\Tile", mappedBy="parentSection",
-     *     orphanRemoval=true, cascade={"persist", "remove"})
+     *     orphanRemoval=true, fetch="EAGER", cascade={"persist", "remove"})
+     * @Groups({"get_page"})
      */
     private $tiles;
 
     public function __construct()
     {
         $this->tiles = new ArrayCollection();
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
     }
 
     /**

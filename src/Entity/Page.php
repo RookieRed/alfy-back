@@ -31,15 +31,15 @@ class Page
     private $link;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Section", mappedBy="page", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\Section", mappedBy="page", orphanRemoval=true, fetch="EAGER")
      * @Groups({"get_page"})
      * @var Section[]
      */
-    private $contents;
+    private $sections;
 
     public function __construct()
     {
-        $this->contents = new ArrayCollection();
+        $this->sections = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -74,15 +74,15 @@ class Page
     /**
      * @return Collection|HTMLSection[]
      */
-    public function getContents(): Collection
+    public function getSections(): Collection
     {
-        return $this->contents;
+        return $this->sections;
     }
 
     public function addContent(HTMLSection $content): self
     {
-        if (!$this->contents->contains($content)) {
-            $this->contents[] = $content;
+        if (!$this->sections->contains($content)) {
+            $this->sections[] = $content;
             $content->setPage($this);
         }
 
@@ -91,8 +91,8 @@ class Page
 
     public function removeContent(HTMLSection $content): self
     {
-        if ($this->contents->contains($content)) {
-            $this->contents->removeElement($content);
+        if ($this->sections->contains($content)) {
+            $this->sections->removeElement($content);
             // set the owning side to null (unless already changed)
             if ($content->getPage() === $this) {
                 $content->setPage(null);

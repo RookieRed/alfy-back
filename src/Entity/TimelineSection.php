@@ -5,32 +5,22 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\TimelineSectionRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\SectionRepository")
  */
 final class TimelineSection extends Section
 {
     /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
-    private $id;
-
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\TimelineEvent", mappedBy="timeline", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\TimelineEvent", mappedBy="timeline", fetch="EAGER", orphanRemoval=true)
+     * @Groups({"get_page"})
      */
     private $events;
 
     public function __construct()
     {
         $this->events = new ArrayCollection();
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
     }
 
     /**

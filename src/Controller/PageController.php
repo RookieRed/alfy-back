@@ -5,13 +5,8 @@ namespace App\Controller;
 use App\Constants\FileConstants;
 use App\Constants\UserRoles;
 use App\Entity\HTMLSection;
-use App\Entity\PageFile;
-use App\Entity\Pojo\PageFileOut;
 use App\Entity\Pojo\PageFilesIn;
-use App\Entity\Pojo\PageOut;
 use App\Repository\FileRepository;
-use App\Repository\HTMLSectionRepository;
-use App\Repository\PageFileRepository;
 use App\Repository\PageRepository;
 use App\Service\FileService;
 use App\Service\PageService;
@@ -42,17 +37,8 @@ class PageController extends AbstractController
     /** @var PageRepository */
     private $pageRepository;
 
-    /** @var PageFileRepository */
-    private $filePageRepository;
-
-    /** @var HTMLSectionRepository */
-    private $pageContentRepository;
-
     /** @var SerializerInterface */
     private $serializer;
-
-    /** @var HTMLSectionRepository */
-    private $contentRepository;
 
     /** @var FileService */
     private $fileService;
@@ -71,20 +57,16 @@ class PageController extends AbstractController
         UserService $userService,
         PageService $pageService,
         PageRepository $pageRepository,
-        HTMLSectionRepository $contentRepository,
-        SerializerInterface $serializer,
-        HTMLSectionRepository $pageContentRepository
+        SerializerInterface $serializer
     )
     {
         $this->em = $em;
-        $this->contentRepository = $contentRepository;
         $this->serializer = $serializer;
         $this->fileService = $fileService;
         $this->pageService = $pageService;
         $this->userService = $userService;
         $this->fileRepository = $fileRepository;
         $this->pageRepository = $pageRepository;
-        $this->pageContentRepository = $pageContentRepository;
     }
 
     /**
@@ -107,7 +89,9 @@ class PageController extends AbstractController
         }
 
         // TODO : page section
-        return new JsonResponse($this->serializer->serialize([], 'json'), Response::HTTP_OK, [], true);
+        return new JsonResponse(
+            $this->serializer->serialize($page, 'json', ['groups' => ['get_page']]),
+            Response::HTTP_OK, [], true);
     }
 
     /**
@@ -126,16 +110,16 @@ class PageController extends AbstractController
         $contentPojo = $this->serializer->deserialize($request->getContent(),
             HTMLSection::class, 'json', ['groups' => ['update_page_content']]);
 
-        $pageContent = $this->pageContentRepository->findOneBy(['id' => $contentId]);
-        if ($pageContent === null) {
-            return $this->json('Page or content not found', Response::HTTP_NOT_FOUND);
-        }
-
-        $pageContent->setHtml($contentPojo->getHtml());
-        $pageContent->setTitle($contentPojo->getTitle());
-        $pageContent->setUpdatedAt(new DateTime());
-        $pageContent->setLastWriter($this->userService->getConnectedUser());
-        $this->em->flush();
+//        $pageContent = $this->pageContentRepository->findOneBy(['id' => $contentId]);
+//        if ($pageContent === null) {
+//            return $this->json('Page or content not found', Response::HTTP_NOT_FOUND);
+//        }
+//        TODO
+//        $pageContent->setHtml($contentPojo->getHtml());
+//        $pageContent->setTitle($contentPojo->getTitle());
+//        $pageContent->setUpdatedAt(new DateTime());
+//        $pageContent->setLastWriter($this->userService->getConnectedUser());
+//        $this->em->flush();
 
         return $this->json('', Response::HTTP_NO_CONTENT);
     }

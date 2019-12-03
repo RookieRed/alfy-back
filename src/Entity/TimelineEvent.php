@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\TimelineEventRepository")
@@ -14,6 +15,7 @@ class TimelineEvent
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"get_page"})
      */
     private $id;
 
@@ -25,16 +27,19 @@ class TimelineEvent
 
     /**
      * @ORM\Column(type="date")
+     * @Groups({"get_page"})
      */
     private $date;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"get_page"})
      */
     private $title;
 
     /**
      * @ORM\Column(type="string", length=511, nullable=true)
+     * @Groups({"get_page"})
      */
     private $description;
 

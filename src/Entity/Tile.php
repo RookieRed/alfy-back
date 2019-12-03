@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\TileRepository")
@@ -13,33 +14,38 @@ class Tile
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"get_page"})
      */
     private $id;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\File")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"get_page"})
      */
     private $photo;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"get_page"})
      */
     private $link;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"get_page"})
      */
     private $title;
 
     /**
-     * @ORM\Column(type="string", length=2049, nullable=true)
+     * @ORM\Column(type="string", length=4095, nullable=true)
+     * @Groups({"get_page"})
      */
     private $description;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\TilesSection", inversedBy="tiles")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\ManyToOne(targetEntity="App\Entity\TilesSection", inversedBy="tiles", cascade={"remove"})
+     * @ORM\JoinColumn(nullable=false, onDelete="cascade")
      */
     private $parentSection;
 

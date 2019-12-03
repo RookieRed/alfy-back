@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity
@@ -13,6 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
  *      "tiles"="App\Entity\TilesSection",
  *      "timeline"="App\Entity\TimelineSection",
  *      "html"="App\Entity\HTMLSection",
+ *      "slides"="App\Entity\SlideShowSection",
  * })
  */
 abstract class Section
@@ -21,6 +23,7 @@ abstract class Section
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"get_page"})
      */
     private $id;
 
@@ -31,12 +34,14 @@ abstract class Section
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
+     * @Groups({"get_page"})
      */
     private $updatedAt;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User")
      * @ORM\JoinColumn(nullable=true)
+     * @Groups({"get_page"})
      */
     private $lastWriter;
 
@@ -47,13 +52,14 @@ abstract class Section
     private $creator;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Page", inversedBy="contents")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Page", inversedBy="sections")
      * @ORM\JoinColumn(nullable=false)
      */
     private $page;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"get_page"})
      */
     private $name;
 
@@ -133,5 +139,4 @@ abstract class Section
 
         return $this;
     }
-
 }
