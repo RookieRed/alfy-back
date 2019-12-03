@@ -49,6 +49,8 @@ class PageController extends AbstractController
     /** @var UserService */
     private $userService;
 
+    /** @var int Maximal time of living for pages caching */
+    const MAX_TTL_PAGE_CACHE = 3600;
 
     public function __construct(
         EntityManagerInterface $em,
@@ -88,10 +90,13 @@ class PageController extends AbstractController
             return $this->json('The page does not exist', Response::HTTP_NOT_FOUND);
         }
 
-        // TODO : page section
-        return new JsonResponse(
+        $response = new JsonResponse(
             $this->serializer->serialize($page, 'json', ['groups' => ['get_page']]),
             Response::HTTP_OK, [], true);
+        $response->setSharedMaxAge(self::MAX_TTL_PAGE_CACHE);
+        $response->headers->addCacheControlDirective('public');
+        $response->headers->addCacheControlDirective('must-revalidate');
+        return $response;
     }
 
     /**

@@ -9,6 +9,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\PageRepository")
+ * @ORM\Cache(region="pages", usage="READ_ONLY")
  */
 class Page
 {
@@ -34,6 +35,7 @@ class Page
      * @ORM\OneToMany(targetEntity="App\Entity\Section", mappedBy="page", orphanRemoval=true, fetch="EAGER")
      * @Groups({"get_page"})
      * @var Section[]
+     * @ORM\Cache(region="pages_sections", usage="READ_ONLY")
      */
     private $sections;
 

@@ -9,6 +9,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\SectionRepository")
+ * @ORM\Cache(region="pages_sections.slides", usage="READ_ONLY")
  */
 final class TimelineSection extends Section
 {

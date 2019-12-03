@@ -25,4 +25,6 @@ class FileConstants
 
     const PROFILE_PICTURES_DIR = '/files/pictures/profiles/';
     const PAGES_PICTURES_DIR = '/files/pictures/pages/';
+    const SLIDE_SHOW_DIR = '/files/slide-show/';
+    const TILES_PICTURE_DIR = '/files/tiles-pictures/';
 }

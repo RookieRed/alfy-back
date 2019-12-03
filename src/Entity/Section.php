@@ -16,6 +16,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *      "html"="App\Entity\HTMLSection",
  *      "slides"="App\Entity\SlideShowSection",
  * })
+ * @ORM\Cache(region="pages_sections", usage="READ_ONLY")
  */
 abstract class Section
 {
