@@ -22,7 +22,8 @@ class CareerController extends Controller
 {
 
     public function __construct()
-    { }
+    {
+    }
 
     /**
      * @Route(path="",

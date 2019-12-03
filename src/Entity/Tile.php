@@ -38,7 +38,7 @@ class Tile
     private $description;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\TilesSection", inversedBy="title")
+     * @ORM\ManyToOne(targetEntity="App\Entity\TilesSection", inversedBy="tiles")
      * @ORM\JoinColumn(nullable=false)
      */
     private $parentSection;

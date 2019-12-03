@@ -86,7 +86,8 @@ class JsonError
         return $this;
     }
 
-    public function addError(string $error): self {
+    public function addError(string $error): self
+    {
         $this->errors[] = $error;
 
         return $this;

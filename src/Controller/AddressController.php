@@ -23,7 +23,8 @@ class AddressController extends Controller
     public function __construct(
         EntityManagerInterface $em,
         CountryRepository $countryRepo
-    ) {
+    )
+    {
         $this->em = $em;
         $this->countryRepo = $countryRepo;
     }
@@ -31,7 +32,8 @@ class AddressController extends Controller
     /**
      * @Route(path="/countries", methods={"GET"}, name="countries_list")
      */
-    public function getCountries(Request $request) {
+    public function getCountries(Request $request)
+    {
         $search = $request->get('search');
 
         if ($search != null) {

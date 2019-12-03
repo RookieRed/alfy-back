@@ -16,21 +16,15 @@ use App\Service\FileService;
 use App\Service\UserService;
 use App\Service\ValidationService;
 use App\Utils\CustomSerializer;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\Config\Definition\Exception\Exception;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Role\Role;
-use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
-use Symfony\Component\Serializer\Normalizer\JsonSerializableNormalizer;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
  * Class AccountController
@@ -113,7 +107,7 @@ class AccountController extends Controller
     public function getById(Request $request)
     {
         $userId = $request->get('id');
-        if ($userId == null){
+        if ($userId == null) {
             return $this->json('No id provided', Response::HTTP_BAD_REQUEST);
         }
 
@@ -162,7 +156,9 @@ class AccountController extends Controller
      *     name="signin"
      * )
      */
-    public function singIn() { }
+    public function singIn()
+    {
+    }
 
     /**
      * @Route(path="/signup",
@@ -174,11 +170,11 @@ class AccountController extends Controller
     {
         $userBean = $this->serializer->deserialize($request->getContent(),
             User::class, 'json', ['groups' => ['account_create']]);
-        $userBean->setBirthDay(new \DateTime($userBean->getBirthDay()));
+        $userBean->setBirthDay(new DateTime($userBean->getBirthDay()));
 
         $errorResponse = $this->validator->validateBean($userBean, ['account_create']);
         if ($errorResponse !== null) {
-           return $errorResponse;
+            return $errorResponse;
         }
 
         $jwtToken = $this->userService->createAccount($userBean);
@@ -197,9 +193,10 @@ class AccountController extends Controller
      * )
      * @param string $username
      */
-    public function checkUsernameValidity(string $username) {
+    public function checkUsernameValidity(string $username)
+    {
         // Vérification de l'unicité
-        if($this->userService->usernameExists($username)) {
+        if ($this->userService->usernameExists($username)) {
             return new JsonResponse('', Response::HTTP_CONFLICT, [], true);
         } else {
             return new JsonResponse('', Response::HTTP_NO_CONTENT, [], true);
@@ -213,9 +210,10 @@ class AccountController extends Controller
      * )
      * @param string $email
      */
-    public function checkEmailValidity(string $email) {
+    public function checkEmailValidity(string $email)
+    {
         // Vérification de l'unicité
-        if($this->userService->emailExists($email)) {
+        if ($this->userService->emailExists($email)) {
             return new JsonResponse('', Response::HTTP_CONFLICT, [], true);
         } else {
             return new JsonResponse('', Response::HTTP_NO_CONTENT, [], true);
@@ -261,7 +259,7 @@ class AccountController extends Controller
     {
         $user = $this->userService->getConnectedUser();
 
-        /** @var \Symfony\Component\HttpFoundation\File\File $file */
+        /** @var File $file */
         $file = $request->files->get('picture');
         if ($file == null) {
             return $this->json('No picture found', Response::HTTP_BAD_REQUEST);

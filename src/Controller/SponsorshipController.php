@@ -25,7 +25,8 @@ class SponsorshipController extends Controller
      *
      */
     public function __construct()
-    { }
+    {
+    }
 
     /**
      * @Route(path="/{whos}",
@@ -35,7 +36,8 @@ class SponsorshipController extends Controller
      * )
      */
     public function getAllSponsored()
-    { }
+    {
+    }
 
     /**
      * @Route(path="/free",
@@ -53,5 +55,6 @@ class SponsorshipController extends Controller
      *     methods={"POST"})
      */
     public function updateSponsoredList()
-    { }
+    {
+    }
 }

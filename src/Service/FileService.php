@@ -13,18 +13,18 @@ use App\Constants\UserRoles;
 use App\Entity\Baccalaureate;
 use App\Entity\File;
 use App\Entity\ImportReport;
-use App\Entity\Pojo\PageFilesIn;
 use App\Entity\User;
 use App\Repository\UserRepository;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
+use Generator;
 use PhpOffice\PhpSpreadsheet\Document\Properties;
-use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Row;
 use PhpOffice\PhpSpreadsheet\Worksheet\RowCellIterator;
 use PhpOffice\PhpSpreadsheet\Writer\Xls;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class FileService
 {
@@ -57,13 +57,13 @@ class FileService
         $hashedName = md5(uniqid()) . '.' . $symfonyFile->guessExtension();
         $symfonyFile = $symfonyFile->move($path, $hashedName);
         if ($symfonyFile === null) {
-            throw new \Exception('Can not save file');
+            throw new Exception('Can not save file');
         }
 
         $file = new File();
         $file->setName($hashedName)
             ->setPath($path)
-            ->setCreatedAt(new \DateTime());
+            ->setCreatedAt(new DateTime());
         if ($owner !== null) {
             $file->setOwner($owner);
         }
@@ -79,43 +79,43 @@ class FileService
         $sheet = $xlsFile->getActiveSheet();
 
         $report = new ImportReport();
-        $report->setDate(new \DateTime());
+        $report->setDate(new DateTime());
 
         $persistedUsers = [];
         $i = 2;
-        foreach($sheet->getRowIterator(2) as $row) {
+        foreach ($sheet->getRowIterator(2) as $row) {
             list($firstName, $lastName, $birthDay, $email, $phone, $bac, $username)
                 = iterator_to_array($this->getColumnValues($row));
             try {
                 // Check parameters
                 if ($firstName == null || $lastName == null) {
-                    throw new \Exception('first name or last name is not specified');
+                    throw new Exception('first name or last name is not specified');
                 }
                 if ($email != null
-                    && ( $this->userService->emailExists($email)
-                    || !$this->isAttributeUnique($persistedUsers, 'getEmail', $email) )) {
+                    && ($this->userService->emailExists($email)
+                        || !$this->isAttributeUnique($persistedUsers, 'getEmail', $email))) {
                     $email = null;
                     $report->addComment("Line $i : email already exists");
                 }
                 $email = trim($email);
                 $email = strlen($email) > 0 ? $email : null;
                 if ($username == null
-                    || ( $this->userService->usernameExists($username)
-                    || !$this->isAttributeUnique($persistedUsers, 'getUsername', $username) )) {
+                    || ($this->userService->usernameExists($username)
+                        || !$this->isAttributeUnique($persistedUsers, 'getUsername', $username))) {
                     $j = 0;
                     $formattedFN = explode(' ', $firstName)[0];
                     $formattedLN = explode(' ', $lastName)[0];
-                    $username = strtolower($formattedFN .'.'. $formattedLN);
+                    $username = strtolower($formattedFN . '.' . $formattedLN);
                     while ($this->userService->usernameExists($username)
                         || !$this->isAttributeUnique($persistedUsers, 'getUsername', $username)) {
                         $j++;
-                        $username = strtolower($formattedFN .'.'. $formattedLN .$j);
+                        $username = strtolower($formattedFN . '.' . $formattedLN . $j);
                     }
                 }
                 $username = trim($username);
                 $username = strlen($username) > 0 ? $username : null;
                 $birthDay = $birthDay != null
-                    ? \DateTime::createFromFormat('d/m/Y', $birthDay)
+                    ? DateTime::createFromFormat('d/m/Y', $birthDay)
                     : null;
                 $bacEntity = $this->em->getRepository(Baccalaureate::class)
                     ->findOneBy(['name' => $bac]);
@@ -129,7 +129,7 @@ class FileService
                     ->setPassword(null)
                     ->setBaccalaureate($bacEntity)
                     ->setBirthDay($birthDay != null
-                        ? \DateTime::createFromFormat('d/m/Y', $birthDay)
+                        ? DateTime::createFromFormat('d/m/Y', $birthDay)
                         : null)
                     ->setEmail($email)
                     ->setPhone($phone)
@@ -138,10 +138,9 @@ class FileService
                 $this->em->persist($user);
                 $persistedUsers[] = $user;
                 $report->incrementImported();
-            }
-            catch (\Exception $e) {
+            } catch (Exception $e) {
                 $report->incrementErrors();
-                $report->addComment("Line $i : ". $e->getMessage());
+                $report->addComment("Line $i : " . $e->getMessage());
             } finally {
                 $i++;
             }
@@ -183,7 +182,7 @@ class FileService
                 ($user->getBaccalaureate() == null) ? '' : $user->getBaccalaureate()->getName(),
                 $user->getUsername(),
             ];
-            $sheet->fromArray($userArray, null, 'A'.$i);
+            $sheet->fromArray($userArray, null, 'A' . $i);
             $i++;
         }
 
@@ -204,14 +203,14 @@ class FileService
         $file = new File();
         $file->setPath(FileConstants::MODELS_DIR)
             ->setName(FileConstants::GENERATED_XLS)
-            ->setCreatedAt(new \DateTime());
+            ->setCreatedAt(new DateTime());
 
         return $file;
     }
 
     /**
      * @param RowCellIterator $rowIterator
-     * @return \Generator
+     * @return Generator
      */
     private function getColumnValues(Row $row)
     {
@@ -225,12 +224,13 @@ class FileService
         }
     }
 
-    private function isAttributeUnique(array $entities, string $getterName, $value): bool {
+    private function isAttributeUnique(array $entities, string $getterName, $value): bool
+    {
         if ($value == null || $entities === []) {
             return true;
         }
         return array_reduce($entities,
-            function($carry, $actual) use ($getterName, $value) {
+            function ($carry, $actual) use ($getterName, $value) {
                 return $carry && ($actual->$getterName() != $value);
             }, true);
     }

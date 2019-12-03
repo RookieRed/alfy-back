@@ -8,6 +8,8 @@
 
 namespace App\Entity;
 
+use DateTime;
+use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -33,7 +35,7 @@ class ImportReport
      */
     private $file;
     /**
-     * @var \DateTimeInterface
+     * @var DateTimeInterface
      * @ORM\Column(type="date")
      * @Groups({"import_report"})
      */
@@ -59,7 +61,7 @@ class ImportReport
 
     public function __construct()
     {
-        $this->date = new \DateTime();
+        $this->date = new DateTime();
         $this->nbErrors = 0;
         $this->nbImported = 0;
         $this->comments = "";
@@ -102,7 +104,7 @@ class ImportReport
     }
 
     /**
-     * @return \DateTimeInterface
+     * @return DateTimeInterface
      */
     public function getDate()
     {
@@ -110,10 +112,10 @@ class ImportReport
     }
 
     /**
-     * @param \DateTimeInterface $date
+     * @param DateTimeInterface $date
      * @return ImportReport
      */
-    public function setDate(\DateTimeInterface $date): self
+    public function setDate(DateTimeInterface $date): self
     {
         $this->date = $date;
         return $this;

@@ -31,7 +31,7 @@ class Page
     private $link;
 
     /**
-     * @ORM\OneToMany(targetEntity="Section", mappedBy="page", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\Section", mappedBy="page", orphanRemoval=true)
      * @Groups({"get_page"})
      * @var Section[]
      */

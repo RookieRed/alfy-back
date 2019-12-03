@@ -13,6 +13,7 @@ use App\Service\FileService;
 use App\Service\PaginationService;
 use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -96,7 +97,7 @@ class StudentController extends Controller
 
         $excel = $request->files->get('file');
         if ($excel === null) {
-            throw new \Exception('There is no uploaded file');
+            throw new Exception('There is no uploaded file');
         }
 
         $file = $this->fileService->saveFile($excel, $this->userService->getConnectedUser());
@@ -117,7 +118,8 @@ class StudentController extends Controller
      *     name="user_import_get_model"
      * )
      */
-    public function getImportModel() {
+    public function getImportModel()
+    {
         $file = $this->fileService->generateExcelImportExample();
         return $this->file($file->getFullPath());
     }

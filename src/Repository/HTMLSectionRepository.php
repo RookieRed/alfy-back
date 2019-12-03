@@ -5,7 +5,6 @@ namespace App\Repository;
 use App\Entity\HTMLSection;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
-use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
  * @method HTMLSection|null find($id, $lockMode = null, $lockVersion = null)

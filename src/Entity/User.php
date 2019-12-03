@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Constants\SocialNetworkUrl;
 use App\Constants\UserRoles;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -151,11 +152,6 @@ class User implements UserInterface
      */
     private $sponsor;
 
-    /**
-     * @ORM\OneToMany(targetEntity="HTMLSection", mappedBy="creator")
-     */
-    private $pageContents;
-
     public function __construct()
     {
         $this->universities = new ArrayCollection();
@@ -182,10 +178,10 @@ class User implements UserInterface
 
     public function getFirstName(): ?string
     {
-        return implode( ' ',
-                array_map(function ($val) {
-                    return ucfirst($val);
-                }, preg_split('/(\s|-|_)/', $this->firstName))
+        return implode(' ',
+            array_map(function ($val) {
+                return ucfirst($val);
+            }, preg_split('/(\s|-|_)/', $this->firstName))
         );
     }
 
@@ -220,7 +216,7 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getBirthDay(): ?\DateTimeInterface
+    public function getBirthDay(): ?DateTimeInterface
     {
         return $this->birthDay;
     }
@@ -303,7 +299,7 @@ class User implements UserInterface
     }
 
     /**
-     * @return \App\Entity\Baccalaureate
+     * @return Baccalaureate
      */
     public function getBaccalaureate(): ?Baccalaureate
     {
@@ -556,37 +552,6 @@ class User implements UserInterface
     public function setSalt(?string $salt): self
     {
         $this->salt = $salt;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|HTMLSection[]
-     */
-    public function getPageContents(): Collection
-    {
-        return $this->pageContents;
-    }
-
-    public function addPageContent(HTMLSection $pageContent): self
-    {
-        if (!$this->pageContents->contains($pageContent)) {
-            $this->pageContents[] = $pageContent;
-            $pageContent->setCreator($this);
-        }
-
-        return $this;
-    }
-
-    public function removePageContent(HTMLSection $pageContent): self
-    {
-        if ($this->pageContents->contains($pageContent)) {
-            $this->pageContents->removeElement($pageContent);
-            // set the owning side to null (unless already changed)
-            if ($pageContent->getCreator() === $this) {
-                $pageContent->setCreator(null);
-            }
-        }
 
         return $this;
     }

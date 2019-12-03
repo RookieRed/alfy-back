@@ -6,7 +6,6 @@ use App\Entity\Country;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
  * @method Country|null find($id, $lockMode = null, $lockVersion = null)
@@ -27,8 +26,8 @@ class CountryRepository extends ServiceEntityRepository
     public function searchBy(string $search): array
     {
         return $this->em->createQuery('SELECT c FROM App\Entity\Country c '
-            .'WHERE (c.frName LIKE :search) '
-            .'ORDER BY c.priority, c.frName ASC')
-            ->execute(['search' => $search.'%']);
+            . 'WHERE (c.frName LIKE :search) '
+            . 'ORDER BY c.priority, c.frName ASC')
+            ->execute(['search' => $search . '%']);
     }
 }

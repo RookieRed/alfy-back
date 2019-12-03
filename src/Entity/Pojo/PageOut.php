@@ -4,7 +4,8 @@ namespace App\Entity\Pojo;
 
 use App\Entity\Page;
 
-class PageOut {
+class PageOut
+{
 
     /** @var string $title */
     private $title;

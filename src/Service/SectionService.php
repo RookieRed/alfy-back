@@ -4,16 +4,15 @@
 namespace App\Service;
 
 
-use App\Entity\Pojo\PageFilesIn;
+use App\Entity\Section;
 use App\Repository\FileRepository;
 use App\Repository\PageFileRepository;
 use App\Repository\PageRepository;
+use App\Repository\SectionRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use InvalidArgumentException;
 
-class PageService
+class SectionService
 {
-
     /**
      * @var EntityManagerInterface
      */
@@ -30,34 +29,33 @@ class PageService
      * @var PageFileRepository
      */
     private $pageFileRepository;
+    /**
+     * @var SectionRepository
+     */
+    private $sectionRepository;
 
     public function __construct(
         EntityManagerInterface $em,
         PageRepository $pageRepository,
         PageFileRepository $pageFileRepository,
-        FileRepository $fileRepository
+        FileRepository $fileRepository,
+        SectionRepository $sectionRepository
     )
     {
         $this->em = $em;
         $this->pageRepository = $pageRepository;
         $this->pageFileRepository = $pageFileRepository;
         $this->fileRepository = $fileRepository;
+        $this->sectionRepository = $sectionRepository;
     }
 
-    public function updatePageFiles(PageFilesIn $pageBean)
+    public function findById($id)
     {
-        $page = $this->pageRepository->findOneBy(['name' => $pageBean->getPageName()]);
-        if ($page === null) {
-            throw new InvalidArgumentException('Page is not found');
-        }
+        return $this->sectionRepository->find($id);
+    }
 
-        foreach ($pageBean->getFilesInfo() as $pageFilePojo) {
-            if ($pageFilePojo->getId() === null) {
-                continue;
-            }
-            $pageFileEntity = $this->pageFileRepository->findByPageOrFile($page, $pageFilePojo->getId());
-            $pageFileEntity->setOptions($pageFilePojo->getConfig());
-        }
-        $this->em->flush();
+    public function createSection(Section $section)
+    {
+        $this->em->persist($section);
     }
 }

@@ -31,6 +31,7 @@ class UniversityController extends Controller
     {
 
     }
+
     /**
      * @Route(path="/{id}",
      *     name="university_get",

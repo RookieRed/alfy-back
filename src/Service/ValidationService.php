@@ -45,13 +45,14 @@ class ValidationService
      * @param array $groups
      * @return null|Response
      */
-    public function validateBean($bean, array $groups): ?Response {
+    public function validateBean($bean, array $groups): ?Response
+    {
         $validationErrors = $this->validator->validate($bean, null, $groups);
 
         $nbErrors = $validationErrors->count();
         if ($nbErrors > 0) {
             $errors = [];
-            for ($i=0; $i < $nbErrors; $i++) {
+            for ($i = 0; $i < $nbErrors; $i++) {
                 $errors[] = $validationErrors->get($i)->getMessage();
             }
 
@@ -66,7 +67,8 @@ class ValidationService
         return null;
     }
 
-    public function generateErrorResponse($code, $message, $errors = [], $status = Response::HTTP_INTERNAL_SERVER_ERROR): Response {
+    public function generateErrorResponse($code, $message, $errors = [], $status = Response::HTTP_INTERNAL_SERVER_ERROR): Response
+    {
         $errorBean = new JsonError();
         $errorBean->setCode($code)
             ->setMessage($message);
@@ -78,6 +80,6 @@ class ValidationService
         $response->headers->set('Content-type', 'application/json');
         $response->setStatusCode($status);
 
-        return$response;
+        return $response;
     }
 }

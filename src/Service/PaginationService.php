@@ -20,7 +20,8 @@ class PaginationService
     {
     }
 
-    public function generatePaginatedResults(Request $request, array $results): PaginatedResults {
+    public function generatePaginatedResults(Request $request, array $results): PaginatedResults
+    {
         $resultsPerPage = $request->get('resultsPerPage');
         $currentPage = $request->get('p');
 

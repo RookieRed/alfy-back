@@ -9,15 +9,18 @@ use App\Entity\PageFile;
 use App\Entity\Pojo\PageFileOut;
 use App\Entity\Pojo\PageFilesIn;
 use App\Entity\Pojo\PageOut;
-use App\Repository\PageFileRepository;
 use App\Repository\FileRepository;
 use App\Repository\HTMLSectionRepository;
+use App\Repository\PageFileRepository;
 use App\Repository\PageRepository;
 use App\Service\FileService;
 use App\Service\PageService;
 use App\Service\UserService;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,7 +28,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
- * @Route("/pages",)
+ * @Route("/pages")
  */
 class PageController extends AbstractController
 {
@@ -68,11 +71,11 @@ class PageController extends AbstractController
         UserService $userService,
         PageService $pageService,
         PageRepository $pageRepository,
-        PageFileRepository $filePageRepository,
         HTMLSectionRepository $contentRepository,
         SerializerInterface $serializer,
         HTMLSectionRepository $pageContentRepository
-    ) {
+    )
+    {
         $this->em = $em;
         $this->contentRepository = $contentRepository;
         $this->serializer = $serializer;
@@ -81,7 +84,6 @@ class PageController extends AbstractController
         $this->userService = $userService;
         $this->fileRepository = $fileRepository;
         $this->pageRepository = $pageRepository;
-        $this->filePageRepository = $filePageRepository;
         $this->pageContentRepository = $pageContentRepository;
     }
 
@@ -94,7 +96,7 @@ class PageController extends AbstractController
     public function getPage(Request $request)
     {
         $pageName = $request->get('pageName');
-        if ($pageName == null){
+        if ($pageName == null) {
             return $this->json('No page name provided', Response::HTTP_BAD_REQUEST);
         }
         $page = $this->pageRepository->findOneBy([
@@ -103,13 +105,9 @@ class PageController extends AbstractController
         if ($page === null) {
             return $this->json('The page does not exist', Response::HTTP_NOT_FOUND);
         }
-        $pageFiles = $this->filePageRepository->findBy([
-            'page' => $page
-        ]);
 
-        $response = new PageOut($page, $pageFiles);
-        $jsonResponse = new JsonResponse($this->serializer->serialize($response, 'json'), Response::HTTP_OK, [],  true);
-        return $jsonResponse;
+        // TODO : page section
+        return new JsonResponse($this->serializer->serialize([], 'json'), Response::HTTP_OK, [], true);
     }
 
     /**
@@ -122,7 +120,7 @@ class PageController extends AbstractController
     {
         $pageName = $request->get('pageName');
         $contentId = $request->get('contentId');
-        if ($pageName == null || $contentId == null){
+        if ($pageName == null || $contentId == null) {
             return $this->json('Bad url params', Response::HTTP_BAD_REQUEST);
         }
         $contentPojo = $this->serializer->deserialize($request->getContent(),
@@ -135,7 +133,7 @@ class PageController extends AbstractController
 
         $pageContent->setHtml($contentPojo->getHtml());
         $pageContent->setTitle($contentPojo->getTitle());
-        $pageContent->setUpdatedAt(new \DateTime());
+        $pageContent->setUpdatedAt(new DateTime());
         $pageContent->setLastWriter($this->userService->getConnectedUser());
         $this->em->flush();
 
@@ -151,7 +149,7 @@ class PageController extends AbstractController
     public function updateFilesConfig(Request $request)
     {
         $pageName = $request->get('pageName');
-        if ($pageName == null){
+        if ($pageName == null) {
             return $this->json('No page name provided', Response::HTTP_BAD_REQUEST);
         }
 
@@ -159,7 +157,7 @@ class PageController extends AbstractController
         $pageBean = $this->serializer->deserialize($request->getContent(), PageFilesIn::class, 'json');
         try {
             $this->pageService->updatePageFiles($pageBean);
-        } catch (\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             return $this->json('Page does not exist', Response::HTTP_NOT_FOUND);
         }
         return $this->json('', Response::HTTP_NO_CONTENT);
@@ -179,7 +177,7 @@ class PageController extends AbstractController
         }
 
         $pageName = $request->get('pageName');
-        if ($pageName == null){
+        if ($pageName == null) {
             return $this->json('No page name provided', Response::HTTP_BAD_REQUEST);
         }
         $page = $this->pageRepository->findOneBy(['name' => $pageName]);
@@ -187,7 +185,7 @@ class PageController extends AbstractController
             return $this->json('Page does not exist.', Response::HTTP_NOT_FOUND);
         }
 
-        /** @var \Symfony\Component\HttpFoundation\File\File $file */
+        /** @var File $file */
         $file = $request->files->get('file');
         if ($file == null) {
             return $this->json('No picture found', Response::HTTP_BAD_REQUEST);
@@ -195,40 +193,10 @@ class PageController extends AbstractController
 
         $savedFile = $this->fileService->saveFile($file, $user,
             FileConstants::PAGES_PICTURES_DIR . $pageName . '/');
-        $pageFile = new PageFile();
-        $pageFile->setPage($page);
-        $pageFile->setFile($savedFile);
+        // TODO : photos added to sections ?
         $this->em->flush();
 
-        $out = new PageFileOut($pageFile);
-        return $this->json($out, Response::HTTP_CREATED);
-    }
-
-    /**
-     * @Route(path="/{pageName}/files/{fileId}",
-     *     methods={"POST"},
-     *     name="page_delete_file",
-     *     requirements={"fileId"="\d+|me"}
- *     )
-     */
-    public function deleteFile(Request $request)
-    {
-        $pageName = $request->get('pageName');
-        $fileId = $request->get('fileId');
-        if ($pageName == null || $fileId == null){
-            return $this->json('Bad url params', Response::HTTP_BAD_REQUEST);
-        }
-
-        $page = $this->pageRepository->findOneBy(['name' => $pageName]);
-        if ($page === null) {
-            return $this->json('Page does not exist.', Response::HTTP_NOT_FOUND);
-        }
-        $pageFile = $this->filePageRepository->findByPageOrFile($pageName, $fileId);
-        if ($pageFile === null) {
-            return $this->json('File not found.', Response::HTTP_NOT_FOUND);
-        }
-        $this->em->remove($pageFile);
-        $this->em->flush();
-        return $this->json('', Response::HTTP_NO_CONTENT);
+//        $out = new PageFileOut($pageFile);
+        return $this->json([], Response::HTTP_CREATED);
     }
 }

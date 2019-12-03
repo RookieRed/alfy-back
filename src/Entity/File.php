@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -40,6 +41,12 @@ class File
      */
     private $owner;
 
+    /**
+     * @ORM\Column(type="json", nullable=true)
+     * @Groups({"get_page"})
+     */
+    private $config = [];
+
     public function getId()
     {
         return $this->id;
@@ -69,12 +76,12 @@ class File
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): ?DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(?\DateTimeInterface $createdAt): self
+    public function setCreatedAt(?DateTimeInterface $createdAt): self
     {
         $this->createdAt = $createdAt;
 
@@ -101,6 +108,19 @@ class File
     public function setOwner(?User $owner): self
     {
         $this->owner = $owner;
+
+        return $this;
+    }
+
+
+    public function getConfig(): ?array
+    {
+        return $this->config;
+    }
+
+    public function setConfig(?array $config): self
+    {
+        $this->config = $config;
 
         return $this;
     }

@@ -9,26 +9,19 @@
 namespace App\Service;
 
 
+use App\Constants\UserRoles;
 use App\Entity\Address;
 use App\Entity\File;
 use App\Entity\User;
-use App\Constants\UserRoles;
 use App\Repository\CountryRepository;
 use App\Repository\UserRepository;
+use DateTimeInterface;
 use Doctrine\ORM\EntityManagerInterface;
-use http\Url;
-use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
-use Lexik\Bundle\JWTAuthenticationBundle\Security\Authentication\Token\JWTUserToken;
-use Lexik\Bundle\JWTAuthenticationBundle\Security\User\JWTUserInterface;
-use Lexik\Bundle\JWTAuthenticationBundle\Services\JWSProvider\JWSProviderInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
-use Lexik\Bundle\JWTAuthenticationBundle\TokenExtractor\TokenExtractorInterface;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class UserService
 {
@@ -80,14 +73,15 @@ class UserService
     /**
      * @return User[]
      */
-    public function getAll() {
-        return $this->userRepo->findBy([], ['lastName' => 'ASC','firstName' => 'ASC']);
+    public function getAll()
+    {
+        return $this->userRepo->findBy([], ['lastName' => 'ASC', 'firstName' => 'ASC']);
     }
 
     public function getById(int $id): ?User
     {
         return $this->userRepo->findOneBy([
-            'id'    => $id
+            'id' => $id
         ]);
     }
 
@@ -95,28 +89,29 @@ class UserService
      * @param User $userSearched
      * @return User[]
      */
-    public function searchByCriteria(User $userSearched): array {
+    public function searchByCriteria(User $userSearched): array
+    {
         $whereClause = '';
         $params = [];
         if ($userSearched->getFirstName() != null) {
             $whereClause .= ' AND u.firstName LIKE :firstName';
-            $params['firstName'] = '%'.$userSearched->getFirstName().'%';
+            $params['firstName'] = '%' . $userSearched->getFirstName() . '%';
         }
         if ($userSearched->getLastName() != null) {
             $whereClause .= ' AND u.lastName LIKE :lastName';
-            $params['lastName'] = '%'.$userSearched->getLastName().'%';
+            $params['lastName'] = '%' . $userSearched->getLastName() . '%';
         }
         if ($userSearched->getUsername() != null) {
             $whereClause .= ' AND u.username LIKE :username';
-            $params['username'] = '%'.$userSearched->getUsername().'%';
+            $params['username'] = '%' . $userSearched->getUsername() . '%';
         }
         if ($userSearched->getEmail() != null) {
             $whereClause .= ' AND u.email LIKE :email';
-            $params['email'] = '%'.$userSearched->getEmail().'%';
+            $params['email'] = '%' . $userSearched->getEmail() . '%';
         }
         if ($userSearched->getBirthDay() != null) {
             $birthYear = $userSearched->getBirthDay();
-            if ($birthYear instanceof \DateTimeInterface) {
+            if ($birthYear instanceof DateTimeInterface) {
                 $birthYear = $birthYear->format('Y');
             }
             $whereClause .= ' AND YEAR(u.birthDay) = :birthYear';
@@ -129,7 +124,7 @@ class UserService
 
         $whereClause = substr($whereClause, 4, strlen($whereClause));
         return $this->em
-            ->createQuery('SELECT u FROM App\Entity\User u WHERE '.$whereClause.' ORDER BY u.lastName, u.firstName')
+            ->createQuery('SELECT u FROM App\Entity\User u WHERE ' . $whereClause . ' ORDER BY u.lastName, u.firstName')
             ->setParameters($params)
             ->execute();
     }
@@ -138,7 +133,8 @@ class UserService
      * @param string $name
      * @return User[]
      */
-    public function searchByName(?string $name): array {
+    public function searchByName(?string $name): array
+    {
         if ($name == null || trim($name) == '') {
             return $this->getAll();
         }
@@ -150,17 +146,18 @@ class UserService
         foreach ($namesArray as $val) {
             $key = 'name' . $i++;
             $whereClause .= " AND (u.username LIKE :$key OR u.firstName LIKE :$key OR u.lastName LIKE :$key)";
-            $params[$key] = '%'.$val.'%';
+            $params[$key] = '%' . $val . '%';
         }
 
         $whereClause = substr($whereClause, 4, strlen($whereClause));
         return $this->em
-            ->createQuery('SELECT u FROM App\Entity\User u WHERE '.$whereClause.' ORDER BY u.lastName, u.firstName')
+            ->createQuery('SELECT u FROM App\Entity\User u WHERE ' . $whereClause . ' ORDER BY u.lastName, u.firstName')
             ->setParameters($params)
             ->execute();
     }
 
-    public function usernameExists(string $username): bool {
+    public function usernameExists(string $username): bool
+    {
         $userMatch = $this->userRepo->findOneBy([
             'username' => $username
         ]);
@@ -170,7 +167,8 @@ class UserService
         return true;
     }
 
-    public function emailExists(string $email): bool {
+    public function emailExists(string $email): bool
+    {
         return null != $this->userRepo->findOneBy([
                 'email' => $email
             ]);
@@ -183,7 +181,7 @@ class UserService
         return $this->userRepo->findOneBy(['username' => $userArray['username']]);
     }
 
-    public function createAccount(User $user, ?string $role=null): ?string
+    public function createAccount(User $user, ?string $role = null): ?string
     {
         $encryptedPassword = $this->encoder->encodePassword($user, $user->getPassword());
         $user->setPassword($encryptedPassword);

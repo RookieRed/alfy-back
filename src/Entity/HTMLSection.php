@@ -8,7 +8,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\HTMLSectionRepository")
  */
-class HTMLSection extends Section
+final class HTMLSection extends Section
 {
     /**
      * @ORM\Column(type="string", length=1024)

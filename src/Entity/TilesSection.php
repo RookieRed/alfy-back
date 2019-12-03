@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\TilesSectionRepository")
  */
-class TilesSection
+final class TilesSection extends Section
 {
     /**
      * @ORM\Id()
@@ -19,7 +19,8 @@ class TilesSection
     private $id;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Tile", mappedBy="tiles", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\Tile", mappedBy="parentSection",
+     *     orphanRemoval=true, cascade={"persist", "remove"})
      */
     private $tiles;
 
