@@ -14,7 +14,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
 final class SlideShowSection extends Section
 {
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\File", inversedBy="relatedDiapos", cascade={"persist"}, fetch="EAGER")
+     * @ORM\ManyToMany(targetEntity="App\Entity\File", inversedBy="relatedSlides", cascade={"persist"}, fetch="EAGER")
+     * @ORM\JoinTable(name="slide_show_sections_files_asso")
      * @Groups({"get_page"})
      */
     private $photos;

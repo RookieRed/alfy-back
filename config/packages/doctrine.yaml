@@ -18,10 +18,6 @@ doctrine:
     orm:
         auto_generate_proxy_classes: '%kernel.debug%'
         naming_strategy: doctrine.orm.naming_strategy.underscore
-        # Caching strategy
-#        metadata_cache_driver: array
-#        result_cache_driver: array
-#        query_cache_driver: array
         # Mapping
         auto_mapping: true
         mappings:

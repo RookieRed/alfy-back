@@ -19,7 +19,7 @@ class Tile
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\File")
+     * @ORM\ManyToOne(targetEntity="App\Entity\File", fetch="EAGER")
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"get_page"})
      */

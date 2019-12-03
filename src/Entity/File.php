@@ -51,7 +51,7 @@ class File
     private $config = [];
 
     /**
-     * @ORM\ManyToMany(targetEntity="SlideShowSection", mappedBy="files")
+     * @ORM\ManyToMany(targetEntity="SlideShowSection", mappedBy="photos")
      */
     private $relatedSlides;
 
@@ -171,7 +171,9 @@ class File
      */
     public function removePhysicalFile()
     {
-        $filePath = '../../' . $this->getFullPath();
-        unlink($filePath);
+        $filePath = '../../public' . $this->getFullPath();
+        if (file_exists($filePath)) {
+            unlink($filePath);
+        }
     }
 }
