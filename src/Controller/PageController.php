@@ -4,71 +4,48 @@ namespace App\Controller;
 
 use App\Constants\FileConstants;
 use App\Constants\UserRoles;
-use App\Entity\HTMLSection;
 use App\Entity\Pojo\PageFilesIn;
-use App\Repository\FileRepository;
-use App\Repository\PageRepository;
 use App\Service\FileService;
 use App\Service\PageService;
 use App\Service\UserService;
-use DateTime;
+use App\Utils\JsonSerializer;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * @Route("/pages")
  */
-class PageController extends AbstractController
+class PageController extends JsonAbstractController
 {
-
-    /** @var EntityManagerInterface */
-    private $em;
-
-    /** @var FileRepository */
-    private $fileRepository;
-
-    /** @var PageRepository */
-    private $pageRepository;
-
-    /** @var SerializerInterface */
-    private $serializer;
-
-    /** @var FileService */
-    private $fileService;
-
-    /** @var PageService */
-    private $pageService;
-
-    /** @var UserService */
-    private $userService;
 
     /** @var int Maximal time of living for pages caching */
     const MAX_TTL_PAGE_CACHE = 3600;
+    /** @var EntityManagerInterface */
+    private $em;
+    /** @var FileService */
+    private $fileService;
+    /** @var PageService */
+    private $pageService;
+    /** @var UserService */
+    private $userService;
 
     public function __construct(
         EntityManagerInterface $em,
-        FileRepository $fileRepository,
         FileService $fileService,
         UserService $userService,
         PageService $pageService,
-        PageRepository $pageRepository,
-        SerializerInterface $serializer
-    )
+        JsonSerializer $serializer)
     {
+        parent::__construct($serializer);
         $this->em = $em;
-        $this->serializer = $serializer;
         $this->fileService = $fileService;
         $this->pageService = $pageService;
         $this->userService = $userService;
-        $this->fileRepository = $fileRepository;
-        $this->pageRepository = $pageRepository;
     }
 
     /**
@@ -81,18 +58,11 @@ class PageController extends AbstractController
     {
         $pageName = $request->get('pageName');
         if ($pageName == null) {
-            return $this->json('No page name provided', Response::HTTP_BAD_REQUEST);
-        }
-        $page = $this->pageRepository->findOneBy([
-            'name' => $pageName
-        ]);
-        if ($page === null) {
-            return $this->json('The page does not exist', Response::HTTP_NOT_FOUND);
+            throw new BadRequestHttpException('No page name provided');
         }
 
-        $response = new JsonResponse(
-            $this->serializer->serialize($page, 'json', ['groups' => ['get_page']]),
-            Response::HTTP_OK, [], true);
+        $page = $this->pageService->findByNameOrThrowException($pageName);
+        $response = $this->jsonOK($page, ['get_page']);
         $response->setSharedMaxAge(self::MAX_TTL_PAGE_CACHE);
         $response->headers->addCacheControlDirective('public');
         $response->headers->addCacheControlDirective('must-revalidate');

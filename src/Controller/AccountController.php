@@ -31,7 +31,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
  *
  * @Route(path="/account")
  */
-class AccountController extends BaseJsonController
+class AccountController extends JsonAbstractController
 {
     /**
      * @var UserService

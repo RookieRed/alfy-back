@@ -9,17 +9,18 @@
 namespace App\Controller;
 
 
+use App\Utils\JsonSerializer;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route(path="/university")
  */
-class UniversityController extends Controller
+class UniversityController extends JsonAbstractController
 {
-
-    public function __construct()
+    public function __construct(JsonSerializer $serializer)
     {
+        parent::__construct($serializer);
     }
 
     /**

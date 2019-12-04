@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\HTMLSection;
 use App\Service\SectionService;
+use App\Utils\JsonSerializer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,9 +25,11 @@ class SectionController extends AbstractController
     private $sectionService;
 
     public function __construct(
+        JsonSerializer $serializer,
         SectionService $sectionService
     )
     {
+        parent::__construct($serializer);
         $this->sectionService = $sectionService;
     }
 

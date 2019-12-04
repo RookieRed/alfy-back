@@ -9,6 +9,7 @@
 namespace App\Controller;
 
 
+use App\Utils\JsonSerializer;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -18,14 +19,11 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @Route(path="/sponsorship")
  */
-class SponsorshipController extends Controller
+class SponsorshipController extends JsonAbstractController
 {
-
-    /**
-     *
-     */
-    public function __construct()
+    public function __construct(JsonSerializer $serializer)
     {
+        parent::__construct($serializer);
     }
 
     /**

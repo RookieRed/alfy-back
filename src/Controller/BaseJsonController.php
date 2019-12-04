@@ -9,7 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
-abstract class BaseJsonController extends AbstractController
+abstract class JsonAbstractController extends AbstractController
 {
     /** @var JsonSerializer $serializer */
     protected $serializer;

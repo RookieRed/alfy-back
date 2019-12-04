@@ -4,11 +4,13 @@
 namespace App\Service;
 
 
+use App\Entity\Page;
 use App\Entity\Pojo\PageFilesIn;
 use App\Repository\FileRepository;
 use App\Repository\PageRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class PageService
 {
@@ -53,5 +55,14 @@ class PageService
 //        }
 //        $this->em->flush();
         // TODO
+    }
+
+    public function findByNameOrThrowException(string $pageName): Page
+    {
+        $page = $this->pageRepository->findOneBy(['name' => $pageName]);
+        if ($page == null) {
+            throw new NotFoundHttpException('Page not found');
+        }
+        return $page;
     }
 }

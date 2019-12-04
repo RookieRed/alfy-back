@@ -12,6 +12,7 @@ namespace App\Controller;
 use App\Service\FileService;
 use App\Service\PaginationService;
 use App\Service\UserService;
+use App\Utils\JsonSerializer;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -26,7 +27,7 @@ use Symfony\Component\Serializer\SerializerInterface;
  *
  * @Route(path="/students")
  */
-class StudentController extends Controller
+class StudentController extends JsonAbstractController
 {
 
     /**
@@ -42,10 +43,6 @@ class StudentController extends Controller
      */
     private $userService;
     /**
-     * @var SerializerInterface
-     */
-    private $serializer;
-    /**
      * @var PaginationService
      */
     private $pagination;
@@ -53,9 +50,10 @@ class StudentController extends Controller
     public function __construct(FileService $fileService,
                                 UserService $userService,
                                 PaginationService $pagination,
-                                SerializerInterface $serializer,
+                                JsonSerializer $serializer,
                                 EntityManagerInterface $em)
     {
+        parent::__construct($serializer);
         $this->fileService = $fileService;
         $this->userService = $userService;
         $this->em = $em;
