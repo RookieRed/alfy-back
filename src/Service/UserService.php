@@ -20,6 +20,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
@@ -181,7 +182,16 @@ class UserService
         return $this->userRepo->findOneBy(['username' => $userArray['username']]);
     }
 
-    public function createAccount(User $user, ?string $role = null): ?string
+    public function getConnectedUserOrThrowException($message = null)
+    {
+        $user = $this->getConnectedUser();
+        if ($user === null) {
+            throw new UnauthorizedHttpException($message);
+        }
+        return $user;
+    }
+
+    public function createAccount(User $user, ?string $role = null): string
     {
         $encryptedPassword = $this->encoder->encodePassword($user, $user->getPassword());
         $user->setPassword($encryptedPassword);

@@ -8,11 +8,10 @@
 
 namespace App\Service;
 
-
-use App\Constants\ErrorType;
-use App\Entity\Pojo\JsonError;
+use App\Exception\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ValidationService
@@ -43,43 +42,17 @@ class ValidationService
      * If OK returns null, otherwise return a 400 Response object in JSON.
      * @param $bean
      * @param array $groups
-     * @return null|Response
+     * @return bool true if valid
+     * @throws ValidationException if invalid
      */
-    public function validateBean($bean, array $groups): ?Response
+    public function validateOrThrowException($bean, array $groups): bool
     {
         $validationErrors = $this->validator->validate($bean, null, $groups);
 
         $nbErrors = $validationErrors->count();
         if ($nbErrors > 0) {
-            $errors = [];
-            for ($i = 0; $i < $nbErrors; $i++) {
-                $errors[] = $validationErrors->get($i)->getMessage();
-            }
-
-            return $this->generateErrorResponse(
-                ErrorType::VALIDATION_ERROR['code'],
-                ErrorType::VALIDATION_ERROR['message'],
-                $errors,
-                Response::HTTP_BAD_REQUEST
-            );
+            throw new ValidationException($validationErrors);
         }
-
-        return null;
-    }
-
-    public function generateErrorResponse($code, $message, $errors = [], $status = Response::HTTP_INTERNAL_SERVER_ERROR): Response
-    {
-        $errorBean = new JsonError();
-        $errorBean->setCode($code)
-            ->setMessage($message);
-
-        if (count($errors)) {
-            $errorBean->setErrors($errors);
-        }
-        $response = new Response($this->serializer->serialize($errorBean, 'json'));
-        $response->headers->set('Content-type', 'application/json');
-        $response->setStatusCode($status);
-
-        return $response;
+        return true;
     }
 }

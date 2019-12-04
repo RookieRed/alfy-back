@@ -100,36 +100,6 @@ class PageController extends AbstractController
     }
 
     /**
-     * @Route(path="/{pageName}/{contentId}",
-     *     methods={"POST"},
-     *     name="page_update_contents"
-     * )
-     */
-    public function updateTextSection(Request $request)
-    {
-        $pageName = $request->get('pageName');
-        $contentId = $request->get('contentId');
-        if ($pageName == null || $contentId == null) {
-            return $this->json('Bad url params', Response::HTTP_BAD_REQUEST);
-        }
-        $contentPojo = $this->serializer->deserialize($request->getContent(),
-            HTMLSection::class, 'json', ['groups' => ['update_page_content']]);
-
-//        $pageContent = $this->pageContentRepository->findOneBy(['id' => $contentId]);
-//        if ($pageContent === null) {
-//            return $this->json('Page or content not found', Response::HTTP_NOT_FOUND);
-//        }
-//        TODO
-//        $pageContent->setHtml($contentPojo->getHtml());
-//        $pageContent->setTitle($contentPojo->getTitle());
-//        $pageContent->setUpdatedAt(new DateTime());
-//        $pageContent->setLastWriter($this->userService->getConnectedUser());
-//        $this->em->flush();
-
-        return $this->json('', Response::HTTP_NO_CONTENT);
-    }
-
-    /**
      * @Route(path="/{pageName}/files-config",
      *     methods={"POST"},
      *     name="page_update_files_config"

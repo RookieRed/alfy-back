@@ -16,14 +16,13 @@ use Symfony\Component\Serializer\Normalizer\JsonSerializableNormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 
-class CustomSerializer extends Serializer
+class JsonSerializer extends Serializer
 {
 
 
     public function __construct(
         ClassMetadataFactoryInterface $classMetadataFactory,
-        PropertyAccessorInterface $propertyAccessor
-    )
+        PropertyAccessorInterface $propertyAccessor)
     {
         $objectNormalizer = new ObjectNormalizer(
             $classMetadataFactory,
@@ -31,11 +30,6 @@ class CustomSerializer extends Serializer
             $propertyAccessor,
             new ReflectionExtractor()
         );
-        $objectNormalizer
-            ->setCircularReferenceLimit(1)
-            ->setCircularReferenceHandler(function ($object) {
-                return $object->getId();
-            });
         parent::__construct(
             [
                 new DateTimeNormalizer('Y-m-d H:i:s', new DateTimeZone(('Europe/Amsterdam'))),
@@ -48,6 +42,19 @@ class CustomSerializer extends Serializer
             ],
             [
                 new JsonEncoder()
-            ]);
+            ]
+        );
+    }
+
+    public function jsonSerialize($data, $groups = [])
+    {
+        $config = $groups === [] ? [] : ['groups' => $groups];
+        return $this->serialize($data, 'json', $config);
+    }
+
+    public function jsonDeserialize($jsonData, $type, $groups = [])
+    {
+        $config = $groups === [] ? [] : ['groups' => $groups];
+        return $this->deserialize($jsonData, $type, 'json', $config);
     }
 }

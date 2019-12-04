@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\HTMLSection;
 use App\Service\SectionService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -11,7 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * Class SectionController
  * @package App\Controller
- * @Route(path="/pages")
+ * @Route(path="/pages-sections")
  */
 class SectionController extends AbstractController
 {
@@ -30,23 +31,6 @@ class SectionController extends AbstractController
     }
 
     /**
-     * @Route(path="/{id}", methods={"GET"}, requirements={"id"="\d+"}, name="get_one_page_section")
-     */
-    public function getPageSection(Request $request)
-    {
-        $id = $request->get("id");
-        if ($id === null) {
-            return $this->json("Id can not be null", Response::HTTP_BAD_REQUEST);
-        }
-
-        $section = $this->sectionService->findById($id);
-        if ($section == null) {
-            return $this->json("Page section not found", Response::HTTP_NOT_FOUND);
-        }
-        return $this->json($section, Response::HTTP_OK, ['groups' => ['']]);
-    }
-
-    /**
      * @Route(path="", methods={"POST"}, name="create_page_section")
      */
     public function createPageSection(Request $request)
@@ -58,13 +42,30 @@ class SectionController extends AbstractController
     }
 
     /**
-     * @Route(path="/{id}", methods={"PUT"}, name="update_page_section")
+     * @Route(path="/{id}", methods={"PUT"},  requirements={"id"="\d+"}, name="update_page_section")
      */
     public function updatePageSection(Request $request)
     {
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/SectionController.php',
-        ]);
+
+        $pageName = $request->get('pageName');
+        $contentId = $request->get('contentId');
+        if ($pageName == null || $contentId == null) {
+            return $this->json('Bad url params', Response::HTTP_BAD_REQUEST);
+        }
+        $contentPojo = $this->serializer->deserialize($request->getContent(),
+            HTMLSection::class, 'json', ['groups' => ['update_page_content']]);
+
+//        $pageContent = $this->pageContentRepository->findOneBy(['id' => $contentId]);
+//        if ($pageContent === null) {
+//            return $this->json('Page or content not found', Response::HTTP_NOT_FOUND);
+//        }
+//        TODO
+//        $pageContent->setHtml($contentPojo->getHtml());
+//        $pageContent->setTitle($contentPojo->getTitle());
+//        $pageContent->setUpdatedAt(new DateTime());
+//        $pageContent->setLastWriter($this->userService->getConnectedUser());
+//        $this->em->flush();
+
+        return $this->json('', Response::HTTP_NO_CONTENT);
     }
 }
