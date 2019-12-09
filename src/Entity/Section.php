@@ -2,24 +2,27 @@
 
 namespace App\Entity;
 
-use DateTimeInterface;
+use App\Entity\Traits\TimedEntityTrait;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity
  * @ORM\InheritanceType("JOINED")
- * @ORM\DiscriminatorColumn(name="discr", type="string")
+ * @ORM\DiscriminatorColumn(name="type", type="string")
  * @ORM\DiscriminatorMap({
- *      "tiles"="App\Entity\TilesSection",
- *      "timeline"="App\Entity\TimelineSection",
  *      "html"="App\Entity\HTMLSection",
  *      "slides"="App\Entity\SlideShowSection",
+ *      "timeline"="App\Entity\TilesEventsSection",
  * })
  * @ORM\Cache(region="pages_sections", usage="READ_ONLY")
  */
 abstract class Section
 {
+    use TimedEntityTrait;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -29,12 +32,6 @@ abstract class Section
     private $id;
 
     /**
-     * @ORM\Column(type="datetime")
-     */
-    private $createdAt;
-
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
      * @Groups({"get_page"})
      */
     private $updatedAt;
@@ -48,59 +45,52 @@ abstract class Section
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
      */
     private $creator;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Page", inversedBy="sections")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\ManyToOne(targetEntity="App\Entity\Page", inversedBy="sections", cascade={"persist"})
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $page;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"get_page"})
+     * @Assert\NotBlank()
      */
-    private $name;
+    private $title;
+
+    /**
+     * @ORM\Version()
+     * @ORM\Column(type="integer")
+     */
+    private $version;
+
+    /**
+     * @Groups({"get_page"})
+     */
+    private $type;
+
+    public function __construct()
+    {
+        $this->setCreatedAt(null);
+    }
 
     public function getId()
     {
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getTitle(): ?string
     {
-        return $this->name;
+        return $this->title;
     }
 
-    public function setName(string $name): self
+    public function setTitle(string $title): self
     {
-        $this->name = $name;
-
-        return $this;
-    }
-
-    public function getCreatedAt(): ?DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(DateTimeInterface $createdAt): self
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(?DateTimeInterface $updatedAt): self
-    {
-        $this->updatedAt = $updatedAt;
+        $this->title = $title;
 
         return $this;
     }
@@ -139,5 +129,18 @@ abstract class Section
         $this->page = $page;
 
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getVersion()
+    {
+        return $this->version;
+    }
+
+    public function getType(): string
+    {
+        return $this->type;
     }
 }

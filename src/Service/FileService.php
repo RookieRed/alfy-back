@@ -209,7 +209,6 @@ class FileService
     }
 
     /**
-     * @param RowCellIterator $rowIterator
      * @return Generator
      */
     private function getColumnValues(Row $row)

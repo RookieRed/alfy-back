@@ -2,25 +2,25 @@
 
 namespace App\Repository;
 
-use App\Entity\Tile;
+use App\Entity\Town;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 
 /**
- * @method Tile|null find($id, $lockMode = null, $lockVersion = null)
- * @method Tile|null findOneBy(array $criteria, array $orderBy = null)
- * @method Tile[]    findAll()
- * @method Tile[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Town|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Town|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Town[]    findAll()
+ * @method Town[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class TileRepository extends ServiceEntityRepository
+class TownRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Tile::class);
+        parent::__construct($registry, Town::class);
     }
 
     // /**
-    //  * @return Tile[] Returns an array of Tile objects
+    //  * @return Town[] Returns an array of Town objects
     //  */
     /*
     public function findByExampleField($value)
@@ -37,7 +37,7 @@ class TileRepository extends ServiceEntityRepository
     */
 
     /*
-    public function findOneBySomeField($value): ?Tile
+    public function findOneBySomeField($value): ?Town
     {
         return $this->createQueryBuilder('t')
             ->andWhere('t.exampleField = :val')

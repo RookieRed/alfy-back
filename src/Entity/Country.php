@@ -2,11 +2,12 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\CountryRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\CountryRepository", readOnly=true)
  */
 class Country
 {
@@ -39,6 +40,16 @@ class Country
      * @ORM\Column(type="integer", options={"default"=0})
      */
     private $priority;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Town", fetch="LAZY", mappedBy="country")
+     */
+    private $towns;
+
+    public function __construct()
+    {
+        $this->towns = new ArrayCollection();
+    }
 
     public function getId()
     {
@@ -109,4 +120,9 @@ class Country
         return $this;
     }
 
+
+    public function getTowns(): ArrayCollection
+    {
+        return $this->towns;
+    }
 }

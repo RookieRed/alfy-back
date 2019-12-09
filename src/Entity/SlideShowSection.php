@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\SectionRepository")
@@ -15,13 +16,17 @@ final class SlideShowSection extends Section
 {
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\File", inversedBy="relatedSlides", cascade={"persist"}, fetch="EAGER")
-     * @ORM\JoinTable(name="slide_show_sections_files_asso")
+     * @ORM\JoinTable(name="slide_show_sections_files_asso",
+     *     joinColumns={@ORM\JoinColumn(onDelete="CASCADE")},
+     *     inverseJoinColumns={@ORM\JoinColumn(onDelete="CASCADE")})
      * @Groups({"get_page"})
+     * @Assert\NotNull()
      */
     private $photos;
 
     public function __construct()
     {
+        parent::__construct();
         $this->photos = new ArrayCollection();
     }
 

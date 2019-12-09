@@ -36,13 +36,6 @@ class Address
     private $city;
 
     /**
-     * @var Country
-     * @ORM\ManyToOne(targetEntity="App\Entity\Country")
-     * @Groups({"user_get"})
-     */
-    private $country;
-
-    /**
      * @var int
      * @Groups({"user_update"})
      */

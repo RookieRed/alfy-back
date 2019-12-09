@@ -6,30 +6,27 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\SectionRepository")
+ * @ORM\Table(name="html_section")
  * @ORM\Cache(region="pages_sections", usage="READ_ONLY")
  */
 final class HTMLSection extends Section
 {
     /**
-     * @ORM\Column(type="string", length=1024)
-     * @Groups({"get_page", "update_page_content"})
-     */
-    private $title;
-
-    /**
      * @ORM\Column(type="text")
      * @Groups({"get_page", "update_page_content"})
+     * @Assert\NotBlank()
      */
     private $html;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\File", cascade={"persist"}, fetch="EAGER")
      * @ORM\JoinTable(name="html_sections_files_asso",
-     *     joinColumns={@ORM\JoinColumn(name="html_section_id", referencedColumnName="id")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="file_id", referencedColumnName="id")}
+     *     joinColumns={@ORM\JoinColumn(onDelete="CASCADE")},
+     *     inverseJoinColumns={@ORM\JoinColumn(onDelete="CASCADE")}
      * )
      * @Groups({"get_page", "update_page_content"})
      * @var File[]
@@ -41,6 +38,7 @@ final class HTMLSection extends Section
      */
     public function __construct()
     {
+        parent::__construct();
         $this->files = new ArrayCollection();
     }
 
@@ -53,25 +51,6 @@ final class HTMLSection extends Section
     public function setHtml(string $html): self
     {
         $this->html = $html;
-
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getTitle(): string
-    {
-        return $this->title;
-    }
-
-    /**
-     * @param mixed $title
-     * @return HTMLSection
-     */
-    public function setTitle(string $title): self
-    {
-        $this->title = $title;
 
         return $this;
     }

@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\PageRepository")
@@ -23,16 +24,18 @@ class Page
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"get_page"})
+     * @Assert\NotBlank()
      */
     private $name;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, unique=true)
+     * @Assert\NotBlank()
      */
     private $link;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Section", mappedBy="page", orphanRemoval=true, fetch="EAGER")
+     * @ORM\OneToMany(targetEntity="App\Entity\Section", mappedBy="page", cascade={"persist"}, orphanRemoval=true, fetch="EAGER")
      * @Groups({"get_page"})
      * @var Section[]
      * @ORM\Cache(region="pages_sections", usage="READ_ONLY")
@@ -74,14 +77,14 @@ class Page
     }
 
     /**
-     * @return Collection|HTMLSection[]
+     * @return Collection|Section[]
      */
     public function getSections(): Collection
     {
         return $this->sections;
     }
 
-    public function addContent(HTMLSection $content): self
+    public function addSection(Section $content): self
     {
         if (!$this->sections->contains($content)) {
             $this->sections[] = $content;
@@ -91,7 +94,7 @@ class Page
         return $this;
     }
 
-    public function removeContent(HTMLSection $content): self
+    public function removeSection(Section $content): self
     {
         if ($this->sections->contains($content)) {
             $this->sections->removeElement($content);

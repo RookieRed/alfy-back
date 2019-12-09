@@ -23,6 +23,8 @@ class FileConstants
     const MODELS_DIR = '/files/models/';
     const GENERATED_XLS = 'import_alfy.xls';
 
+    const DEFAULT_NO_IMAGE_FILE = '/files/pictures/default.png';
+
     const PROFILE_PICTURES_DIR = '/files/pictures/profiles/';
     const PAGES_PICTURES_DIR = '/files/pictures/pages/';
     const SLIDE_SHOW_DIR = '/files/slide-show/';

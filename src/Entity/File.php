@@ -2,18 +2,23 @@
 
 namespace App\Entity;
 
-use App\Constants\FileConstants;
-use DateTimeInterface;
+use App\Entity\Traits\TimedEntityTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\FileRepository")
+ * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(
+ *      name="file_unicity_path_name", columns={"path", "name"})})
  */
 class File
 {
+    use TimedEntityTrait;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -23,20 +28,16 @@ class File
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"user_get", "user_get_list", "get_page"})
+     * @Assert\NotBlank()
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"user_get", "user_get_list", "get_page"})
+     * @Assert\NotBlank()
+     * @Assert\Regex("/^\/((.+)\/)?$/")
      */
     private $path;
-
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private $createdAt;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User")
@@ -58,6 +59,7 @@ class File
     public function __construct()
     {
         $this->relatedSlides = new ArrayCollection();
+        $this->setCreatedAt(null);
     }
 
     public function getId()
@@ -89,18 +91,9 @@ class File
         return $this;
     }
 
-    public function getCreatedAt(): ?DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(?DateTimeInterface $createdAt): self
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
+    /**
+     * @Groups({"user_get", "user_get_list", "get_page"})
+     */
     public function getFullPath(): string
     {
         return $this->path . $this->name;
@@ -169,11 +162,23 @@ class File
     /**
      * @ORM\PreRemove()
      */
-    public function removePhysicalFile()
+    public function onPreRemoveEntity()
     {
-        $filePath = '../../public' . $this->getFullPath();
+        $filePath = '..'. DIRECTORY_SEPARATOR .'..'. DIRECTORY_SEPARATOR .'public' . $this->getFullPath();
         if (file_exists($filePath)) {
             unlink($filePath);
+        }
+    }
+
+    /**
+     * @ORM\PreUpdate()
+     * @ORM\PrePersist()
+     */
+    public function findPhysicalFileOrThrowException()
+    {
+        $filePath = '..'. DIRECTORY_SEPARATOR .'..'. DIRECTORY_SEPARATOR .'public' . $this->getFullPath();
+        if (!file_exists($filePath)) {
+            throw new FileNotFoundException("File entity is linked to a non-existing file.");
         }
     }
 }

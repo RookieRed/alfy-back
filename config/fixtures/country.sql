@@ -240,7 +240,3 @@ INSERT INTO `country` (`id`, `code`, `en_name`, `fr_name`) VALUES
 (239, 'YE', 'Yemen', 'Yémen'),
 (240, 'CS', 'Serbia and Montenegro', 'Serbie-et-Monténégro'),
 (241, 'ZM', 'Zambia', 'Zambie');
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

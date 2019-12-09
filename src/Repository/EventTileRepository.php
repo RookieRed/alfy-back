@@ -2,25 +2,25 @@
 
 namespace App\Repository;
 
-use App\Entity\TimelineEvent;
+use App\Entity\EventTile;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 
 /**
- * @method TimelineEvent|null find($id, $lockMode = null, $lockVersion = null)
- * @method TimelineEvent|null findOneBy(array $criteria, array $orderBy = null)
- * @method TimelineEvent[]    findAll()
- * @method TimelineEvent[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method EventTile|null find($id, $lockMode = null, $lockVersion = null)
+ * @method EventTile|null findOneBy(array $criteria, array $orderBy = null)
+ * @method EventTile[]    findAll()
+ * @method EventTile[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class TimelineEventRepository extends ServiceEntityRepository
+class EventTileRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, TimelineEvent::class);
+        parent::__construct($registry, EventTile::class);
     }
 
     // /**
-    //  * @return TimelineEvent[] Returns an array of TimelineEvent objects
+    //  * @return SectionEvent[] Returns an array of SectionEvent objects
     //  */
     /*
     public function findByExampleField($value)
@@ -37,7 +37,7 @@ class TimelineEventRepository extends ServiceEntityRepository
     */
 
     /*
-    public function findOneBySomeField($value): ?TimelineEvent
+    public function findOneBySomeField($value): ?SectionEvent
     {
         return $this->createQueryBuilder('t')
             ->andWhere('t.exampleField = :val')

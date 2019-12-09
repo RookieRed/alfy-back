@@ -5,11 +5,12 @@ namespace App\Entity;
 use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\TimelineEventRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\EventTileRepository")
  */
-class TimelineEvent
+class EventTile
 {
     /**
      * @ORM\Id()
@@ -20,13 +21,14 @@ class TimelineEvent
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\TimelineSection", inversedBy="events")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\ManyToOne(targetEntity="App\Entity\TilesEventsSection", inversedBy="events", cascade={"persist"})
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
+     * @Assert\NotNull()
      */
-    private $timeline;
+    private $parentSection;
 
     /**
-     * @ORM\Column(type="date")
+     * @ORM\Column(type="date", nullable=true)
      * @Groups({"get_page"})
      */
     private $date;
@@ -34,8 +36,22 @@ class TimelineEvent
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"get_page"})
+     * @Assert\NotBlank()
      */
     private $title;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\File", fetch="EAGER", cascade={"persist"})
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
+     * @Groups({"get_page"})
+     */
+    private $photo;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"get_page"})
+     */
+    private $link;
 
     /**
      * @ORM\Column(type="string", length=511, nullable=true)
@@ -48,14 +64,14 @@ class TimelineEvent
         return $this->id;
     }
 
-    public function getTimeline(): ?TimelineSection
+    public function getParentSection(): ?TilesEventsSection
     {
-        return $this->timeline;
+        return $this->parentSection;
     }
 
-    public function setTimeline(?TimelineSection $timeline): self
+    public function setParentSection(?TilesEventsSection $parentSection): self
     {
-        $this->timeline = $timeline;
+        $this->parentSection = $parentSection;
 
         return $this;
     }
@@ -92,6 +108,30 @@ class TimelineEvent
     public function setDescription(?string $description): self
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    public function getPhoto(): ?File
+    {
+        return $this->photo;
+    }
+
+    public function setPhoto(?File $photo): self
+    {
+        $this->photo = $photo;
+
+        return $this;
+    }
+
+    public function getLink(): ?string
+    {
+        return $this->link;
+    }
+
+    public function setLink(?string $link): self
+    {
+        $this->link = $link;
 
         return $this;
     }

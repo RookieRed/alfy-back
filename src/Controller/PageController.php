@@ -83,13 +83,13 @@ class PageController extends JsonAbstractController
         }
 
         /** @var PageFilesIn $pageBean */
-        $pageBean = $this->serializer->deserialize($request->getContent(), PageFilesIn::class, 'json');
+        $pageBean = $this->serializer->jsonDeserialize($request->getContent(), PageFilesIn::class);
         try {
             $this->pageService->updatePageFiles($pageBean);
         } catch (InvalidArgumentException $e) {
             return $this->json('Page does not exist', Response::HTTP_NOT_FOUND);
         }
-        return $this->json('', Response::HTTP_NO_CONTENT);
+        return $this->noContent();
     }
 
     /**
@@ -109,10 +109,7 @@ class PageController extends JsonAbstractController
         if ($pageName == null) {
             return $this->json('No page name provided', Response::HTTP_BAD_REQUEST);
         }
-        $page = $this->pageRepository->findOneBy(['name' => $pageName]);
-        if ($page === null) {
-            return $this->json('Page does not exist.', Response::HTTP_NOT_FOUND);
-        }
+        $this->pageService->findByNameOrThrowException($pageName);
 
         /** @var File $file */
         $file = $request->files->get('file');

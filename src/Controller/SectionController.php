@@ -26,8 +26,7 @@ class SectionController extends AbstractController
 
     public function __construct(
         JsonSerializer $serializer,
-        SectionService $sectionService
-    )
+        SectionService $sectionService)
     {
         parent::__construct($serializer);
         $this->sectionService = $sectionService;
