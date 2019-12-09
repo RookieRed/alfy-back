@@ -72,10 +72,13 @@ class FileService
         return $file;
     }
 
-    public function importFromExcel(File $file): ImportReport
+    public function importFromExcel($file): ImportReport
     {
-        $xlsFile = IOFactory::createReaderForFile($file->getFullPath())
-            ->load($file->getFullPath());
+        $fullPath = $file instanceof File
+            ? $file->getFullPath()
+            : $file;
+        $xlsFile = IOFactory::createReaderForFile($fullPath)
+            ->load($fullPath);
         $sheet = $xlsFile->getActiveSheet();
 
         $report = new ImportReport();
@@ -117,8 +120,9 @@ class FileService
                 $birthDay = $birthDay != null
                     ? DateTime::createFromFormat('d/m/Y', $birthDay)
                     : null;
-                $bacEntity = $this->em->getRepository(Baccalaureate::class)
-                    ->findOneBy(['name' => $bac]);
+                $bacEntity = $bac === null
+                    ? null
+                    : $this->em->getRepository(Baccalaureate::class)->findOneBy(['name' => $bac]);
                 $phone = trim($phone);
                 $phone = strlen($phone) > 0 ? $phone : null;
 
@@ -134,6 +138,7 @@ class FileService
                     ->setEmail($email)
                     ->setPhone($phone)
                     ->setRole(UserRoles::STUDENT);
+                $user = $this->userService->unaccentUsername($user);
 
                 $this->em->persist($user);
                 $persistedUsers[] = $user;

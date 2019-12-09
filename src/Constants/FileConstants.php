@@ -11,6 +11,7 @@ namespace App\Constants;
 
 class FileConstants
 {
+    const DEFAULT_CONTACT_CSV_FILE = '/config/fixtures/contacts-alfy.ods';
     const XLS_FIRST_NAME = 'Prénom';
     const XLS_LAST_NAME = 'Nom';
     const XLS_BIRTHDAY = 'Date de naissance';

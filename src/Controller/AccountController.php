@@ -97,7 +97,7 @@ class AccountController extends JsonAbstractController
             throw new BadRequestHttpException('No id provided');
         }
 
-        $user = $this->userService->getById($userId);
+        $user = $this->userService->findById($userId);
         if ($user == null) {
             throw new NotFoundHttpException('User not find');
         }
@@ -208,7 +208,7 @@ class AccountController extends JsonAbstractController
             if (!$connectedUser->isRole(UserRoles::ADMIN)) {
                 throw new AccessDeniedException('You can not delete an other account');
             }
-            $target = $this->userService->getById($userId);
+            $target = $this->userService->findById($userId);
             if ($target == null) {
                 throw new NotFoundHttpException('User account does not exists');
             }

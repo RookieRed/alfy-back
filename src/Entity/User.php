@@ -35,7 +35,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank()file
+     * @Assert\NotBlank()
      * @Groups({"account_create", "user_get", "user_update", "user_get_list"})
      */
     private $firstName;
@@ -112,6 +112,7 @@ class User implements UserInterface
     /**
      * @var string|null
      * @ORM\Column(type="string", length=150, nullable=true)
+     * @Assert\Url()
      * @Groups({"user_get", "user_update"})
      */
     private $facebook;
@@ -119,6 +120,7 @@ class User implements UserInterface
     /**
      * @var string|null
      * @ORM\Column(type="string", length=150, nullable=true)
+     * @Assert\Url()
      * @Groups({"user_get", "user_update"})
      */
     private $linkedIn;
@@ -126,6 +128,7 @@ class User implements UserInterface
     /**
      * @var string|null
      * @ORM\Column(type="string", length=150, nullable=true)
+     * @Assert\Url()
      * @Groups({"user_get", "user_update"})
      */
     private $twitter;

@@ -70,7 +70,7 @@ class StudentController extends JsonAbstractController
      */
     public function search(Request $request)
     {
-        $matches = $this->userService->searchByName($request->get('search'));
+        $matches = $this->userService->findByName($request->get('search'));
         $paginatedResults = $this->pagination->generatePaginatedResults($request, $matches);
 
         $jsonResponse = new Response(
