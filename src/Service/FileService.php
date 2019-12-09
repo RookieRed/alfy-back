@@ -25,6 +25,7 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Row;
 use PhpOffice\PhpSpreadsheet\Worksheet\RowCellIterator;
 use PhpOffice\PhpSpreadsheet\Writer\Xls;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class FileService
 {
@@ -40,12 +41,24 @@ class FileService
      * @var UserService
      */
     private $userService;
+    /**
+     * @var ContainerInterface
+     */
+    private $container;
+    /**
+     * @var ValidationService
+     */
+    private $validationService;
 
     public function __construct(EntityManagerInterface $em,
                                 UserService $userService,
+                                ValidationService $validationService,
+                                ContainerInterface $container,
                                 UserRepository $userRepo)
     {
         $this->em = $em;
+        $this->validationService = $validationService;
+        $this->container = $container;
         $this->userService = $userService;
         $this->userRepo = $userRepo;
     }
@@ -55,7 +68,8 @@ class FileService
                              string $path = FileConstants::UPLOAD_DIR): File
     {
         $hashedName = md5(uniqid()) . '.' . $symfonyFile->guessExtension();
-        $symfonyFile = $symfonyFile->move($path, $hashedName);
+        $symfonyFile = $symfonyFile->move($this->container->getParameter('kernel.project_dir')
+            . '/public' . ($path[0] === '/' ? '' : '/') . $path, $hashedName);
         if ($symfonyFile === null) {
             throw new Exception('Can not save file');
         }
@@ -67,6 +81,7 @@ class FileService
         if ($owner !== null) {
             $file->setOwner($owner);
         }
+        $this->validationService->validateOrThrowException($file);
 
         $this->em->persist($file);
         return $file;

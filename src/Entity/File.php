@@ -28,12 +28,14 @@ class File
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"user_get", "user_get_list", "get_page"})
      * @Assert\NotBlank()
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"user_get", "user_get_list", "get_page"})
      * @Assert\NotBlank()
      * @Assert\Regex("/^\/((.+)\/)?$/")
      */

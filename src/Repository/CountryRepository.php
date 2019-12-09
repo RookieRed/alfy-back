@@ -23,11 +23,11 @@ class CountryRepository extends ServiceEntityRepository
         parent::__construct($registry, Country::class);
     }
 
-    public function searchBy(string $search): array
+    public function findByNameLike(string $search): array
     {
         return $this->em->createQuery('SELECT c FROM App\Entity\Country c '
             . 'WHERE (c.frName LIKE :search) '
-            . 'ORDER BY c.priority, c.frName ASC')
+            . 'ORDER BY c.priority ASC, c.frName DESC')
             ->execute(['search' => $search . '%']);
     }
 }

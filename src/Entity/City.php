@@ -6,9 +6,9 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\TownRepository", readOnly=true)
+ * @ORM\Entity(repositoryClass="App\Repository\CityRepository")
  */
-class Town
+class City
 {
     /**
      * @ORM\Id()
@@ -33,7 +33,7 @@ class Town
     private $name;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $zipCode;
 
@@ -77,5 +77,15 @@ class Town
     public function getCountry(): Country
     {
         return $this->country;
+    }
+
+    public function getCountryFrName() {
+        $country = $this->getCountry();
+        return $country !== null ? $country->getFrName() : null;
+    }
+
+    public function getCountryEnName() {
+        $country = $this->getCountry();
+        return $country !== null ? $country->getEnName() : null;
     }
 }

@@ -45,7 +45,7 @@ class ValidationService
      * @return bool true if valid
      * @throws ValidationException if invalid
      */
-    public function validateOrThrowException($bean, array $groups): bool
+    public function validateOrThrowException($bean, array $groups = null): bool
     {
         $validationErrors = $this->validator->validate($bean, null, $groups);
 

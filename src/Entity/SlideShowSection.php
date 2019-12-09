@@ -55,4 +55,12 @@ final class SlideShowSection extends Section
 
         return $this;
     }
+
+    /**
+     * @Groups({"get_page"})
+     */
+    public function getType()
+    {
+        return "slides";
+    }
 }

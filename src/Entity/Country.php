@@ -42,7 +42,7 @@ class Country
     private $priority;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Town", fetch="LAZY", mappedBy="country")
+     * @ORM\OneToMany(targetEntity="City", fetch="EAGER", mappedBy="country")
      */
     private $towns;
 
@@ -121,7 +121,7 @@ class Country
     }
 
 
-    public function getTowns(): ArrayCollection
+    public function getTowns()
     {
         return $this->towns;
     }

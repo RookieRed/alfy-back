@@ -80,4 +80,12 @@ final class HTMLSection extends Section
 
         return $this;
     }
+
+    /**
+     * @Groups({"get_page"})
+     */
+    public function getType()
+    {
+        return "html";
+    }
 }

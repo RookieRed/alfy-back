@@ -20,6 +20,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
@@ -53,7 +54,7 @@ class UserService
     /**
      * @var CountryRepository
      */
-    private $countryRepository;
+    private $locationService;
 
     /**
      * @var ValidationService
@@ -70,13 +71,13 @@ class UserService
                                 UserPasswordEncoderInterface $encoder,
                                 JWTTokenManagerInterface $jwtManager,
                                 TokenStorageInterface $tokenStorage,
-                                CountryRepository $countryRepository,
+                                LocationService $locationService,
                                 ValidationService $validationService,
                                 UserRepository $userRepository)
     {
         $this->em = $em;
         $this->userRepo = $userRepository;
-        $this->countryRepository = $countryRepository;
+        $this->locationService = $locationService;
         $this->encoder = $encoder;
         $this->jwtManager = $jwtManager;
         $this->validationService = $validationService;
@@ -256,11 +257,11 @@ class UserService
 
             $countryId = $newAddress->getCountryId();
             if ($countryId === null) {
-                throw new Exception('No country id specified');
+                throw new BadRequestHttpException('No country id specified');
             } else {
-                $country = $this->countryRepository->findOneBy(['id' => $countryId]);
+                $country = $this->locationService->findOneBy(['id' => $countryId]);
                 if ($country == null) {
-                    throw new Exception('The specified country does not exist');
+                    throw new BadRequestHttpException('The specified country does not exist');
                 }
             }
 

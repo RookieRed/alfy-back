@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use App\Service\FileService;
+use App\Service\UserService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -35,10 +37,12 @@ class Page
     private $link;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Section", mappedBy="page", cascade={"persist"}, orphanRemoval=true, fetch="EAGER")
+     * @ORM\OneToMany(targetEntity="App\Entity\Section", mappedBy="page", indexBy="code",
+     *     cascade={"persist"}, orphanRemoval=true, fetch="EAGER")
      * @Groups({"get_page"})
      * @var Section[]
      * @ORM\Cache(region="pages_sections", usage="READ_ONLY")
+     * @ORM\OrderBy(value={"orderIndex" = "ASC"})
      */
     private $sections;
 
@@ -89,6 +93,7 @@ class Page
         if (!$this->sections->contains($content)) {
             $this->sections[] = $content;
             $content->setPage($this);
+            $content->setOrderIndex(count($this->sections));
         }
 
         return $this;

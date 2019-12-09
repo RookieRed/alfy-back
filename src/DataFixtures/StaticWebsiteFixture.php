@@ -61,6 +61,7 @@ class StaticWebsiteFixture extends Fixture implements ContainerAwareInterface
             ->addSection(
                 (new HTMLSection())
                     ->setTitle("Qui sommes-nous ?")
+                    ->setCode("intro")
                     ->setHtml("<img class=\"logo-alfy\" align=\"right\" src=\"/assets/img/logo-alfy.jpg\"/>
       <p>L’association ALFY des <b>Anciens du Lycée Français de Yaoundé</b> rassemble toute personne de plus de 16 ans ayant
         été scolarisée au moins un an au Lycée Fustel de Coulanges de Yaoundé, tout membre du personnel administratif
@@ -75,6 +76,7 @@ class StaticWebsiteFixture extends Fixture implements ContainerAwareInterface
             )
             ->addSection((new TilesEventsSection())
                 ->setTitle("Nos sponsors")
+                ->setCode("sponsors")
                 ->addTile((new EventTile())
                     ->setTitle("Sponsor A")
                     ->setLink("https://www.google.com/")
@@ -94,6 +96,7 @@ class StaticWebsiteFixture extends Fixture implements ContainerAwareInterface
             )
             ->addSection((new TilesEventsSection())
                 ->setTitle("Agenda")
+                ->setCode("agenda")
                 ->addTile((new EventTile())
                     ->setTitle("Prochain évènement")
                     ->setDescription("Un troisième sponsor qui nous a accompagné")
@@ -115,6 +118,7 @@ class StaticWebsiteFixture extends Fixture implements ContainerAwareInterface
             ->setLink("/association")
             ->addSection((new TilesEventsSection())
                 ->setTitle("Evenements importants")
+                ->setCode("asso-timeline")
                 ->addTile((new EventTile())
                     ->setTitle("Création de l'association")
                     ->setDate(new \DateTime("2015-06-01"))
@@ -126,6 +130,7 @@ class StaticWebsiteFixture extends Fixture implements ContainerAwareInterface
             )
             ->addSection((new HTMLSection())
                 ->setTitle("Petit mot sur l'association")
+                ->setCode("asso")
                 ->setHtml("<p>Présentation de l&amp;association</p>")
             );
         assert(count($this->validator->validate($assoPage)) == 0, "Association page entity is not valid.");

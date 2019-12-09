@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Constants\SocialNetworkUrl;
 use App\Constants\UserRoles;
+use App\Entity\Traits\AddressedEntityTrait;
 use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -18,6 +19,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class User implements UserInterface
 {
+    use AddressedEntityTrait;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -83,15 +86,6 @@ class User implements UserInterface
      * @Groups({"account_create", "user_get", "user_update"})
      */
     private $phone;
-
-    /**
-     * @var Address|null
-     * @ORM\OneToOne(targetEntity="App\Entity\Address", fetch="LAZY")
-     * @ORM\JoinColumn(name="address_id", referencedColumnName="id")
-     * @Groups({"user_get", "user_update"})
-     * @MaxDepth(2)
-     */
-    private $address;
 
     /**
      * @ORM\Column(type="string", length=50)
@@ -412,24 +406,6 @@ class User implements UserInterface
     {
         $this->clearPassword = $clearPassword;
 
-        return $this;
-    }
-
-    /**
-     * @return Address|null
-     */
-    public function getAddress(): ?Address
-    {
-        return $this->address;
-    }
-
-    /**
-     * @param Address|null $address
-     * @return User
-     */
-    public function setAddress($address): self
-    {
-        $this->address = $address;
         return $this;
     }
 

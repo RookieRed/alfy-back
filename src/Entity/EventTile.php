@@ -21,7 +21,7 @@ class EventTile
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\TilesEventsSection", inversedBy="events", cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity="App\Entity\TilesEventsSection", inversedBy="tiles", cascade={"persist"})
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      * @Assert\NotNull()
      */

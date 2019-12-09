@@ -2,7 +2,7 @@
 -- Déchargement des données de la table `villes_france_free`
 --
 
-INSERT INTO `town` (`department`, `code`, `name`, `zip_code`, `country_id`) VALUES
+INSERT INTO `city` (`department`, `code`, `name`, `zip_code`, `country_id`) VALUES
 ('01', 'amberieu-en-bugey', 'Ambérieu-en-Bugey', '01500', 75),
 ('01', 'oyonnax', 'Oyonnax', '01100', 75),
 ('01', 'bellegarde-sur-valserine', 'Bellegarde-sur-Valserine', '01200', 75),

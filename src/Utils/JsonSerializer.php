@@ -7,6 +7,7 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactoryInterface;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
 use Symfony\Component\Serializer\Normalizer\ConstraintViolationListNormalizer;
 use Symfony\Component\Serializer\Normalizer\DataUriNormalizer;
@@ -24,11 +25,19 @@ class JsonSerializer extends Serializer
         ClassMetadataFactoryInterface $classMetadataFactory,
         PropertyAccessorInterface $propertyAccessor)
     {
+        $defaultContext = [
+            AbstractNormalizer::CIRCULAR_REFERENCE_HANDLER => function ($object, $context) {
+                return $object->getId();
+            },
+        ];
         $objectNormalizer = new ObjectNormalizer(
             $classMetadataFactory,
             null,
             $propertyAccessor,
-            new ReflectionExtractor()
+            new ReflectionExtractor(),
+            null,
+            null,
+            $defaultContext
         );
         parent::__construct(
             [

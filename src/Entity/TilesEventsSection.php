@@ -27,7 +27,7 @@ final class TilesEventsSection extends Section
         $this->tiles = new ArrayCollection();
     }
 
-    public function getTiles(): ArrayCollection
+    public function getTiles()
     {
         return $this->tiles;
     }
@@ -48,5 +48,13 @@ final class TilesEventsSection extends Section
             $tile->setParentSection(null);
         }
         return $this;
+    }
+
+    /**
+     * @Groups({"get_page"})
+     */
+    public function getType()
+    {
+        return "tiles";
     }
 }

@@ -3,7 +3,7 @@
 namespace App\Entity;
 
 use App\Entity\Traits\TimedEntityTrait;
-use Doctrine\Common\Collections\ArrayCollection;
+use App\Service\UserService;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\DiscriminatorMap({
  *      "html"="App\Entity\HTMLSection",
  *      "slides"="App\Entity\SlideShowSection",
- *      "timeline"="App\Entity\TilesEventsSection",
+ *      "tiles"="App\Entity\TilesEventsSection",
  * })
  * @ORM\Cache(region="pages_sections", usage="READ_ONLY")
  */
@@ -63,15 +63,22 @@ abstract class Section
     private $title;
 
     /**
+     * @ORM\Column(type="string", length=255, nullable=false, unique=true)
+     * @Assert\NotBlank()
+     */
+    private $code;
+
+    /**
      * @ORM\Version()
      * @ORM\Column(type="integer")
      */
     private $version;
 
     /**
+     * @ORM\Column(type="integer")
      * @Groups({"get_page"})
      */
-    private $type;
+    private $orderIndex;
 
     public function __construct()
     {
@@ -139,8 +146,36 @@ abstract class Section
         return $this->version;
     }
 
-    public function getType(): string
+    public function getOrderIndex()
     {
-        return $this->type;
+        return $this->orderIndex;
+    }
+
+    public function setOrderIndex($orderIndex): self
+    {
+        $this->orderIndex = $orderIndex;
+        return $this;
+    }
+
+    public function getCode()
+    {
+        return $this->code;
+    }
+
+    public function setCode($code): self
+    {
+        $this->code = $code;
+        return $this;
+    }
+
+    public abstract function getType();
+
+    /**
+     * @ORM\PrePersist()
+     */
+    public function onPrePersist()  {
+        if ($this->code == null) {
+            $this->code = strtolower(strtr(str_replace(' ', '-', $this->title), UserService::ACCENTED_CHAR_MAP));
+        }
     }
 }
