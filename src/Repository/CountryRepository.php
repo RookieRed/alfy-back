@@ -27,7 +27,7 @@ class CountryRepository extends ServiceEntityRepository
     {
         return $this->em->createQuery('SELECT c FROM App\Entity\Country c '
             . 'WHERE (c.frName LIKE :search) '
-            . 'ORDER BY c.priority ASC, c.frName DESC')
+            . 'ORDER BY c.priority DESC, c.frName ASC')
             ->execute(['search' => $search . '%']);
     }
 }

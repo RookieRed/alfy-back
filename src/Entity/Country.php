@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\CountryRepository", readOnly=true)
+ * @ORM\Entity(repositoryClass="App\Repository\CountryRepository")
  */
 class Country
 {
@@ -44,11 +44,11 @@ class Country
     /**
      * @ORM\OneToMany(targetEntity="City", fetch="EAGER", mappedBy="country")
      */
-    private $towns;
+    private $cities;
 
     public function __construct()
     {
-        $this->towns = new ArrayCollection();
+        $this->cities = new ArrayCollection();
     }
 
     public function getId()
@@ -121,8 +121,8 @@ class Country
     }
 
 
-    public function getTowns()
+    public function getCities()
     {
-        return $this->towns;
+        return $this->cities;
     }
 }

@@ -38,7 +38,7 @@ class City
     private $zipCode;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Country", inversedBy="towns")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Country", inversedBy="cities")
      */
     private $country;
 

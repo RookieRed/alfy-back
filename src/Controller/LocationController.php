@@ -43,12 +43,18 @@ class LocationController extends JsonAbstractController
     }
 
     /**
-     * @Route(path="/countries/{id}/cities", methods={"GET"}, name="country_towns_list")
+     * @Route(path="/countries/{idCountry}/cities", methods={"GET"}, name="country_cities_list")
      */
     public function getTowns(Request $request)
     {
         $search = $request->get('search');
-        $countries = $this->locationService->findTownsByNameOr404($search);
+        $idCountry = +$request->get('idCountry');
+        $countries = $this->locationService->findTownsByNameOr404($idCountry, $search);
         return $this->json($countries);
+    }
+
+    public function createNewTown(Request $request)
+    {
+        // TODO
     }
 }

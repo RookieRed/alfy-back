@@ -21,36 +21,36 @@ class LocationService
     /**
      * @var CityRepository
      */
-    private $townRepository;
+    private $cityRepository;
 
     public function __construct(
         CountryRepository $countryRepository,
         AddressRepository $addressRepository,
-        CityRepository $townRepository
+        CityRepository $cityRepository
     ) {
         $this->countryRepository = $countryRepository;
         $this->addressRepository = $addressRepository;
-        $this->townRepository = $townRepository;
+        $this->cityRepository = $cityRepository;
     }
 
     /**
      * @param $search
      * @return Country[]
      */
-    public function findCountriesByNameOr404(string $search): array
+    public function findCountriesByNameOr404(?string $search): array
     {
         if ($search != null || strlen($search) > 0) {
             $countries = $this->countryRepository->findByNameLike($search);
         } else {
-            $countries = $this->countryRepository->findBy([], ['priority' => 'ASC', 'frName' => 'ASC']);
+            $countries = $this->countryRepository->findBy([], ['priority' => 'DESC', 'frName' => 'ASC']);
         }
-        if (count($countries)) {
+        if (count($countries) === 0) {
             throw new NotFoundHttpException("No countries found.");
         }
         return $countries;
     }
 
-    public function findTownsByNameOr404(int $countryId, string $search)
+    public function findTownsByNameOr404(int $countryId, ?string $search)
     {
         $country = $this->countryRepository->findOneBy(['id' => $countryId]);
         if ($country == null) {
@@ -58,13 +58,18 @@ class LocationService
         }
 
         if ($search != null || strlen($search) > 0) {
-            $towns = $this->townRepository->findByNameOrZipCodeLike($search);
+            $cities = $this->cityRepository->findByNameOrZipCodeLike($country, $search);
         } else {
-            $towns = $country->getTowns();
+            $cities = $country->getCities();
         }
-        if (count($towns)) {
-            throw new NotFoundHttpException("No towns found.");
+        if (count($cities)) {
+            throw new NotFoundHttpException("No cities found.");
         }
-        return $towns;
+        return $cities;
+    }
+
+    public function findCountryByCode(string $code): ?Country
+    {
+        return $this->countryRepository->findOneBy(['code' => strtoupper($code)]);
     }
 }
