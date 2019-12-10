@@ -13,12 +13,12 @@ class ErrorType
 {
 
     const EXCEPTION = [
-        'code'    => 'E00',
+        'code' => 'E00',
         'message' => 'Exception levée'
     ];
 
     const VALIDATION_ERROR = [
-        'code'    => 'E01',
+        'code' => 'E01',
         'message' => 'Formulaire non valide'
     ];
 

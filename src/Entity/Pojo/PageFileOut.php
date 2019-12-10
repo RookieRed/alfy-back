@@ -5,6 +5,7 @@ namespace App\Entity\Pojo;
 
 
 use App\Entity\PageFile;
+use InvalidArgumentException;
 
 class PageFileOut
 {
@@ -16,7 +17,7 @@ class PageFileOut
     {
         $file = $pageFile->getFile();
         if ($file === null) {
-            throw new \InvalidArgumentException('File is null.');
+            throw new InvalidArgumentException('File is null.');
         }
         $this->id = $file->getId();
         $this->path = $file->getFullPath();

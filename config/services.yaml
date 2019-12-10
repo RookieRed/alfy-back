@@ -26,8 +26,6 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
-
-    App\Controller\JsonExceptionController:
-        public: true
-        arguments:
-            $debug: '%kernel.debug%'
+    App\Utils\ExceptionToJsonListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception }

@@ -2,13 +2,17 @@
 
 namespace App\Entity;
 
+use App\Service\FileService;
+use App\Service\UserService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\PageRepository")
+ * @ORM\Cache(region="pages", usage="READ_ONLY")
  */
 class Page
 {
@@ -22,25 +26,29 @@ class Page
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"get_page"})
+     * @Assert\NotBlank()
      */
     private $name;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, unique=true)
+     * @Assert\NotBlank()
      */
     private $link;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\PageContent", mappedBy="page", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\Section", mappedBy="page", indexBy="code",
+     *     cascade={"persist"}, orphanRemoval=true, fetch="EAGER")
      * @Groups({"get_page"})
-     * @var PageContent[]
+     * @var Section[]
+     * @ORM\Cache(region="pages_sections", usage="READ_ONLY")
+     * @ORM\OrderBy(value={"orderIndex" = "ASC"})
      */
-    private $contents;
+    private $sections;
 
     public function __construct()
     {
-        $this->contents = new ArrayCollection();
-        $this->files = new ArrayCollection();
+        $this->sections = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -73,27 +81,28 @@ class Page
     }
 
     /**
-     * @return Collection|PageContent[]
+     * @return Collection|Section[]
      */
-    public function getContents(): Collection
+    public function getSections(): Collection
     {
-        return $this->contents;
+        return $this->sections;
     }
 
-    public function addContent(PageContent $content): self
+    public function addSection(Section $content): self
     {
-        if (!$this->contents->contains($content)) {
-            $this->contents[] = $content;
+        if (!$this->sections->contains($content)) {
+            $this->sections[] = $content;
             $content->setPage($this);
+            $content->setOrderIndex(count($this->sections));
         }
 
         return $this;
     }
 
-    public function removeContent(PageContent $content): self
+    public function removeSection(Section $content): self
     {
-        if ($this->contents->contains($content)) {
-            $this->contents->removeElement($content);
+        if ($this->sections->contains($content)) {
+            $this->sections->removeElement($content);
             // set the owning side to null (unless already changed)
             if ($content->getPage() === $this) {
                 $content->setPage(null);

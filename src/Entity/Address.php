@@ -18,35 +18,17 @@ class Address
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      * @Groups({"user_get", "user_update"})
      */
     private $line1;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\ManyToOne(targetEntity="City", cascade={"persist"})
      * @Groups({"user_get", "user_update"})
-     */
-    private $region;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"user_get", "user_update"})
+     * @var City
      */
     private $city;
-
-    /**
-     * @var Country
-     * @ORM\ManyToOne(targetEntity="App\Entity\Country")
-     * @Groups({"user_get"})
-     */
-    private $country;
-
-    /**
-     * @var int
-     * @Groups({"user_update"})
-     */
-    private $countryId;
 
     public function getId()
     {
@@ -65,24 +47,12 @@ class Address
         return $this;
     }
 
-    public function getRegion(): ?string
-    {
-        return $this->region;
-    }
-
-    public function setRegion(?string $region): self
-    {
-        $this->region = $region;
-
-        return $this;
-    }
-
-    public function getCity(): ?string
+    public function getCity(): ?City
     {
         return $this->city;
     }
 
-    public function setCity(string $city): self
+    public function setCity(City $city): self
     {
         $this->city = $city;
 
@@ -91,30 +61,29 @@ class Address
 
     public function getCountry()
     {
-        return $this->country;
-    }
-
-    public function setCountry(Country $country): self
-    {
-        $this->country = $country;
-
-        return $this;
+        return $this->city !== null ?
+            $this->city->getCountry() !== null ? $this->city->getCountry() : null
+            : null;
     }
 
     /**
-     * @return int
+     * @Groups({"user_get"})
      */
-    public function getCountryId(): ?int
-    {
-        return $this->countryId;
+    public function getCityName() {
+        return $this->city !== null ? $this->city->getName() : null;
     }
 
     /**
-     * @param int $countryId
+     * @Groups({"user_get"})
      */
-    public function setCountryId(int $countryId): self
-    {
-        $this->countryId = $countryId;
-        return $this;
+    public function getCountryFrName() {
+        return $this->city !== null ? $this->city->getCountryFrName() : null;
+    }
+
+    /**
+     * @Groups({"user_get"})
+     */
+    public function getCountryEnName() {
+        return $this->city !== null ? $this->city->getCountryEnName() : null;
     }
 }

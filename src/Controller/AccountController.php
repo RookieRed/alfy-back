@@ -8,29 +8,22 @@
 
 namespace App\Controller;
 
-use App\Constants\ErrorType;
 use App\Constants\FileConstants;
 use App\Constants\UserRoles;
 use App\Entity\User;
 use App\Service\FileService;
 use App\Service\UserService;
 use App\Service\ValidationService;
-use App\Utils\CustomSerializer;
+use App\Utils\JsonSerializer;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\Config\Definition\Exception\Exception;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Role\Role;
-use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
-use Symfony\Component\Serializer\Normalizer\JsonSerializableNormalizer;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\Exception\ValidatorException;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * Class AccountController
@@ -38,7 +31,7 @@ use Symfony\Component\Validator\Exception\ValidatorException;
  *
  * @Route(path="/account")
  */
-class AccountController extends Controller
+class AccountController extends JsonAbstractController
 {
     /**
      * @var UserService
@@ -53,10 +46,6 @@ class AccountController extends Controller
      */
     private $em;
     /**
-     * @var SerializerInterface
-     */
-    private $serializer;
-    /**
      * @var FileService
      */
     private $fileService;
@@ -65,20 +54,21 @@ class AccountController extends Controller
      * AccountController constructor.
      * @param UserService $userService
      * @param EntityManagerInterface $em
-     * @param SerializerInterface $serializer
+     * @param JsonSerializer $serializer
+     * @param FileService $fileService
      * @param ValidationService $validator
      */
     public function __construct(UserService $userService,
                                 EntityManagerInterface $em,
-                                CustomSerializer $serializer,
+                                JsonSerializer $serializer,
                                 FileService $fileService,
                                 ValidationService $validator)
     {
+        parent::__construct($serializer);
         $this->userService = $userService;
         $this->validator = $validator;
         $this->em = $em;
         $this->fileService = $fileService;
-        $this->serializer = $serializer;
     }
 
     /**
@@ -89,71 +79,53 @@ class AccountController extends Controller
      */
     public function getMine()
     {
-        $user = $this->userService->getConnectedUser();
-        if ($user === null) {
-            return $this->validator->generateErrorResponse(
-                ErrorType::EXCEPTION['code'],
-                ErrorType::EXCEPTION['message']
-            );
-        }
-
-        $jsonResponse = new Response($this->serializer->serialize($user, 'json', ['groups' => ['user_get']]));
-        $jsonResponse->headers->set('Content-type', 'application/json');
-        return $jsonResponse;
+        $user = $this->userService->getConnectedUserOrThrowException();
+        return $this->jsonOK($user, ['user_get']);
     }
 
     /**
      * @Route(path="/{id}",
      *     methods={"GET"},
-     *     name="account_get",
+     *     name="account_get_by_id",
      *     requirements={"id"="\d+"}
      * )
-     * @param Request $request
      */
     public function getById(Request $request)
     {
         $userId = $request->get('id');
-        if ($userId == null){
-            return $this->json('No id provided', Response::HTTP_BAD_REQUEST);
+        if ($userId == null) {
+            throw new BadRequestHttpException('No id provided');
         }
 
-        $user = $this->userService->getById($userId);
+        $user = $this->userService->findById($userId);
         if ($user == null) {
-            return $this->json('User not find', Response::HTTP_NOT_FOUND);
+            throw new NotFoundHttpException('User not find');
         }
 
-        if ($this->userService->getConnectedUser()->getId() == $userId) {
-            $options = ['groups' => ['user_get']];
+        $connectedUser = $this->userService->getConnectedUser();
+        if ($connectedUser != null && $connectedUser->getId() == $userId) {
+            $groups = ['user_get'];
         } else {
-            $options = ['groups' => ['user_get_list']];
+            $groups = ['user_get_list'];
         }
-
-        $jsonResponse = new Response($this->serializer->serialize($user, 'json', $options));
-        $jsonResponse->headers->set('Content-type', 'application/json');
-        return $jsonResponse;
+        return $this->jsonOK($user, $groups);
     }
 
     /**
      * @Route(path="/me",
      *     methods={"POST"},
-     *     name="account_update"
+     *     name="account_update_mine"
      * )
      */
     public function updateMine(Request $request)
     {
         /** @var User $userBean */
-        $userBean = $this->serializer->deserialize($request->getContent(),
-            User::class, 'json', ['groups' => ['user_update']]);
-        $errors = $this->validator->validateBean($userBean, ['user_update']);
-        if ($errors != null) {
-            return $errors;
-        }
+        $userBean = $this->serializer->jsonDeserialize($request->getContent(), User::class, ['user_update']);
+        $this->validator->validateOrThrowException($userBean, ['user_update']);
 
         $updatedUser = $this->userService->updateConnectedUser($userBean);
         $this->em->flush();
-
-        $json = $this->serializer->serialize($updatedUser, 'json', ['groups' => ['user_get']]);
-        return new JsonResponse($json, Response::HTTP_OK, [], true);
+        return $this->jsonOK($updatedUser, ['user_get']);
     }
 
     /**
@@ -162,7 +134,9 @@ class AccountController extends Controller
      *     name="signin"
      * )
      */
-    public function singIn() { }
+    public function singIn()
+    {
+    }
 
     /**
      * @Route(path="/signup",
@@ -172,19 +146,13 @@ class AccountController extends Controller
      */
     public function singUp(Request $request)
     {
-        $userBean = $this->serializer->deserialize($request->getContent(),
-            User::class, 'json', ['groups' => ['account_create']]);
-        $userBean->setBirthDay(new \DateTime($userBean->getBirthDay()));
-
-        $errorResponse = $this->validator->validateBean($userBean, ['account_create']);
-        if ($errorResponse !== null) {
-           return $errorResponse;
-        }
+        /** @var User $userBean */
+        $userBean = $this->serializer->jsonDeserialize(
+            $request->getContent(), User::class, ['account_create']);
+        $userBean->setBirthDay(new DateTime($userBean->getBirthDay()));
+        $this->validator->validateOrThrowException($userBean, ['account_create']);
 
         $jwtToken = $this->userService->createAccount($userBean);
-        if ($jwtToken === null) {
-            return $this->json('Error', Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
         $this->em->flush();
         return $this->json(['token' => $jwtToken], Response::HTTP_CREATED);
     }
@@ -195,14 +163,14 @@ class AccountController extends Controller
      *     methods={"GET"},
      *     name="check_username"
      * )
-     * @param string $username
      */
-    public function checkUsernameValidity(string $username) {
+    public function checkUsernameValidity(string $username)
+    {
         // Vérification de l'unicité
-        if($this->userService->usernameExists($username)) {
-            return new JsonResponse('', Response::HTTP_CONFLICT, [], true);
+        if ($this->userService->usernameExists($username)) {
+            return $this->json('Username exists', Response::HTTP_CONFLICT);
         } else {
-            return new JsonResponse('', Response::HTTP_NO_CONTENT, [], true);
+            return $this->noContent();
         }
     }
 
@@ -211,14 +179,14 @@ class AccountController extends Controller
      *     methods={"GET"},
      *     name="check_email"
      * )
-     * @param string $email
      */
-    public function checkEmailValidity(string $email) {
+    public function checkEmailValidity(string $email)
+    {
         // Vérification de l'unicité
-        if($this->userService->emailExists($email)) {
-            return new JsonResponse('', Response::HTTP_CONFLICT, [], true);
+        if ($this->userService->emailExists($email)) {
+            return $this->json('Email exists', Response::HTTP_CONFLICT);
         } else {
-            return new JsonResponse('', Response::HTTP_NO_CONTENT, [], true);
+            return $this->noContent();
         }
     }
 
@@ -231,22 +199,22 @@ class AccountController extends Controller
      */
     public function delete(Request $request)
     {
-        $connectedUser = $this->userService->getConnectedUser();
+        $connectedUser = $this->userService->getConnectedUserOrThrowException();
         $userId = $request->get('who');
         if ($userId === 'me') {
             $target = $connectedUser;
 
         } else {
             if (!$connectedUser->isRole(UserRoles::ADMIN)) {
-                return $this->json('You can not dlete an other account', Response::HTTP_FORBIDDEN);
+                throw new AccessDeniedException('You can not delete an other account');
             }
-            $target = $this->userService->getById($userId);
+            $target = $this->userService->findById($userId);
             if ($target == null) {
-                return $this->json('User accoutn does not exists', Response::HTTP_BAD_REQUEST);
+                throw new NotFoundHttpException('User account does not exists');
             }
         }
         $this->userService->deletePermanentlyUser($target);
-        return $this->json('ok');
+        return $this->noContent();
     }
 
     /**
@@ -254,25 +222,21 @@ class AccountController extends Controller
      *     methods={"POST"},
      *     name="update_profile_picture"
      * )
-     * @param Request $request
-     * @return JsonResponse|Response
      */
     public function updateProfilePicture(Request $request)
     {
-        $user = $this->userService->getConnectedUser();
+        $user = $this->userService->getConnectedUserOrThrowException();
 
-        /** @var \Symfony\Component\HttpFoundation\File\File $file */
+        /** @var File $file */
         $file = $request->files->get('picture');
         if ($file == null) {
-            return $this->json('No picture found', Response::HTTP_BAD_REQUEST);
+            throw new BadRequestHttpException('No picture found');
         }
 
         $picture = $this->fileService->saveFile($file, $user,
             FileConstants::PROFILE_PICTURES_DIR . $user->getUsername() . '/');
         $user->setProfilePicture($picture);
         $this->em->flush();
-
-        $json = $this->serializer->serialize($picture, 'json', ['groups' => ['user_get']]);
-        return new JsonResponse($json, Response::HTTP_OK, [], true);
+        return $this->jsonOK($picture, ['user_get']);
     }
 }

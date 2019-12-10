@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Constants\SocialNetworkUrl;
 use App\Constants\UserRoles;
+use App\Entity\Traits\AddressedEntityTrait;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -17,6 +19,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class User implements UserInterface
 {
+    use AddressedEntityTrait;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -34,7 +38,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank()file
+     * @Assert\NotBlank()
      * @Groups({"account_create", "user_get", "user_update", "user_get_list"})
      */
     private $firstName;
@@ -84,15 +88,6 @@ class User implements UserInterface
     private $phone;
 
     /**
-     * @var Address|null
-     * @ORM\OneToOne(targetEntity="App\Entity\Address", fetch="LAZY")
-     * @ORM\JoinColumn(name="address_id", referencedColumnName="id")
-     * @Groups({"user_get", "user_update"})
-     * @MaxDepth(2)
-     */
-    private $address;
-
-    /**
      * @ORM\Column(type="string", length=50)
      * @Assert\NotBlank()
      * @var string
@@ -111,6 +106,7 @@ class User implements UserInterface
     /**
      * @var string|null
      * @ORM\Column(type="string", length=150, nullable=true)
+     * @Assert\Url()
      * @Groups({"user_get", "user_update"})
      */
     private $facebook;
@@ -118,6 +114,7 @@ class User implements UserInterface
     /**
      * @var string|null
      * @ORM\Column(type="string", length=150, nullable=true)
+     * @Assert\Url()
      * @Groups({"user_get", "user_update"})
      */
     private $linkedIn;
@@ -125,6 +122,7 @@ class User implements UserInterface
     /**
      * @var string|null
      * @ORM\Column(type="string", length=150, nullable=true)
+     * @Assert\Url()
      * @Groups({"user_get", "user_update"})
      */
     private $twitter;
@@ -150,11 +148,6 @@ class User implements UserInterface
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="sponsoredUsers")
      */
     private $sponsor;
-
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\PageContent", mappedBy="creator")
-     */
-    private $pageContents;
 
     public function __construct()
     {
@@ -182,10 +175,10 @@ class User implements UserInterface
 
     public function getFirstName(): ?string
     {
-        return implode( ' ',
-                array_map(function ($val) {
-                    return ucfirst($val);
-                }, preg_split('/(\s|-|_)/', $this->firstName))
+        return implode(' ',
+            array_map(function ($val) {
+                return ucfirst($val);
+            }, preg_split('/(\s|-|_)/', $this->firstName))
         );
     }
 
@@ -220,7 +213,7 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getBirthDay(): ?\DateTimeInterface
+    public function getBirthDay(): ?DateTimeInterface
     {
         return $this->birthDay;
     }
@@ -303,7 +296,7 @@ class User implements UserInterface
     }
 
     /**
-     * @return \App\Entity\Baccalaureate
+     * @return Baccalaureate
      */
     public function getBaccalaureate(): ?Baccalaureate
     {
@@ -413,24 +406,6 @@ class User implements UserInterface
     {
         $this->clearPassword = $clearPassword;
 
-        return $this;
-    }
-
-    /**
-     * @return Address|null
-     */
-    public function getAddress(): ?Address
-    {
-        return $this->address;
-    }
-
-    /**
-     * @param Address|null $address
-     * @return User
-     */
-    public function setAddress($address): self
-    {
-        $this->address = $address;
         return $this;
     }
 
@@ -556,37 +531,6 @@ class User implements UserInterface
     public function setSalt(?string $salt): self
     {
         $this->salt = $salt;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|PageContent[]
-     */
-    public function getPageContents(): Collection
-    {
-        return $this->pageContents;
-    }
-
-    public function addPageContent(PageContent $pageContent): self
-    {
-        if (!$this->pageContents->contains($pageContent)) {
-            $this->pageContents[] = $pageContent;
-            $pageContent->setCreator($this);
-        }
-
-        return $this;
-    }
-
-    public function removePageContent(PageContent $pageContent): self
-    {
-        if ($this->pageContents->contains($pageContent)) {
-            $this->pageContents->removeElement($pageContent);
-            // set the owning side to null (unless already changed)
-            if ($pageContent->getCreator() === $this) {
-                $pageContent->setCreator(null);
-            }
-        }
 
         return $this;
     }

@@ -4,7 +4,8 @@ namespace App\Entity\Pojo;
 
 use App\Entity\Page;
 
-class PageOut {
+class PageOut
+{
 
     /** @var string $title */
     private $title;
@@ -18,7 +19,7 @@ class PageOut {
         $this->title = $page->getName();
         $this->files = [];
         $this->contents = [];
-        foreach ($page->getContents() as $pc) {
+        foreach ($page->getSections() as $pc) {
             $this->contents[] = new PageContentOut($pc);
         }
         foreach ($pageFiles as $pf) {

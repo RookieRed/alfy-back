@@ -12,7 +12,9 @@ namespace App\Controller;
 use App\Service\FileService;
 use App\Service\PaginationService;
 use App\Service\UserService;
+use App\Utils\JsonSerializer;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,7 +27,7 @@ use Symfony\Component\Serializer\SerializerInterface;
  *
  * @Route(path="/students")
  */
-class StudentController extends Controller
+class StudentController extends JsonAbstractController
 {
 
     /**
@@ -41,10 +43,6 @@ class StudentController extends Controller
      */
     private $userService;
     /**
-     * @var SerializerInterface
-     */
-    private $serializer;
-    /**
      * @var PaginationService
      */
     private $pagination;
@@ -52,9 +50,10 @@ class StudentController extends Controller
     public function __construct(FileService $fileService,
                                 UserService $userService,
                                 PaginationService $pagination,
-                                SerializerInterface $serializer,
+                                JsonSerializer $serializer,
                                 EntityManagerInterface $em)
     {
+        parent::__construct($serializer);
         $this->fileService = $fileService;
         $this->userService = $userService;
         $this->em = $em;
@@ -71,7 +70,7 @@ class StudentController extends Controller
      */
     public function search(Request $request)
     {
-        $matches = $this->userService->searchByName($request->get('search'));
+        $matches = $this->userService->findByName($request->get('search'));
         $paginatedResults = $this->pagination->generatePaginatedResults($request, $matches);
 
         $jsonResponse = new Response(
@@ -96,7 +95,7 @@ class StudentController extends Controller
 
         $excel = $request->files->get('file');
         if ($excel === null) {
-            throw new \Exception('There is no uploaded file');
+            throw new Exception('There is no uploaded file');
         }
 
         $file = $this->fileService->saveFile($excel, $this->userService->getConnectedUser());
@@ -117,7 +116,8 @@ class StudentController extends Controller
      *     name="user_import_get_model"
      * )
      */
-    public function getImportModel() {
+    public function getImportModel()
+    {
         $file = $this->fileService->generateExcelImportExample();
         return $this->file($file->getFullPath());
     }

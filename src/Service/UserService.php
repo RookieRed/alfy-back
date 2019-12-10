@@ -9,26 +9,21 @@
 namespace App\Service;
 
 
+use App\Constants\UserRoles;
 use App\Entity\Address;
 use App\Entity\File;
 use App\Entity\User;
-use App\Constants\UserRoles;
 use App\Repository\CountryRepository;
 use App\Repository\UserRepository;
+use DateTimeInterface;
 use Doctrine\ORM\EntityManagerInterface;
-use http\Url;
-use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
-use Lexik\Bundle\JWTAuthenticationBundle\Security\Authentication\Token\JWTUserToken;
-use Lexik\Bundle\JWTAuthenticationBundle\Security\User\JWTUserInterface;
-use Lexik\Bundle\JWTAuthenticationBundle\Services\JWSProvider\JWSProviderInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
-use Lexik\Bundle\JWTAuthenticationBundle\TokenExtractor\TokenExtractorInterface;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class UserService
 {
@@ -59,20 +54,33 @@ class UserService
     /**
      * @var CountryRepository
      */
-    private $countryRepository;
+    private $locationService;
+
+    /**
+     * @var ValidationService
+     */
+    private $validationService;
+
+    const ACCENTED_CHAR_MAP = array(    'Š'=>'S', 'š'=>'s', 'Ž'=>'Z', 'ž'=>'z', 'À'=>'A', 'Á'=>'A', 'Â'=>'A', 'Ã'=>'A', 'Ä'=>'A', 'Å'=>'A', 'Æ'=>'A', 'Ç'=>'C', 'È'=>'E', 'É'=>'E',
+        'Ê'=>'E', 'Ë'=>'E', 'Ì'=>'I', 'Í'=>'I', 'Î'=>'I', 'Ï'=>'I', 'Ñ'=>'N', 'Ò'=>'O', 'Ó'=>'O', 'Ô'=>'O', 'Õ'=>'O', 'Ö'=>'O', 'Ø'=>'O', 'Ù'=>'U',
+        'Ú'=>'U', 'Û'=>'U', 'Ü'=>'U', 'Ý'=>'Y', 'Þ'=>'B', 'ß'=>'Ss', 'à'=>'a', 'á'=>'a', 'â'=>'a', 'ã'=>'a', 'ä'=>'a', 'å'=>'a', 'æ'=>'a', 'ç'=>'c',
+        'è'=>'e', 'é'=>'e', 'ê'=>'e', 'ë'=>'e', 'ì'=>'i', 'í'=>'i', 'î'=>'i', 'ï'=>'i', 'ð'=>'o', 'ñ'=>'n', 'ò'=>'o', 'ó'=>'o', 'ô'=>'o', 'õ'=>'o',
+        'ö'=>'o', 'ø'=>'o', 'ù'=>'u', 'ú'=>'u', 'û'=>'u', 'ý'=>'y', 'þ'=>'b', 'ÿ'=>'y' );
 
     public function __construct(EntityManagerInterface $em,
                                 UserPasswordEncoderInterface $encoder,
                                 JWTTokenManagerInterface $jwtManager,
                                 TokenStorageInterface $tokenStorage,
-                                CountryRepository $countryRepository,
+                                LocationService $locationService,
+                                ValidationService $validationService,
                                 UserRepository $userRepository)
     {
         $this->em = $em;
         $this->userRepo = $userRepository;
-        $this->countryRepository = $countryRepository;
+        $this->locationService = $locationService;
         $this->encoder = $encoder;
         $this->jwtManager = $jwtManager;
+        $this->validationService = $validationService;
         $this->tokenStorage = $tokenStorage;
         $this->fileSystem = new Filesystem();
     }
@@ -80,14 +88,15 @@ class UserService
     /**
      * @return User[]
      */
-    public function getAll() {
-        return $this->userRepo->findBy([], ['lastName' => 'ASC','firstName' => 'ASC']);
+    public function findAll()
+    {
+        return $this->userRepo->findBy([], ['lastName' => 'ASC', 'firstName' => 'ASC']);
     }
 
-    public function getById(int $id): ?User
+    public function findById(int $id): ?User
     {
         return $this->userRepo->findOneBy([
-            'id'    => $id
+            'id' => $id
         ]);
     }
 
@@ -95,28 +104,29 @@ class UserService
      * @param User $userSearched
      * @return User[]
      */
-    public function searchByCriteria(User $userSearched): array {
+    public function findByCriteria(User $userSearched): array
+    {
         $whereClause = '';
         $params = [];
         if ($userSearched->getFirstName() != null) {
             $whereClause .= ' AND u.firstName LIKE :firstName';
-            $params['firstName'] = '%'.$userSearched->getFirstName().'%';
+            $params['firstName'] = '%' . $userSearched->getFirstName() . '%';
         }
         if ($userSearched->getLastName() != null) {
             $whereClause .= ' AND u.lastName LIKE :lastName';
-            $params['lastName'] = '%'.$userSearched->getLastName().'%';
+            $params['lastName'] = '%' . $userSearched->getLastName() . '%';
         }
         if ($userSearched->getUsername() != null) {
             $whereClause .= ' AND u.username LIKE :username';
-            $params['username'] = '%'.$userSearched->getUsername().'%';
+            $params['username'] = '%' . $userSearched->getUsername() . '%';
         }
         if ($userSearched->getEmail() != null) {
             $whereClause .= ' AND u.email LIKE :email';
-            $params['email'] = '%'.$userSearched->getEmail().'%';
+            $params['email'] = '%' . $userSearched->getEmail() . '%';
         }
         if ($userSearched->getBirthDay() != null) {
             $birthYear = $userSearched->getBirthDay();
-            if ($birthYear instanceof \DateTimeInterface) {
+            if ($birthYear instanceof DateTimeInterface) {
                 $birthYear = $birthYear->format('Y');
             }
             $whereClause .= ' AND YEAR(u.birthDay) = :birthYear';
@@ -124,12 +134,12 @@ class UserService
         }
 
         if (strlen($whereClause) == 0) {
-            return $this->getAll();
+            return $this->findAll();
         }
 
         $whereClause = substr($whereClause, 4, strlen($whereClause));
         return $this->em
-            ->createQuery('SELECT u FROM App\Entity\User u WHERE '.$whereClause.' ORDER BY u.lastName, u.firstName')
+            ->createQuery('SELECT u FROM App\Entity\User u WHERE ' . $whereClause . ' ORDER BY u.lastName, u.firstName')
             ->setParameters($params)
             ->execute();
     }
@@ -138,9 +148,10 @@ class UserService
      * @param string $name
      * @return User[]
      */
-    public function searchByName(?string $name): array {
+    public function findByName(?string $name): array
+    {
         if ($name == null || trim($name) == '') {
-            return $this->getAll();
+            return $this->findAll();
         }
 
         $namesArray = explode(' ', $name);
@@ -150,17 +161,18 @@ class UserService
         foreach ($namesArray as $val) {
             $key = 'name' . $i++;
             $whereClause .= " AND (u.username LIKE :$key OR u.firstName LIKE :$key OR u.lastName LIKE :$key)";
-            $params[$key] = '%'.$val.'%';
+            $params[$key] = '%' . $val . '%';
         }
 
         $whereClause = substr($whereClause, 4, strlen($whereClause));
         return $this->em
-            ->createQuery('SELECT u FROM App\Entity\User u WHERE '.$whereClause.' ORDER BY u.lastName, u.firstName')
+            ->createQuery('SELECT u FROM App\Entity\User u WHERE ' . $whereClause . ' ORDER BY u.lastName, u.firstName')
             ->setParameters($params)
             ->execute();
     }
 
-    public function usernameExists(string $username): bool {
+    public function usernameExists(string $username): bool
+    {
         $userMatch = $this->userRepo->findOneBy([
             'username' => $username
         ]);
@@ -170,7 +182,8 @@ class UserService
         return true;
     }
 
-    public function emailExists(string $email): bool {
+    public function emailExists(string $email): bool
+    {
         return null != $this->userRepo->findOneBy([
                 'email' => $email
             ]);
@@ -183,8 +196,18 @@ class UserService
         return $this->userRepo->findOneBy(['username' => $userArray['username']]);
     }
 
-    public function createAccount(User $user, ?string $role=null): ?string
+    public function getConnectedUserOrThrowException($message = null)
     {
+        $user = $this->getConnectedUser();
+        if ($user === null) {
+            throw new UnauthorizedHttpException($message);
+        }
+        return $user;
+    }
+
+    public function createAccount(User $user, ?string $role = null, $createJWT = true)
+    {
+        $this->validationService->validateOrThrowException($user, ["account_create"]);
         $encryptedPassword = $this->encoder->encodePassword($user, $user->getPassword());
         $user->setPassword($encryptedPassword);
 
@@ -195,7 +218,9 @@ class UserService
         }
 
         $this->em->persist($user);
-        return $this->jwtManager->create($user);
+        if ($createJWT) {
+            return $this->jwtManager->create($this->unaccentUsername($user));
+        }
     }
 
     public function updateConnectedUser(User $userBean): User
@@ -232,11 +257,11 @@ class UserService
 
             $countryId = $newAddress->getCountryId();
             if ($countryId === null) {
-                throw new Exception('No country id specified');
+                throw new BadRequestHttpException('No country id specified');
             } else {
-                $country = $this->countryRepository->findOneBy(['id' => $countryId]);
+                $country = $this->locationService->findOneBy(['id' => $countryId]);
                 if ($country == null) {
-                    throw new Exception('The specified country does not exist');
+                    throw new BadRequestHttpException('The specified country does not exist');
                 }
             }
 
@@ -261,7 +286,7 @@ class UserService
             $target->setPassword($this->encoder->encodePassword($userBean, $userBean->getPassword()));
         }
 
-        return $target;
+        return $this->unaccentUsername($target);
     }
 
     public function deletePermanentlyUser(User $target)
@@ -283,6 +308,11 @@ class UserService
         // Remove user
         $this->em->remove($target);
         $this->em->flush();
+    }
+
+    public function unaccentUsername(User $user): User
+    {
+        return $user->setUsername(strtr($user->getUsername(), self::ACCENTED_CHAR_MAP));
     }
 
 }
