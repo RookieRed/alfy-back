@@ -1,0 +1,19 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: ALFY API - Documentation
+            description: This is the Swagger API Documentation for the ALFY back-end
+            version: 1.0.0
+
+        securityDefinitions:
+            Bearer:
+                type: apiKey
+                description: 'Bearer {jwt}'
+                name: Authorization
+                in: header
+        security:
+            - Bearer: []
+
+    areas:
+        path_patterns: # an array of regexps
+            - ^/[^_](.+)$

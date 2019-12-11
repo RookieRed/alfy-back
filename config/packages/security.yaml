@@ -21,6 +21,12 @@ security:
             anonymous: true
             stateless: true
 
+        api_doc:
+            pattern: ^/api/doc$
+            anonymous: true
+            stateless: true
+
+
         login_check:
             pattern: ^/account/login/
             anonymous: true
@@ -57,6 +63,7 @@ security:
 
     # Note: Only the *first* access control that matches will be used
     access_control:
+        - { path: ^/api/doc, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/account/signin$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/account/signup$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/account/login/(.+)$, roles: IS_AUTHENTICATED_ANONYMOUSLY }

@@ -19,3 +19,4 @@
 *.iml
 public/files/
 config/jwt
+composer.lock

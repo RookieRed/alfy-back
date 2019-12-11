@@ -11,11 +11,13 @@ use App\Service\UserService;
 use App\Utils\JsonSerializer;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Swagger\Annotations as SWG;
 
 /**
  * @Route("/pages")
@@ -52,6 +54,17 @@ class PageController extends JsonAbstractController
      * @Route(path="/{pageName}",
      *     methods={"GET"},
      *     name="page_get_texts"
+     * )
+     * @SWG\Tag(name="Pages", description="Gestion des pages du site.")
+     * @SWG\Parameter(name="pageName", description="Nom de la page demandée", type="string", in="path")
+     * @SWG\Response(
+     *     response=200,
+     *     description="Retourne le contenu de la page dont le nom est passé en paramètres",
+     *     @Model(type=App\Entity\Page::class, groups={"get_page"})
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Page non trouvée",
      * )
      */
     public function getPage(Request $request)
