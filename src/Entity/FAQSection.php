@@ -13,45 +13,44 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Entity(repositoryClass="App\Repository\SectionRepository")
  * @ORM\Cache(region="pages_sections", usage="READ_ONLY")
  */
-class SlideShowSection extends Section
+class FAQSection extends Section
 {
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\File", inversedBy="relatedSlides", cascade={"persist"}, fetch="EAGER")
-     * @ORM\JoinTable(name="slide_show_sections_files_asso",
-     *     joinColumns={@ORM\JoinColumn(onDelete="CASCADE")},
-     *     inverseJoinColumns={@ORM\JoinColumn(onDelete="CASCADE")})
+     * @ORM\OneToMany(targetEntity="QuestionAnswered", mappedBy="parentSection",
+     *     cascade={"persist", "remove"}, fetch="EAGER")
      * @Groups({"get_page"})
      * @Assert\NotNull()
+     * @ORM\OrderBy(value={"priority" = "DESC"})
      */
-    private $photos;
+    private $faq;
 
     public function __construct()
     {
         parent::__construct();
-        $this->photos = new ArrayCollection();
+        $this->faq = new ArrayCollection();
     }
 
     /**
      * @return Collection|File[]
      */
-    public function getPhotos(): Collection
+    public function getFaq(): Collection
     {
-        return $this->photos;
+        return $this->faq;
     }
 
-    public function addPhoto(File $file): self
+    public function addQuestion(QuestionAnswered $question): self
     {
-        if (!$this->photos->contains($file)) {
-            $this->photos[] = $file;
+        if (!$this->faq->contains($question)) {
+            $this->faq[] = $question;
         }
 
         return $this;
     }
 
-    public function removePhoto(File $file): self
+    public function removeQuestion(QuestionAnswered $question): self
     {
-        if ($this->photos->contains($file)) {
-            $this->photos->removeElement($file);
+        if ($this->faq->contains($question)) {
+            $this->faq->removeElement($question);
         }
 
         return $this;
@@ -62,6 +61,6 @@ class SlideShowSection extends Section
      */
     public function getType()
     {
-        return PageConstants::SECTION_TYPE_SLIDES;
+        return PageConstants::SECTION_TYPE_FAQ;
     }
 }

@@ -145,7 +145,7 @@ class File
     {
         if (!$this->relatedSlides->contains($relatedDiapo)) {
             $this->relatedSlides[] = $relatedDiapo;
-            $relatedDiapo->addFile($this);
+            $relatedDiapo->addPhoto($this);
         }
 
         return $this;
@@ -155,7 +155,7 @@ class File
     {
         if ($this->relatedSlides->contains($relatedDiapo)) {
             $this->relatedSlides->removeElement($relatedDiapo);
-            $relatedDiapo->removeFile($this);
+            $relatedDiapo->removePhoto($this);
         }
 
         return $this;

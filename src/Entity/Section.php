@@ -13,9 +13,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="type", type="string")
  * @ORM\DiscriminatorMap({
- *      "html"="App\Entity\HTMLSection",
- *      "slides"="App\Entity\SlideShowSection",
- *      "tiles"="App\Entity\TilesEventsSection",
+ *      \App\Constants\PageConstants::SECTION_TYPE_HTML="App\Entity\HTMLSection",
+ *      \App\Constants\PageConstants::SECTION_TYPE_SLIDES="App\Entity\SlideShowSection",
+ *      \App\Constants\PageConstants::SECTION_TYPE_TILES="App\Entity\TilesEventsSection",
+ *      \App\Constants\PageConstants::SECTION_TYPE_FAQ="App\Entity\FAQSection",
  * })
  * @ORM\Cache(region="pages_sections", usage="READ_ONLY")
  */

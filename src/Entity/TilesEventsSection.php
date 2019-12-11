@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Constants\PageConstants;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -12,7 +13,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ORM\Entity(repositoryClass="App\Repository\SectionRepository")
  * @ORM\Cache(region="pages_sections", usage="READ_ONLY")
  */
-final class TilesEventsSection extends Section
+class TilesEventsSection extends Section
 {
     /**
      * @ORM\OneToMany(targetEntity="EventTile", mappedBy="parentSection", cascade={"persist"},
@@ -55,6 +56,6 @@ final class TilesEventsSection extends Section
      */
     public function getType()
     {
-        return "tiles";
+        return PageConstants::SECTION_TYPE_TILES;
     }
 }
