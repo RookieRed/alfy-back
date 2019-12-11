@@ -1,22 +1,21 @@
 
 ###> symfony/framework-bundle ###
-/.env
-/public/bundles/
-/var/
-/vendor/
+**.env
+public/bundles/
+var/
+vendor/
 ###< symfony/framework-bundle ###
 
 ###> symfony/web-server-bundle ###
-/.web-server-pid
+.web-server-pid
 ###< symfony/web-server-bundle ###
 
 ###> lexik/jwt-authentication-bundle ###
-/config/jwt/*.pem
+config/jwt/*.pem*
 ###< lexik/jwt-authentication-bundle ###
 
 
 .idea/
 *.iml
 public/files/
-config/jwt
 composer.lock
