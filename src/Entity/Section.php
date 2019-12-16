@@ -58,7 +58,7 @@ abstract class Section
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"get_page"})
+     * @Groups({"get_page", "update_page_section", "create_page_section"})
      * @Assert\NotBlank()
      */
     private $title;
@@ -77,9 +77,15 @@ abstract class Section
 
     /**
      * @ORM\Column(type="integer")
-     * @Groups({"get_page"})
+     * @Groups({"get_page", "update_page_section", "create_page_section"})
      */
     private $orderIndex;
+
+    /**
+     * @Groups({"create_page_section"})
+     * @var string $type
+     */
+    private $type;
 
     public function __construct()
     {
@@ -170,6 +176,13 @@ abstract class Section
     }
 
     public abstract function getType();
+
+    public function setType($type): self
+    {
+        $this->type = $type;
+
+        return $this;
+    }
 
     /**
      * @ORM\PrePersist()

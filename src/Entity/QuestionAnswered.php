@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -21,18 +22,21 @@ class QuestionAnswered
      * @ORM\Column(type="string", length=511, unique=true)
      * @Assert\Unique()
      * @Assert\NotBlank()
+     * @Groups({"get_page", "update_question_answered", "create_question_answered"})
      */
     private $question;
 
     /**
      * @ORM\Column(type="string", length=511)
      * @Assert\NotBlank()
+     * @Groups({"get_page", "update_question_answered", "create_question_answered"})
      */
     private $answer;
 
     /**
      * @ORM\Column(type="integer", length=511, options={"default" = 0})
      * @Assert\Positive()
+     * @Groups({"get_page", "update_question_answered", "create_question_answered"})
      */
     private $priority;
 

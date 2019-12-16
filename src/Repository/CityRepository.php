@@ -22,7 +22,7 @@ class CityRepository extends ServiceEntityRepository
 
     public function findByNameOrZipCodeLike(Country $country, string $search)
     {
-        return $this->getEntityManager()->createQuery("SELECT t FROM App\Entity\Town t "
+        return $this->getEntityManager()->createQuery("SELECT t FROM App\Entity\City t "
             ." WHERE t.country = :country AND (t.zipCode LIKE :search OR t.name LIKE :search)")
             ->execute(['search' => $search . '%', 'country' => $country]);
     }

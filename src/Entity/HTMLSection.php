@@ -18,7 +18,7 @@ class HTMLSection extends Section
 {
     /**
      * @ORM\Column(type="text")
-     * @Groups({"get_page", "update_page_content"})
+     * @Groups({"get_page", "update_page_section", "create_page_section"})
      * @Assert\NotBlank()
      */
     private $html;
@@ -29,7 +29,7 @@ class HTMLSection extends Section
      *     joinColumns={@ORM\JoinColumn(onDelete="CASCADE")},
      *     inverseJoinColumns={@ORM\JoinColumn(onDelete="CASCADE")}
      * )
-     * @Groups({"get_page", "update_page_content"})
+     * @Groups({"get_page"})
      * @var File[]
      */
     private $files;

@@ -32,21 +32,21 @@ class User implements UserInterface
     /**
      * @ORM\Column(type="string", length=255, unique=true)
      * @Assert\NotBlank()
-     * @Groups({"account_create", "user_connect", "user_get", "user_update", "user_get_list"})
+     * @Groups({"account_create", "user_connect", "user_get", "user_update", "user_get_list", "get_page"})
      */
     private $username;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
-     * @Groups({"account_create", "user_get", "user_update", "user_get_list"})
+     * @Groups({"account_create", "user_get", "user_update", "user_get_list", "get_page"})
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
-     * @Groups({"account_create", "user_get", "user_update", "user_get_list"})
+     * @Groups({"account_create", "user_get", "user_update", "user_get_list", "get_page"})
      */
     private $lastName;
 

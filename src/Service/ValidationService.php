@@ -8,8 +8,8 @@
 
 namespace App\Service;
 
-use App\Exception\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -43,7 +43,7 @@ class ValidationService
      * @param $bean
      * @param array $groups
      * @return bool true if valid
-     * @throws ValidationException if invalid
+     * @throws BadRequestHttpException if invalid
      */
     public function validateOrThrowException($bean, array $groups = null): bool
     {
@@ -51,7 +51,7 @@ class ValidationService
 
         $nbErrors = $validationErrors->count();
         if ($nbErrors > 0) {
-            throw new ValidationException($validationErrors);
+            throw new BadRequestHttpException($validationErrors);
         }
         return true;
     }

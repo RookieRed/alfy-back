@@ -12,13 +12,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\SectionRepository")
  * @ORM\Cache(region="pages_sections", usage="READ_ONLY")
+ * @ORM\Table(name="faq_section")
  */
 class FAQSection extends Section
 {
     /**
      * @ORM\OneToMany(targetEntity="QuestionAnswered", mappedBy="parentSection",
      *     cascade={"persist", "remove"}, fetch="EAGER")
-     * @Groups({"get_page"})
+     * @Groups({"get_page", "update_page_section"})
      * @Assert\NotNull()
      * @ORM\OrderBy(value={"priority" = "DESC"})
      */

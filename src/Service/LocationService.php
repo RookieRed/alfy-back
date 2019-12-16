@@ -50,7 +50,7 @@ class LocationService
         return $countries;
     }
 
-    public function findTownsByNameOr404(int $countryId, ?string $search)
+    public function findCitiesByNameOr404(int $countryId, ?string $search)
     {
         $country = $this->countryRepository->findOneBy(['id' => $countryId]);
         if ($country == null) {

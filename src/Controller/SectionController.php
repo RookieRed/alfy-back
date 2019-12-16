@@ -4,18 +4,21 @@ namespace App\Controller;
 
 use App\Entity\HTMLSection;
 use App\Service\SectionService;
+use App\Service\ValidationService;
 use App\Utils\JsonSerializer;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Swagger\Annotations as Doc;
 
 /**
  * Class SectionController
  * @package App\Controller
  * @Route(path="/pages-sections")
+ * @Doc\Tag(name="Pages", description="Gestion des pages du site.")
  */
-class SectionController extends AbstractController
+class SectionController extends JsonAbstractController
 {
 
     /**
@@ -23,51 +26,89 @@ class SectionController extends AbstractController
      * @param SectionService $sectionService
      */
     private $sectionService;
+    /**
+     * @var ValidationService
+     */
+    private $validationService;
 
     public function __construct(
         JsonSerializer $serializer,
+        ValidationService $validationService,
         SectionService $sectionService)
     {
         parent::__construct($serializer);
         $this->sectionService = $sectionService;
+        $this->validationService = $validationService;
     }
 
     /**
-     * @Route(path="", methods={"POST"}, name="create_page_section")
+     * @Route(path="/{idPage}", methods={"POST"}, name="create_page_section")
+     * @Doc\Tag(name="Pages", description="Gestion des pages du site.")
+     * @Doc\Parameter(
+     *     in="body", required=true, name="sectionBean",
+     *     description="La représentation JSON de la section à créer.",
+     *     @Model(type=App\Entity\Section::class, groups={"create_page_section"})
+     * )
+     * @Doc\Response(
+     *     response=201,
+     *     description="Section créée.",
+     *     @Model(type=App\Entity\Section::class, groups={"get_page"})
+     * )
+     * @Doc\Response(response=400, description="Argument ou bean incorrect.")
+     * @Doc\Response(response=404, description="Page parente non trouvée.")
      */
     public function createPageSection(Request $request)
     {
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/SectionController.php',
-        ]);
+        $this->sectionService;
     }
 
     /**
-     * @Route(path="/{id}", methods={"PUT"},  requirements={"id"="\d+"}, name="update_page_section")
+     * @Route(path="/{sectionId}", methods={"PUT"},  requirements={"id"="\d+"}, name="update_page_section")
+     * @Doc\Tag(name="Pages", description="Gestion des pages du site.")
+     * @Doc\Parameter(
+     *     in="path", required=true, name="sectionId", type="integer",
+     *     description="L'id de la section de page à modifier."
+     * )
+     * @Doc\Parameter(
+     *     in="body", required=true, name="sectionBean",
+     *     description="La représentation JSON de la section à modifier.",
+     *     @Model(type=App\Entity\Section::class, groups={"update_page_section"})
+     * )
+     * @Doc\Response(
+     *     response=200,
+     *     description="Section modifiée.",
+     *     @Model(type=App\Entity\Section::class, groups={"get_page"})
+     * )
+     * @Doc\Response(response=400, description="Argument ou bean incorrect.")
+     * @Doc\Response(response=404, description="Section de page non trouvée.")
      */
     public function updatePageSection(Request $request)
     {
+        $sectionId = $request->get('sectionId');
+        $sectionToUpdate = $this->sectionService->findByIdOr404(+$sectionId);
 
-        $pageName = $request->get('pageName');
-        $contentId = $request->get('contentId');
-        if ($pageName == null || $contentId == null) {
-            return $this->json('Bad url params', Response::HTTP_BAD_REQUEST);
-        }
-        $contentPojo = $this->serializer->deserialize($request->getContent(),
-            HTMLSection::class, 'json', ['groups' => ['update_page_content']]);
+        $sectionBean = json_decode($request->getContent());
+        $this->validationService->validateOrThrowException($sectionBean);
 
-//        $pageContent = $this->pageContentRepository->findOneBy(['id' => $contentId]);
-//        if ($pageContent === null) {
-//            return $this->json('Page or content not found', Response::HTTP_NOT_FOUND);
-//        }
-//        TODO
-//        $pageContent->setHtml($contentPojo->getHtml());
-//        $pageContent->setTitle($contentPojo->getTitle());
-//        $pageContent->setUpdatedAt(new DateTime());
-//        $pageContent->setLastWriter($this->userService->getConnectedUser());
-//        $this->em->flush();
+        $updatedSection = $this->sectionService->updateSection($sectionBean, $sectionToUpdate);
 
-        return $this->json('', Response::HTTP_NO_CONTENT);
+        return $this->json($updatedSection, Response::HTTP_OK, ["get_page"]);
+    }
+
+    /**
+     * @Route(path="/{sectionId}",
+     *     methods={"DELETE"},
+     *     name="page_section_delete",
+     *     requirements={"sectionId"="\d+"}
+     * )
+     * @Doc\Tag(name="Pages", description="Gestion des pages du site.")
+     * @Doc\Parameter(name="sectionId", type="string",
+     *     description="ID de la section de page à supprimer.", required=true, in="path")
+     * @Doc\Response(response=404, description="La section de page n'existe pas.")
+     * @Doc\Response(response=204, description="Suppression OK.")
+     */
+    public function delete(Request $request)
+    {
+
     }
 }

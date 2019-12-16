@@ -14,11 +14,13 @@ class City
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"location_read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"location_read"})
      */
     private $department;
 
@@ -29,11 +31,13 @@ class City
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"location_read"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"location_read"})
      */
     private $zipCode;
 

@@ -15,24 +15,24 @@ class Country
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"user_get", "user_update"})
+     * @Groups({"user_get", "user_update", "location_read"})
      */
     private $id;
     /**
      * @ORM\Column(type="string", length=2)
-     * @Groups({"user_get"})
+     * @Groups({"user_get", "location_read"})
      */
     private $code;
 
     /**
      * @ORM\Column(type="string", length=45)
-     * @Groups({"user_get"})
+     * @Groups({"user_get", "location_read"})
      */
     private $enName;
 
     /**
      * @ORM\Column(type="string", length=45)
-     * @Groups({"user_get"})
+     * @Groups({"user_get", "location_read"})
      */
     private $frName;
 

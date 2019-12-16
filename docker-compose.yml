@@ -3,10 +3,11 @@ version: '3.1'
 services:
   web:
     image: nginx:latest
-    container_name: web_server
+    container_name: alfy_web_server
+    # Next line must match the hostname value in docker/nginx/alfy-back.conf
+    hostname: alfy_web_server
     ports:
-      - "80:80"
-      - "443:443"
+      - "8000:80"
     volumes:
       - "./:/web"
       - "./docker/nginx/alfy-back.conf:/etc/nginx/conf.d/default.conf"
@@ -14,7 +15,9 @@ services:
       - php
 
   php:
-    container_name: php
+    container_name: alfy_php
+    # Next line must match the fastcgi_pass balue in docker/nginx/alfy-back.conf
+    hostname: alfy_php
     build: './docker/php'
     links:
       - mysql
@@ -25,15 +28,14 @@ services:
   mysql:
     container_name: ${MYSQL_HOSTNAME}
     hostname: ${MYSQL_HOSTNAME}
-    image: mysql:5.7.23
-    ports:
-      - "3306:3306"
+    image: mysql:5.7
     command: --default-authentication-plugin=mysql_native_password
     volumes:
       - "./:/web"
     environment:
       MYSQL_ROOT_HOST: ${MYSQL_HOSTNAME}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_RANDOM_ROOT_PASSWORD: ${MYSQL_RANDOM_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}

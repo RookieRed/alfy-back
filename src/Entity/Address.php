@@ -59,7 +59,7 @@ class Address
         return $this;
     }
 
-    public function getCountry()
+    public function getCountry(): ?Country
     {
         return $this->city !== null ?
             $this->city->getCountry() !== null ? $this->city->getCountry() : null
@@ -69,21 +69,21 @@ class Address
     /**
      * @Groups({"user_get"})
      */
-    public function getCityName() {
+    public function getCityName(): ?string {
         return $this->city !== null ? $this->city->getName() : null;
     }
 
     /**
      * @Groups({"user_get"})
      */
-    public function getCountryFrName() {
+    public function getCountryFrName(): ?string {
         return $this->city !== null ? $this->city->getCountryFrName() : null;
     }
 
     /**
      * @Groups({"user_get"})
      */
-    public function getCountryEnName() {
+    public function getCountryEnName(): ?string {
         return $this->city !== null ? $this->city->getCountryEnName() : null;
     }
 }

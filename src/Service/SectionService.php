@@ -9,6 +9,7 @@ use App\Repository\FileRepository;
 use App\Repository\PageRepository;
 use App\Repository\SectionRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class SectionService
 {
@@ -42,13 +43,27 @@ class SectionService
         $this->sectionRepository = $sectionRepository;
     }
 
-    public function findById($id)
+    public function findById(int $id)
     {
         return $this->sectionRepository->find($id);
+    }
+
+    public function findByIdOr404(int $id)
+    {
+        $section = $this->findById($id);
+        if ($section == null) {
+            throw new NotFoundHttpException("Page section not found.");
+        }
+        return $section;
     }
 
     public function createSection(Section $section)
     {
         $this->em->persist($section);
+    }
+
+    public function updateSection($sectionBean, ?Section $sectionToUpdate)
+    {
+
     }
 }

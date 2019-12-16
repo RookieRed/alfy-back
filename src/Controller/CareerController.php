@@ -10,8 +10,8 @@ namespace App\Controller;
 
 
 use App\Utils\JsonSerializer;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
+use Swagger\Annotations as Doc;
 
 /**
  * Class CareerController
@@ -27,9 +27,9 @@ class CareerController extends JsonAbstractController
     }
 
     /**
-     * @Route(path="",
-     *     name="career_update",
-     *     methods={"POST"})
+     * @Route(path="/{careerId}", name="career_update", methods={"PUT"})
+     * @Doc\Tag(name="Carrières", description="Gestion des carrières des utilisateurs.")
+     * @Doc\Response(response=200, description="[A CHANGER] OK")
      */
     public function update()
     {
@@ -37,11 +37,41 @@ class CareerController extends JsonAbstractController
     }
 
     /**
-     * @Route(path="/{id}",
-     *     name="career_by_user",
-     *     methods={"GET"})
+     * @Route(path="", name="career_create", methods={"POST"})
+     * @Doc\Tag(name="Carrières", description="Gestion des carrières des utilisateurs.")
+     * @Doc\Response(response=200, description="[A CHANGER] OK")
      */
-    public function getByUser()
+    public function create()
+    {
+
+    }
+
+    /**
+     * @Route(path="/{careerId}", name="career_remove", methods={"DELETE"})
+     * @Doc\Tag(name="Carrières", description="Gestion des carrières des utilisateurs.")
+     * @Doc\Response(response=200, description="[A CHANGER] OK")
+     */
+    public function remove()
+    {
+
+    }
+
+    /**
+     * @Route(path="/{careerId}", name="career_by_id", methods={"GET"})
+     * @Doc\Tag(name="Carrières", description="Gestion des carrières des utilisateurs.")
+     * @Doc\Response(response=200, description="[A CHANGER] OK")
+     */
+    public function getById()
+    {
+
+    }
+
+    /**
+     * @Route(path="/user/{userId}", name="career_by_user", methods={"GET"})
+     * @Doc\Tag(name="Carrières", description="Gestion des carrières des utilisateurs.")
+     * @Doc\Response(response=200, description="[A CHANGER] OK")
+     */
+    public function getByUserId()
     {
 
     }

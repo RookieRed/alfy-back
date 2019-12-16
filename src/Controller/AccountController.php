@@ -17,6 +17,7 @@ use App\Service\ValidationService;
 use App\Utils\JsonSerializer;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,6 +25,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Swagger\Annotations as Doc;
 
 /**
  * Class AccountController
@@ -76,6 +78,9 @@ class AccountController extends JsonAbstractController
      *     methods={"GET"},
      *     name="account_get_mine"
      * )
+     * @Doc\Tag(name="Comptes utilisateur", description="Gestion des connections / inscriptions / comptes utilisateur.")
+     * @Doc\Response(response=200, description="Tout va bien.",
+     *     @Model(type=App\Entity\User::class, groups={"user_get"}))
      */
     public function getMine()
     {
@@ -89,6 +94,9 @@ class AccountController extends JsonAbstractController
      *     name="account_get_by_id",
      *     requirements={"id"="\d+"}
      * )
+     * @Doc\Tag(name="Comptes utilisateur", description="Gestion des connections / inscriptions / comptes utilisateur.")
+     * @Doc\Response(response=200, description="Retourne l'utilisateur demandé",
+     *     @Model(type=App\Entity\User::class, groups={"user_get"}))
      */
     public function getById(Request $request)
     {
@@ -116,6 +124,9 @@ class AccountController extends JsonAbstractController
      *     methods={"POST"},
      *     name="account_update_mine"
      * )
+     * @Doc\Tag(name="Comptes utilisateur", description="Gestion des connections / inscriptions / comptes utilisateur.")
+     * @Doc\Response(response=200, description="Utilisateur modifié avec succès.",
+     *     @Model(type=App\Entity\User::class, groups={"user_get"}))
      */
     public function updateMine(Request $request)
     {
@@ -133,6 +144,14 @@ class AccountController extends JsonAbstractController
      *     methods={"POST"},
      *     name="signin"
      * )
+     * @Doc\Tag(name="Comptes utilisateur", description="Gestion des connections / inscriptions / comptes utilisateur.")
+     * @Doc\Parameter(in="body", required=true, description="Identifiants de l'utilisateur.", name="credentials",
+     *      @Model(type=App\Entity\User::class, groups={"user_connect"}))
+     * @Doc\Response(response=200, description="URL pour la connexion de l'utilisateur.",
+     *     @Doc\Schema(type="object",
+     *          @Doc\Property(type="string", description="Jetton d'authenfication", property="token")
+     *     )
+     * )
      */
     public function singIn()
     {
@@ -142,6 +161,12 @@ class AccountController extends JsonAbstractController
      * @Route(path="/signup",
      *     methods={"PUT"},
      *     name="account_create"
+     * )
+     * @Doc\Tag(name="Comptes utilisateur", description="Gestion des connections / inscriptions / comptes utilisateur.")
+     * @Doc\Response(response=200, description="Utilisateur modifié avec succès.",
+     *     @Doc\Schema(type="object",
+     *          @Doc\Property(type="string", description="Jetton d'authenfication", property="token")
+     *     )
      * )
      */
     public function singUp(Request $request)
@@ -163,6 +188,9 @@ class AccountController extends JsonAbstractController
      *     methods={"GET"},
      *     name="check_username"
      * )
+     * @Doc\Tag(name="Comptes utilisateur", description="Gestion des connections / inscriptions / comptes utilisateur.")
+     * @Doc\Response(response=409, description="Le username existe déjà dans la base de données.")
+     * @Doc\Response(response=204, description="Le nom d'utilisateur est disponible.")
      */
     public function checkUsernameValidity(string $username)
     {
@@ -179,6 +207,9 @@ class AccountController extends JsonAbstractController
      *     methods={"GET"},
      *     name="check_email"
      * )
+     * @Doc\Tag(name="Comptes utilisateur", description="Gestion des connections / inscriptions / comptes utilisateur.")
+     * @Doc\Response(response=409, description="L'adresse mail existe déjà dans la base de données.")
+     * @Doc\Response(response=204, description="L'adresse mail est disponible.")
      */
     public function checkEmailValidity(string $email)
     {
@@ -191,16 +222,21 @@ class AccountController extends JsonAbstractController
     }
 
     /**
-     * @Route(path="/{who}",
+     * @Route(path="/{userIdOrMe}",
      *     methods={"DELETE"},
      *     name="account_delete",
-     *     requirements={"who"="\d+|me"}
+     *     requirements={"userIdOrMe"="\d+|me"}
      * )
+     * @Doc\Tag(name="Comptes utilisateur", description="Gestion des connections / inscriptions / comptes utilisateur.")
+     * @Doc\Parameter(name="userIdOrMe", type="string",
+     *     description="Cible à supprimer, peut être un ID ou le string 'me'", required=true, in="path")
+     * @Doc\Response(response=404, description="L'utilisateur à supprimer n'existe pas")
+     * @Doc\Response(response=204, description="Succès.")
      */
     public function delete(Request $request)
     {
         $connectedUser = $this->userService->getConnectedUserOrThrowException();
-        $userId = $request->get('who');
+        $userId = $request->get('userIdOrMe');
         if ($userId === 'me') {
             $target = $connectedUser;
 
@@ -222,6 +258,10 @@ class AccountController extends JsonAbstractController
      *     methods={"POST"},
      *     name="update_profile_picture"
      * )
+     * @Doc\Tag(name="Comptes utilisateur", description="Gestion des connections / inscriptions / comptes utilisateur.")
+     * @Doc\Response(response=400, description="Le fichier image 'est pas trouvée ou invalide")
+     * @Doc\Response(response=200, description="Photo de profil enregistré",
+     *     @Model(type=App\Entity\File::class, groups={"user_get", "user_get_list"}))
      */
     public function updateProfilePicture(Request $request)
     {

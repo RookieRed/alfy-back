@@ -8,10 +8,9 @@
 
 namespace App\Controller;
 
-
 use App\Utils\JsonSerializer;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
+use Swagger\Annotations as Doc;
 
 /**
  * @Route(path="/university")
@@ -27,6 +26,8 @@ class UniversityController extends JsonAbstractController
      * @Route(path="/all",
      *     name="university_get_all",
      *     methods={"GET"})
+     * @Doc\Tag(name="Universités", description="Gestion des universités et écoles supérieures.")
+     * @Doc\Response(response=200, description="[A CHANGER] OK")
      */
     public function getAll()
     {
@@ -38,6 +39,8 @@ class UniversityController extends JsonAbstractController
      *     name="university_get",
      *     methods={"GET"},
      *     requirements={"id"="\d+"})
+     * @Doc\Tag(name="Universités", description="Gestion des universités et écoles supérieures.")
+     * @Doc\Response(response=200, description="[A CHANGER] OK")
      */
     public function getById()
     {
@@ -48,8 +51,10 @@ class UniversityController extends JsonAbstractController
      * @Route(path="",
      *     name="university_add",
      *     methods={"PUT"})
+     * @Doc\Tag(name="Universités", description="Gestion des universités et écoles supérieures.")
+     * @Doc\Response(response=200, description="[A CHANGER] OK")
      */
-    public function addOne()
+    public function create()
     {
 
     }
@@ -59,6 +64,8 @@ class UniversityController extends JsonAbstractController
      *     name="university_update",
      *     methods={"POST"},
      *     requirements={"id"="\d+"})
+     * @Doc\Tag(name="Universités", description="Gestion des universités et écoles supérieures.")
+     * @Doc\Response(response=200, description="[A CHANGER] OK")
      */
     public function update()
     {
@@ -70,6 +77,8 @@ class UniversityController extends JsonAbstractController
      *     methods={"DELETE"},
      *     name="university_delete",
      *     requirements={"id"="\d+"})
+     * @Doc\Tag(name="Universités", description="Gestion des universités et écoles supérieures.")
+     * @Doc\Response(response=200, description="[A CHANGER] OK")
      */
     public function remove()
     {
@@ -80,6 +89,8 @@ class UniversityController extends JsonAbstractController
      * @Route(path="",
      *     name="university_search",
      *     methods={"GET"})
+     * @Doc\Tag(name="Universités", description="Gestion des universités et écoles supérieures.")
+     * @Doc\Response(response=200, description="[A CHANGER] OK")
      */
     public function search()
     {
