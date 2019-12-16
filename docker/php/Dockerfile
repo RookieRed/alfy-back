@@ -1,4 +1,4 @@
-FROM php:7.2-fpm-alpine
+FROM php:7.3-fpm-alpine
 
 # Install Linux dependencies : composer / bash
 RUN apk add --update composer util-linux bash zlib-dev libpng-dev openldap-clients openldap-dev
