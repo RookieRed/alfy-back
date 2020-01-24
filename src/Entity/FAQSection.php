@@ -17,41 +17,41 @@ use Symfony\Component\Validator\Constraints as Assert;
 class FAQSection extends Section
 {
     /**
-     * @ORM\OneToMany(targetEntity="QuestionAnswered", mappedBy="parentSection",
-     *     cascade={"persist", "remove"}, fetch="EAGER")
+     * @ORM\OneToMany(targetEntity="App\Entity\CategoryFAQ", mappedBy="faqSection", orphanRemoval=true,
+     *     cascade={"persist", "remove"}, fetch="EAGER", indexBy="name")
      * @Groups({"get_page", "update_page_section"})
      * @Assert\NotNull()
      * @ORM\OrderBy(value={"priority" = "DESC"})
      */
-    private $faq;
+    private $categories;
 
     public function __construct()
     {
         parent::__construct();
-        $this->faq = new ArrayCollection();
+        $this->categories = new ArrayCollection();
     }
 
     /**
-     * @return Collection|File[]
+     * @return CategoryFAQ[]
      */
-    public function getFaq(): Collection
+    public function getCategories(): Collection
     {
-        return $this->faq;
+        return $this->categories;
     }
 
-    public function addQuestion(QuestionAnswered $question): self
+    public function addCategory(CategoryFAQ $category): self
     {
-        if (!$this->faq->contains($question)) {
-            $this->faq[] = $question;
+        if (!$this->categories->contains($category)) {
+            $this->categories[] = $category;
         }
 
         return $this;
     }
 
-    public function removeQuestion(QuestionAnswered $question): self
+    public function removeCategory(CategoryFAQ $category): self
     {
-        if ($this->faq->contains($question)) {
-            $this->faq->removeElement($question);
+        if ($this->categories->contains($category)) {
+            $this->categories->removeElement($category);
         }
 
         return $this;

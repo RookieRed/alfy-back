@@ -46,6 +46,12 @@ class QuestionAnswered
      */
     private $parentSection;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\CategoryFAQ", inversedBy="questions")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $category;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -83,6 +89,18 @@ class QuestionAnswered
     public function setPriority($priority): self
     {
         $this->priority = $priority;
+
+        return $this;
+    }
+
+    public function getCategory(): ?CategoryFAQ
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?CategoryFAQ $category): self
+    {
+        $this->category = $category;
 
         return $this;
     }
