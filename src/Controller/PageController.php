@@ -45,12 +45,34 @@ class PageController extends JsonAbstractController
     }
 
     /**
-     * @Route(path="/{pageName}",
+     * @Route(path="",
+     *     methods={"GET"},
+     *     name="get_page_list"
+     * )
+     * @Doc\Tag(name="Pages", description="Gestion des pages du site.")
+     * @Doc\Response(
+     *     response=200,
+     *     description="Retourne la liste des pages du site",
+     *     @Model(type=App\Entity\Page::class, groups={"get_page_list"})
+     * )
+     * @Doc\Response(
+     *     response=200,
+     *     description="Liste des pages du site.",
+     * )
+     */
+    public function getList()
+    {
+        $list = $this->pageService->findAll();
+        return $this->jsonOK($list, ['get_page_list']);
+    }
+
+    /**
+     * @Route(path="/{link}",
      *     methods={"GET"},
      *     name="page_get_texts"
      * )
      * @Doc\Tag(name="Pages", description="Gestion des pages du site.")
-     * @Doc\Parameter(name="pageName", description="Nom de la page demandée", type="string", in="path")
+     * @Doc\Parameter(name="link", description="Nom du lien de la page demandée", type="string", in="path")
      * @Doc\Response(
      *     response=200,
      *     description="Retourne le contenu de la page dont le nom est passé en paramètres",
@@ -63,12 +85,12 @@ class PageController extends JsonAbstractController
      */
     public function getPage(Request $request)
     {
-        $pageName = $request->get('pageName');
-        if ($pageName == null) {
+        $link = $request->get('link');
+        if ($link == null) {
             throw new BadRequestHttpException('No page name provided');
         }
 
-        $page = $this->pageService->findByNameOrThrowException($pageName);
+        $page = $this->pageService->findByLinkOrThrowException('/' . $link);
         $response = $this->jsonOK($page, ['get_page']);
         $response->setSharedMaxAge(self::MAX_TTL_PAGE_CACHE);
         $response->headers->addCacheControlDirective('public');

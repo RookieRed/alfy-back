@@ -8,9 +8,9 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\CategoryFAQRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\FAQCategoryRepository")
  */
-class CategoryFAQ
+class FAQCategory
 {
     /**
      * @ORM\Id()
@@ -40,12 +40,12 @@ class CategoryFAQ
     /**
      * @ORM\Column(type="integer", nullable=false)
      */
-    private $priority;
+    private $orderIndex;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\QuestionAnswered", mappedBy="category",
-     *     orphanRemoval=true)
-     * @ORM\OrderBy(value={"priority" = "DESC"})
+     *     cascade={"persist"}, orphanRemoval=true)
+     * @ORM\OrderBy(value={"orderIndex" = "ASC"})
      * @Groups({"get_page", "update_page_section"})
      */
     private $questions;
@@ -83,6 +83,7 @@ class CategoryFAQ
     public function addQuestion(QuestionAnswered $question): self
     {
         if (!$this->questions->contains($question)) {
+            $question->setOrderIndex(count($this->questions));
             $this->questions[] = $question;
             $question->setCategory($this);
         }
@@ -114,14 +115,14 @@ class CategoryFAQ
         return $this;
     }
 
-    public function getPriority(): int
+    public function getOrderIndex(): ?int
     {
-        return $this->priority;
+        return $this->orderIndex;
     }
 
-    public function setPriority(int $priority): self
+    public function setOrderIndex(int $orderIndex): self
     {
-        $this->priority = $priority;
+        $this->orderIndex = $orderIndex;
         return $this;
     }
 

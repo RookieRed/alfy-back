@@ -2,21 +2,21 @@
 
 namespace App\Repository;
 
-use App\Entity\CategoryFAQ;
+use App\Entity\FAQCategory;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 
 /**
- * @method CategoryFAQ|null find($id, $lockMode = null, $lockVersion = null)
- * @method CategoryFAQ|null findOneBy(array $criteria, array $orderBy = null)
- * @method CategoryFAQ[]    findAll()
- * @method CategoryFAQ[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method FAQCategory|null find($id, $lockMode = null, $lockVersion = null)
+ * @method FAQCategory|null findOneBy(array $criteria, array $orderBy = null)
+ * @method FAQCategory[]    findAll()
+ * @method FAQCategory[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class CategoryFAQRepository extends ServiceEntityRepository
+class FAQCategoryRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, CategoryFAQ::class);
+        parent::__construct($registry, FAQCategory::class);
     }
 
     // /**

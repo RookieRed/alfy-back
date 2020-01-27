@@ -19,7 +19,7 @@ class QuestionAnswered
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=511, unique=true)
+     * @ORM\Column(type="string", length=511)
      * @Assert\Unique()
      * @Assert\NotBlank()
      * @Groups({"get_page", "update_question_answered", "create_question_answered"})
@@ -38,16 +38,10 @@ class QuestionAnswered
      * @Assert\Positive()
      * @Groups({"get_page", "update_question_answered", "create_question_answered"})
      */
-    private $priority;
+    private $orderIndex;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\FAQSection", inversedBy="faq")
-     * @ORM\JoinColumn(onDelete="CASCADE")
-     */
-    private $parentSection;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\CategoryFAQ", inversedBy="questions")
+     * @ORM\ManyToOne(targetEntity="FAQCategory", inversedBy="questions", fetch="LAZY")
      * @ORM\JoinColumn(nullable=false)
      */
     private $category;
@@ -81,24 +75,24 @@ class QuestionAnswered
         return $this;
     }
 
-    public function getPriority()
+    public function getOrderIndex()
     {
-        return $this->priority;
+        return $this->orderIndex;
     }
 
-    public function setPriority($priority): self
+    public function setOrderIndex($orderIndex): self
     {
-        $this->priority = $priority;
+        $this->orderIndex = $orderIndex;
 
         return $this;
     }
 
-    public function getCategory(): ?CategoryFAQ
+    public function getCategory(): ?FAQCategory
     {
         return $this->category;
     }
 
-    public function setCategory(?CategoryFAQ $category): self
+    public function setCategory(?FAQCategory $category): self
     {
         $this->category = $category;
 

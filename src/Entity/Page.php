@@ -25,19 +25,20 @@ class Page
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"get_page"})
+     * @Groups({"get_page", "get_page_list"})
      * @Assert\NotBlank()
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
+     * @Groups({"get_page_list"})
      * @Assert\NotBlank()
      */
     private $link;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Section", mappedBy="page", indexBy="code",
+     * @ORM\OneToMany(targetEntity="App\Entity\Section", mappedBy="page",
      *     cascade={"persist"}, orphanRemoval=true, fetch="EAGER")
      * @Groups({"get_page"})
      * @var Section[]

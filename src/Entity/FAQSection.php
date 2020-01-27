@@ -17,11 +17,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 class FAQSection extends Section
 {
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\CategoryFAQ", mappedBy="faqSection", orphanRemoval=true,
-     *     cascade={"persist", "remove"}, fetch="EAGER", indexBy="name")
+     * @ORM\OneToMany(targetEntity="FAQCategory", mappedBy="faqSection", orphanRemoval=true,
+     *     cascade={"persist", "remove"}, fetch="EAGER")
      * @Groups({"get_page", "update_page_section"})
      * @Assert\NotNull()
-     * @ORM\OrderBy(value={"priority" = "DESC"})
+     * @ORM\OrderBy(value={"orderIndex" = "ASC"})
      */
     private $categories;
 
@@ -32,26 +32,31 @@ class FAQSection extends Section
     }
 
     /**
-     * @return CategoryFAQ[]
+     * @return FAQCategory[]
      */
     public function getCategories(): Collection
     {
         return $this->categories;
     }
 
-    public function addCategory(CategoryFAQ $category): self
+    public function addCategory(FAQCategory $category): self
     {
         if (!$this->categories->contains($category)) {
+            $category->setOrderIndex(count($this->categories));
             $this->categories[] = $category;
+            $category->setFaqSection($this);
         }
 
         return $this;
     }
 
-    public function removeCategory(CategoryFAQ $category): self
+    public function removeCategory(FAQCategory $category): self
     {
         if ($this->categories->contains($category)) {
             $this->categories->removeElement($category);
+            if ($category->getFaqSection() === $this) {
+                $category->setFaqSection(null);
+            }
         }
 
         return $this;

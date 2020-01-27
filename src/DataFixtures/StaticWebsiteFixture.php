@@ -3,10 +3,13 @@
 namespace App\DataFixtures;
 
 use App\Constants\FileConstants;
+use App\Entity\FAQCategory;
+use App\Entity\FAQSection;
 use App\Entity\HTMLSection;
 use App\Entity\Page;
 use App\Entity\File;
 use App\Entity\EventTile;
+use App\Entity\QuestionAnswered;
 use App\Entity\TilesEventsSection;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -35,6 +38,7 @@ class StaticWebsiteFixture extends Fixture implements ContainerAwareInterface
         try {
             $this->createFiles($manager);
             $this->createPages($manager);
+            $this->createFAQ($manager);
         } catch (ORMException $e) {
             $out = new ConsoleOutput();
             $out->writeln("<error>An exception occurred while importing data :</error>");
@@ -57,7 +61,7 @@ class StaticWebsiteFixture extends Fixture implements ContainerAwareInterface
         // About page
         $aboutPage = new Page();
         $aboutPage->setLink("/about")
-            ->setName("about")
+            ->setName("Accueil")
             ->addSection(
                 (new HTMLSection())
                     ->setTitle("Qui sommes-nous ?")
@@ -178,6 +182,62 @@ class StaticWebsiteFixture extends Fixture implements ContainerAwareInterface
         };
         $results = [];
         $this->files = $getDirsRecursive($getDirsRecursive, $rootDir . 'files' . DIRECTORY_SEPARATOR, $results);
+    }
+
+    private function createFAQ(ObjectManager $manager)
+    {
+        $categoryA = new FAQCategory();
+        $categoryA->setName("Inscription")
+            ->setDescription("Questions relatives à l'inscription à ALFY.")
+            ->addQuestion((new QuestionAnswered)
+                ->setQuestion("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt  ?")
+                ->setAnswer("Ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.")
+            )
+            ->addQuestion((new QuestionAnswered)
+                ->setQuestion("Sed ut perspiciatis unde omnis iste natus error ?")
+                ->setAnswer("Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur")
+            )
+        ;
+        $categoryB = new FAQCategory();
+        $categoryB->setName("Fonctionnement")
+            ->setDescription("Questions relatives au fonctionnement de l'association")
+            ->addQuestion((new QuestionAnswered)
+                ->setQuestion("At vero eos et accusamus et iusto ?")
+                ->setAnswer("Ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.")
+            )
+            ->addQuestion((new QuestionAnswered)
+                ->setQuestion("Sed ut perspiciatis unde omnis iste natus error ?")
+                ->setAnswer("Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est.")
+            )
+            ->addQuestion((new QuestionAnswered)
+                ->setQuestion("Sed ut perspiciatis unde omnis iste natus error ?")
+                ->setAnswer("Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur")
+            )
+        ;
+        $categoryC = new FAQCategory();
+        $categoryC->setName("Catégorie vide");
+
+        $pageFAQ = new Page();
+        $pageFAQ
+            ->setName("Frequently Asked Questions")
+            ->setLink("/faq")
+            ->addSection((new HTMLSection())
+                ->setCode("faq-intro")
+                ->setTitle("Frequently Asked Questions")
+                ->setOrderIndex(0)
+                ->setHtml("<p>Cette page recense les questions fréquentes de l'Asso.</p>")
+            )
+            ->addSection((new FAQSection)
+                ->setCode("main-faq")
+                ->setTitle("Questions")
+                ->addCategory($categoryA)
+                ->addCategory($categoryB)
+                ->addCategory($categoryC)
+                ->setOrderIndex(1)
+        );
+        assert(count($this->validator->validate($pageFAQ)) == 0, "FAQ page entity is not valid.");
+        $manager->persist($pageFAQ);
+        $this->commit($manager);
     }
 
     /**

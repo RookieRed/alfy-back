@@ -57,12 +57,17 @@ class PageService
         // TODO
     }
 
-    public function findByNameOrThrowException(string $pageName): Page
+    public function findByLinkOrThrowException(string $pageLink): Page
     {
-        $page = $this->pageRepository->findOneBy(['name' => $pageName]);
+        $page = $this->pageRepository->findOneBy(['link' => $pageLink]);
         if ($page == null) {
             throw new NotFoundHttpException('Page not found');
         }
         return $page;
+    }
+
+    public function findAll()
+    {
+        return $this->pageRepository->findAll();
     }
 }
