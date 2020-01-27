@@ -17,20 +17,20 @@ class FAQCategory
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"get_categories_list", "get_page"})
+     * @Groups({"get_categories_list", "get_page", "update_faq_category"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
-     * @Groups({"get_page", "update_page_section", "get_categories_list", "create_faq_category"})
+     * @Groups({"get_page", "update_page_section", "get_categories_list", "create_faq_category", "update_faq_category"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"get_page", "update_page_section", "get_categories_list", "create_faq_category"})
+     * @Groups({"get_page", "update_page_section", "get_categories_list", "create_faq_category", "update_faq_category"})
      */
     private $description;
 
@@ -43,14 +43,14 @@ class FAQCategory
 
     /**
      * @var integer
-     * @Groups({"create_faq_category"})
+     * @Groups({"create_faq_category", "update_faq_category"})
      */
     private $sectionId;
 
     /**
      * @ORM\Column(type="integer", nullable=false)
      * @Assert\PositiveOrZero()
-     * @Groups({"get_page", "update_order_index", "get_categories_list"})
+     * @Groups({"get_page", "update_order_index", "update_faq_category", "get_categories_list"})
      */
     private $orderIndex;
 
@@ -70,6 +70,12 @@ class FAQCategory
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setId($id): self
+    {
+        $this->id = $id;
+        return $this;
     }
 
     public function getName(): ?string

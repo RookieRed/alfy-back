@@ -85,25 +85,56 @@ class FAQController extends JsonAbstractController
             ['create_faq_category']
         );
         $category = $this->faqService->createCategory($categoryBean, $user);
-        return $this->jsonOK($category, ["get_page"], Response::HTTP_CREATED);
+        return $this->json($category, Response::HTTP_CREATED, ["get_page"]);
     }
 
-    /*
-     * @Route(path="/categories", name="", methods={""})
+    /**
+     * @Route(path="/faq/categories", name="update_faq_category", methods={"POST"})
      * @Doc\Tag(name="FAQ", description="Gestion des questions fréquentes")
-     * @Doc\Response(response=200, description="[A CHANGER] OK")
+     * @Doc\Parameter(description="Catégorie", in="body", required=true, name="category",
+     *     @Model(type=App\Entity\FAQCategory::class, groups={"update_faq_category"})))
+     * @Doc\Response(response=200, description="Modifications enregistrées.",
+     *     @Model(type=App\Entity\FAQCategory::class, groups={"get_page"}) )
+     * @Doc\Response(response=400, description="Erreur dans la requête.")
+     * @Doc\Response(response=403, description="Non authorisé.")
+     * @Doc\Response(response=404, description="Catégorie non trouvée.")
      */
-    public function updateCategory() {}
+    public function updateCategory(Request $request)
+    {
+        // Check rights
+        $user = $this->userService->checkConnectedUserPrivilegedOrThrowException(
+            UserRoles::ADMIN, "You must be administrator to do that.");
 
-    /*
-     * @Route(path="/categories", name="", methods={""})
-     * @Doc\Tag(name="FAQ", description="Gestion des questions fréquentes")
-     * @Doc\Response(response=200, description="[A CHANGER] OK")
-     */
-    public function removeCategory() {}
+        /** @var FAQCategory $categoryBean */
+        $categoryBean = $this->serializer->jsonDeserialize(
+            $request->getContent(),
+            FAQCategory::class,
+            ['update_faq_category']
+        );
+        return $this->jsonOK($this->faqService->updateCategory($categoryBean), ['get_page']);
+    }
 
     /**
-     * @Route(path="/faq/questions", name="", methods={"PUT"})
+     * @Route(path="/faq/categories/{categoriyId}", name="delete_faq_category",
+     *     methods={"DELETE"}, requirements={"categoriyId" = "\d+"})
+     * @Doc\Tag(name="FAQ", description="Gestion des questions fréquentes")
+     * @Doc\Parameter(description="ID de la catégorie à supprimer", in="path", required=true,
+     *     name="categoriyId", type="integer")
+     * @Doc\Response(response=204, description="Question supprimée")
+     * @Doc\Response(response=404, description="Question non trouvée")
+     * @Doc\Response(response=403, description="Non authorisé")
+     */
+    public function deleteCategory(Request $request)
+    {
+        // Check rights
+        $this->userService->checkConnectedUserPrivilegedOrThrowException(
+            UserRoles::ADMIN, "You must be administrator to do that.");
+        $this->faqService->deleteCategory(+$request->get("categoriyId"));
+        return $this->noContent();
+    }
+
+    /**
+     * @Route(path="/faq/questions", name="create_question_answered", methods={"PUT"})
      * @Doc\Tag(name="FAQ", description="Gestion des questions fréquentes")
      * @Doc\Parameter(description="Nouvelle question", in="body", required=true, name="question",
      *     @Model(type=App\Entity\QuestionAnswered::class, groups={"create_question_answered"})))
@@ -125,10 +156,8 @@ class FAQController extends JsonAbstractController
             QuestionAnswered::class,
             ['create_question_answered']
         );
-        return $this->jsonOK(
-            $this->faqService->createQuestion($questionBean, $user),
-            ['get_page'], Response::HTTP_CREATED
-        );
+        return $this->json($this->faqService->createQuestion($questionBean, $user),
+            Response::HTTP_CREATED, ['get_page']);
     }
 
     /**
@@ -163,6 +192,8 @@ class FAQController extends JsonAbstractController
      * @Route(path="/faq/questions/{questionId}", requirements={"questionId" = "\d+"},
      *     name="delete_question_answered", methods={"DELETE"})
      * @Doc\Tag(name="FAQ", description="Gestion des questions fréquentes")
+     * @Doc\Parameter(description="ID Question à supprimer", in="path", required=true,
+     *     name="questionId", type="integer")
      * @Doc\Response(response=204, description="Question supprimée")
      * @Doc\Response(response=404, description="Question non trouvée")
      * @Doc\Response(response=403, description="Non authorisé")
