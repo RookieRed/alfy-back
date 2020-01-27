@@ -146,7 +146,10 @@ class AccountController extends JsonAbstractController
      * )
      * @Doc\Tag(name="Comptes utilisateur", description="Gestion des connections / inscriptions / comptes utilisateur.")
      * @Doc\Parameter(in="body", required=true, description="Identifiants de l'utilisateur.", name="credentials",
-     *      @Model(type=App\Entity\User::class, groups={"user_connect"}))
+     *     @Doc\Schema(type="object",
+     *          @Doc\Property(type="string", description="Nom d'utilisateur", property="_username"),
+     *          @Doc\Property(type="string", description="Mot de passe", property="_password")
+     * ))
      * @Doc\Response(response=200, description="URL pour la connexion de l'utilisateur.",
      *     @Doc\Schema(type="object",
      *          @Doc\Property(type="string", description="Jetton d'authenfication", property="token")

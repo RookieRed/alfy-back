@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\FAQCategoryRepository")
@@ -16,30 +17,39 @@ class FAQCategory
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"get_categories_list"})
+     * @Groups({"get_categories_list", "get_page"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"get_page", "update_page_section", "get_categories_list"})
+     * @Assert\NotBlank()
+     * @Groups({"get_page", "update_page_section", "get_categories_list", "create_faq_category"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"get_page", "update_page_section", "get_categories_list"})
+     * @Groups({"get_page", "update_page_section", "get_categories_list", "create_faq_category"})
      */
     private $description;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\FAQSection", inversedBy="categories")
-     * @Groups({"get_page", "update_page_section"})
+     * @Assert\NotNull()
+     * @Groups({"update_page_section"})
      */
     private $faqSection;
 
     /**
+     * @var integer
+     * @Groups({"create_faq_category"})
+     */
+    private $sectionId;
+
+    /**
      * @ORM\Column(type="integer", nullable=false)
+     * @Assert\PositiveOrZero()
      * @Groups({"get_page", "update_order_index", "get_categories_list"})
      */
     private $orderIndex;
@@ -140,5 +150,21 @@ class FAQCategory
     {
         $this->description = $description;
         return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getSectionId(): int
+    {
+        return $this->sectionId;
+    }
+
+    /**
+     * @param int $sectionId
+     */
+    public function setSectionId(int $sectionId): void
+    {
+        $this->sectionId = $sectionId;
     }
 }

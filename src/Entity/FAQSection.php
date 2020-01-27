@@ -64,6 +64,7 @@ class FAQSection extends Section
 
     /**
      * @Groups({"get_page"})
+     * @return string
      */
     public function getType()
     {

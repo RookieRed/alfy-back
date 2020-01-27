@@ -196,10 +196,19 @@ class UserService
         return $this->userRepo->findOneBy(['username' => $userArray['username']]);
     }
 
-    public function getConnectedUserOrThrowException($message = null)
+    public function getConnectedUserOrThrowException($message = null): User
     {
         $user = $this->getConnectedUser();
         if ($user === null) {
+            throw new UnauthorizedHttpException($message);
+        }
+        return $user;
+    }
+
+    public function checkConnectedUserPrivilegedOrThrowException(string $role, $message = null): User
+    {
+        $user = $this->getConnectedUserOrThrowException($message);
+        if (!$user->isRole($role)) {
             throw new UnauthorizedHttpException($message);
         }
         return $user;

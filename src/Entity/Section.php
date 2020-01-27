@@ -28,7 +28,7 @@ abstract class Section
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"get_page"})
+     * @Groups({"get_page", "create_faq_category"})
      */
     private $id;
 

@@ -55,10 +55,6 @@ class PageController extends JsonAbstractController
      *     description="Retourne la liste des pages du site",
      *     @Model(type=App\Entity\Page::class, groups={"get_page_list"})
      * )
-     * @Doc\Response(
-     *     response=200,
-     *     description="Liste des pages du site.",
-     * )
      */
     public function getList()
     {
