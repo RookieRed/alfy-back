@@ -48,6 +48,11 @@ class SectionService
         return $this->sectionRepository->find($id);
     }
 
+    public function findByCode(string $code)
+    {
+        return $this->sectionRepository->findBy(['code' => $code]);
+    }
+
     public function findByIdOr404(int $id)
     {
         $section = $this->findById($id);

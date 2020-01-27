@@ -8,6 +8,7 @@ use App\Entity\Page;
 use App\Entity\Pojo\PageFilesIn;
 use App\Repository\FileRepository;
 use App\Repository\PageRepository;
+use App\Repository\SectionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;

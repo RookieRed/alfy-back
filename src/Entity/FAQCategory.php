@@ -16,18 +16,19 @@ class FAQCategory
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"get_categories_list"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"get_page", "update_page_section"})
+     * @Groups({"get_page", "update_page_section", "get_categories_list"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"get_page", "update_page_section"})
+     * @Groups({"get_page", "update_page_section", "get_categories_list"})
      */
     private $description;
 
@@ -39,6 +40,7 @@ class FAQCategory
 
     /**
      * @ORM\Column(type="integer", nullable=false)
+     * @Groups({"get_page", "update_order_index", "get_categories_list"})
      */
     private $orderIndex;
 
