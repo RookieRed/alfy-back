@@ -20,6 +20,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -209,7 +210,7 @@ class UserService
     {
         $user = $this->getConnectedUserOrThrowException($message);
         if (!$user->isRole($role)) {
-            throw new UnauthorizedHttpException($message);
+            throw new AccessDeniedHttpException($message);
         }
         return $user;
     }

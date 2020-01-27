@@ -6,6 +6,7 @@ namespace App\Service;
 
 use App\Entity\FAQCategory;
 use App\Entity\FAQSection;
+use App\Entity\QuestionAnswered;
 use App\Entity\Section;
 use App\Entity\User;
 use App\Repository\FAQCategoryRepository;
@@ -81,6 +82,27 @@ class FAQService
         $this->em->persist($faqSection);
         $this->em->flush();
         return $categoryBean;
+    }
+
+    public function findCategoryByIdOrException(int $categoryId): FAQCategory
+    {
+        $category = $this->categoryRepository->find($categoryId);
+        if ($category === null) {
+            throw new NotFoundHttpException("Category does not exist");
+        }
+        return $category;
+    }
+
+    public function createQuestion(QuestionAnswered $questionBean, int $categoryId, User $user)
+    {
+        $category = $this->findCategoryByIdOrException($categoryId);
+        $category->getFaqSection()
+            ->setUpdatedAt(new \DateTime())
+            ->setLastWriter($user);
+        $category->addQuestion($questionBean);
+        $this->em->persist($category->getFaqSection());
+        $this->em->flush();
+        return $questionBean;
     }
 
 

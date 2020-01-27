@@ -36,7 +36,7 @@ class QuestionAnswered
     /**
      * @ORM\Column(type="integer", length=511, options={"default" = 0})
      * @Assert\Positive()
-     * @Groups({"get_page", "update_question_answered", "create_question_answered"})
+     * @Groups({"get_page", "update_question_answered"})
      */
     private $orderIndex;
 

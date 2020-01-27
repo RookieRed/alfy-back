@@ -11,12 +11,14 @@ namespace App\Controller;
 
 use App\Constants\UserRoles;
 use App\Entity\FAQCategory;
+use App\Entity\QuestionAnswered;
 use App\Service\FAQService;
 use App\Service\UserService;
 use App\Service\ValidationService;
 use App\Utils\JsonSerializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Swagger\Annotations as Doc;
@@ -110,12 +112,39 @@ class FAQController extends JsonAbstractController
      */
     public function removeQuestion() {}
 
-    /*
-     * @Route(path="/categories", name="", methods={""})
+    /**
+     * @Route(path="/faq/categories/{categoryId}/questions", name="", methods={"PUT"})
      * @Doc\Tag(name="FAQ", description="Gestion des questions fréquentes")
-     * @Doc\Response(response=200, description="[A CHANGER] OK")
+     * @Doc\Parameter(description="ID catégorie", in="path", required=true, name="categoryId", type="integer")
+     * @Doc\Parameter(description="Nouvelle question", in="body", required=true, name="question",
+     *     @Model(type=App\Entity\QuestionAnswered::class, groups={"create_question_answered"})))
+     * @Doc\Response(response=200, description="Question-Réponse ajoutée.",
+     *     @Model(type=App\Entity\QuestionAnswered::class, groups={"get_page"})))
+     * @Doc\Response(response=400, description="Erreur dans la requête.")
+     * @Doc\Response(response=403, description="Non authorisé.")
      */
-    public function addQuestion() {}
+    public function addQuestion(Request $request)
+    {
+        // Check rights
+        $user = $this->userService->checkConnectedUserPrivilegedOrThrowException(
+            UserRoles::ADMIN, "You must be administrator to do that.");
+         // Check params
+        try {
+            $categoryId = +$request->get("categoryId");
+        } catch (\Exception $e) {
+            throw new BadRequestHttpException("The category ID can not be read.");
+        }
+        /** @var QuestionAnswered $questionBean */
+        $questionBean = $this->serializer->jsonDeserialize(
+            $request->getContent(),
+            QuestionAnswered::class,
+            ['create_question_answered']
+        );
+        return $this->jsonOK(
+            $this->faqService->createQuestion($questionBean, $categoryId, $user),
+            ['get_page']
+        );
+    }
 
     /*
      * @Route(path="/categories", name="", methods={""})
