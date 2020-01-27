@@ -18,6 +18,7 @@ use App\Service\ValidationService;
 use App\Utils\JsonSerializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
@@ -68,7 +69,7 @@ class FAQController extends JsonAbstractController
      *     @Model(type=App\Entity\FAQCategory::class, groups={"create_faq_category"})))
      * @Doc\Response(response=400, description="Erreur dans la requête.")
      * @Doc\Response(response=403, description="Non authorisé.")
-     * @Doc\Response(response=204, description="Enregistré.",
+     * @Doc\Response(response=201, description="Enregistré.",
      *     @Model(type=App\Entity\FAQCategory::class, groups={"get_page"}))
      */
     public function addCategory(Request $request)
@@ -84,7 +85,7 @@ class FAQController extends JsonAbstractController
             ['create_faq_category']
         );
         $category = $this->faqService->createCategory($categoryBean, $user);
-        return $this->jsonOK($category, ["get_page"]);
+        return $this->jsonOK($category, ["get_page"], Response::HTTP_CREATED);
     }
 
     /*
@@ -101,19 +102,12 @@ class FAQController extends JsonAbstractController
      */
     public function removeCategory() {}
 
-    /*
-     * @Route(path="/faq/questions", name="", methods={""})
-     * @Doc\Tag(name="FAQ", description="Gestion des questions fréquentes")
-     * @Doc\Response(response=200, description="[A CHANGER] OK")
-     */
-    public function removeQuestion() {}
-
     /**
      * @Route(path="/faq/questions", name="", methods={"PUT"})
      * @Doc\Tag(name="FAQ", description="Gestion des questions fréquentes")
      * @Doc\Parameter(description="Nouvelle question", in="body", required=true, name="question",
      *     @Model(type=App\Entity\QuestionAnswered::class, groups={"create_question_answered"})))
-     * @Doc\Response(response=200, description="Question-Réponse ajoutée.",
+     * @Doc\Response(response=201, description="Question-Réponse ajoutée.",
      *     @Model(type=App\Entity\QuestionAnswered::class, groups={"get_page"})))
      * @Doc\Response(response=400, description="Erreur dans la requête.")
      * @Doc\Response(response=403, description="Non authorisé.")
@@ -131,10 +125,9 @@ class FAQController extends JsonAbstractController
             QuestionAnswered::class,
             ['create_question_answered']
         );
-        $this->validator->validateOrThrowException();
         return $this->jsonOK(
             $this->faqService->createQuestion($questionBean, $user),
-            ['get_page']
+            ['get_page'], Response::HTTP_CREATED
         );
     }
 
@@ -166,4 +159,20 @@ class FAQController extends JsonAbstractController
         return $this->jsonOK($this->faqService->updateQuestion($questionBean), ['get_page']);
     }
 
+    /**
+     * @Route(path="/faq/questions/{questionId}", requirements={"questionId" = "\d+"},
+     *     name="delete_question_answered", methods={"DELETE"})
+     * @Doc\Tag(name="FAQ", description="Gestion des questions fréquentes")
+     * @Doc\Response(response=204, description="Question supprimée")
+     * @Doc\Response(response=404, description="Question non trouvée")
+     * @Doc\Response(response=403, description="Non authorisé")
+     */
+    public function deleteQuestion(Request $request)
+    {
+        // Check rights
+        $this->userService->checkConnectedUserPrivilegedOrThrowException(
+            UserRoles::ADMIN, "You must be administrator to do that.");
+        $this->faqService->deleteQuestion(+$request->get("questionId"));
+        return $this->noContent();
+    }
 }

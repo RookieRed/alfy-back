@@ -118,6 +118,7 @@ class FAQService
     public function createQuestion(QuestionAnswered $questionBean, User $user)
     {
         $this->validator->validateOrThrowException($questionBean, ['create_question_answered']);
+
         $categoryId = $questionBean->getCategoryId();
         if ($categoryId === null) {
             throw new BadRequestHttpException("Category ID must be specified.");
@@ -144,6 +145,13 @@ class FAQService
         $this->em->persist($questionFromDB);
         $this->em->flush();
         return $questionFromDB;
+    }
+
+    public function deleteQuestion(int $id)
+    {
+        $question = $this->findQuestionByIdOrException($id);
+        $this->em->remove($question);
+        $this->em->flush();
     }
 
 
