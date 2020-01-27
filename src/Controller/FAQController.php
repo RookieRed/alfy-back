@@ -206,4 +206,54 @@ class FAQController extends JsonAbstractController
         $this->faqService->deleteQuestion(+$request->get("questionId"));
         return $this->noContent();
     }
+
+    /**
+     * @Route(path="/faq/categories/{categoryId}/re-order/{newOrderIndex}",
+     *     requirements={"questionId" = "\d+", "newOrderIndex" = "\d+"},
+     *     name="set_category_order_index", methods={"POST"})
+     * @Doc\Tag(name="FAQ", description="Gestion des questions fréquentes")
+     * @Doc\Parameter(description="ID Catégory à ré-ordonner", in="path", required=true,
+     *     name="categoryId", type="integer")
+     * @Doc\Parameter(description="Nouvel index", in="path", required=true,
+     *     name="newOrderIndex", type="integer")
+     * @Doc\Response(response=200, description="Nouvel ordre enregistré",
+     *     @Model(type=App\Entity\Page::class, groups={"get_page"}))
+     * @Doc\Response(response=404, description="Catégorie non trouvée")
+     * @Doc\Response(response=403, description="Non authorisé")
+     */
+    public function setCategoryOrderIndex(Request $request)
+    {
+        // Check rights
+        $this->userService->checkConnectedUserPrivilegedOrThrowException(
+            UserRoles::ADMIN, "You must be administrator to do that.");
+
+        $categoryId = +$request->get('categoryId');
+        $newOrderIndex = +$request->get('newOrderIndex');
+        $page = $this->faqService->setCategoryOrderIndex($categoryId, $newOrderIndex);
+        return $this->jsonOK($page, ['get_page']);
+    }
+
+    /**
+     * @Route(path="/faq/questions/{questionId}/re-order/{newOrderIndex}",
+     *     requirements={"questionId" = "\d+", "newOrderIndex" = "\d+"},
+     *     name="set_question_order_index", methods={"POST"})
+     * @Doc\Tag(name="FAQ", description="Gestion des questions fréquentes")
+     * @Doc\Parameter(description="ID Question à ré-ordonner", in="path", required=true,
+     *     name="questionId", type="integer")
+     * @Doc\Parameter(description="Nouvel index", in="path", required=true,
+     *     name="newOrderIndex", type="integer")
+     * @Doc\Response(response=404, description="Question non trouvée")
+     * @Doc\Response(response=403, description="Non authorisé")
+     */
+    public function setQuestionOrderIndex(Request $request)
+    {
+        // Check rights
+        $this->userService->checkConnectedUserPrivilegedOrThrowException(
+            UserRoles::ADMIN, "You must be administrator to do that.");
+
+        $questionId = +$request->get('questionId');
+        $newOrderIndex = +$request->get('newOrderIndex');
+        $page = $this->faqService->setQuestionOrderIndex($questionId, $newOrderIndex);
+        return $this->jsonOK($page, ['get_page']);
+    }
 }

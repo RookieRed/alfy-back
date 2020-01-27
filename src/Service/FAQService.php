@@ -6,6 +6,7 @@ namespace App\Service;
 
 use App\Entity\FAQCategory;
 use App\Entity\FAQSection;
+use App\Entity\Page;
 use App\Entity\QuestionAnswered;
 use App\Entity\Section;
 use App\Entity\User;
@@ -13,8 +14,8 @@ use App\Repository\FAQCategoryRepository;
 use App\Repository\PageRepository;
 use App\Repository\QuestionAnsweredRepository;
 use App\Repository\SectionRepository;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
-use phpDocumentor\Reflection\Types\Collection;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -175,6 +176,53 @@ class FAQService
         $this->em->persist($categoryFromDB);
         $this->em->flush();
         return $categoryBean;
+    }
+
+    public function setQuestionOrderIndex(int $questionId, int $newOrderIndex): Page
+    {
+        $question = $this->findQuestionByIdOrException($questionId);
+        $category = $question->getCategory();
+        $this->reorderCollection($category->getQuestions(), $question, $newOrderIndex);
+
+        $this->validator->validateOrThrowException($category);
+        $this->em->persist($category);
+        $this->em->flush();
+        return $this->pageService->findByLinkOrThrowException($category->getFaqSection()->getPage()->getLink());
+    }
+
+    public function setCategoryOrderIndex(int $categoryId, int $newOrderIndex): Page
+    {
+        $category = $this->findCategoryByIdOrException($categoryId);
+        $section = $category->getFaqSection();
+
+        $this->reorderCollection($section->getCategories(), $category, $newOrderIndex);
+        $this->validator->validateOrThrowException($section);
+        $this->em->persist($section);
+        $this->em->flush();
+        return $this->pageService->findByLinkOrThrowException($section->getPage()->getLink());
+    }
+
+    private function reorderCollection(Collection $collection, $element, int $newOrderIndex)
+    {
+        if ($newOrderIndex < 0) {
+            $newOrderIndex = 0;
+        } elseif ($newOrderIndex >= $collection->count()) {
+            $newOrderIndex = $collection->count() - 1;
+        }
+        $previousOrderIndex = $element->getOrderIndex();
+
+        foreach ($collection as &$currentElement) {
+            if($previousOrderIndex < $newOrderIndex
+                && ($currentElement->getOrderIndex() > $previousOrderIndex
+                    &&  $currentElement->getOrderIndex() <= $newOrderIndex)) {
+                $currentElement->setOrderIndex($currentElement->getOrderIndex() - 1);
+            } elseif ($previousOrderIndex > $newOrderIndex
+                && ($currentElement->getOrderIndex() < $previousOrderIndex
+                    &&  $currentElement->getOrderIndex() >= $newOrderIndex)) {
+                $currentElement->setOrderIndex($currentElement->getOrderIndex() + 1);
+            }
+        }
+        $element->setOrderIndex($newOrderIndex);
     }
 
 
