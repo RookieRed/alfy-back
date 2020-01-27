@@ -11,6 +11,7 @@ use App\Entity\Section;
 use App\Entity\User;
 use App\Repository\FAQCategoryRepository;
 use App\Repository\PageRepository;
+use App\Repository\QuestionAnsweredRepository;
 use App\Repository\SectionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use phpDocumentor\Reflection\Types\Collection;
@@ -36,17 +37,27 @@ class FAQService
      * @var SectionService
      */
     private $sectionService;
+    /**
+     * @var QuestionAnsweredRepository
+     */
+    private $questionsRepository;
+    /**
+     * @var ValidationService
+     */
+    private $validator;
 
-    public function __construct(
-        EntityManagerInterface $em,
-        PageService $pageService,
-        SectionService $sectionService,
-        FAQCategoryRepository $categoryRepository
-    ) {
+    public function __construct(EntityManagerInterface $em,
+                                PageService $pageService,
+                                QuestionAnsweredRepository $questionsRepository,
+                                SectionService $sectionService,
+                                FAQCategoryRepository $categoryRepository,
+                                ValidationService $validator) {
         $this->em= $em;
         $this->pageService= $pageService;
+        $this->questionsRepository = $questionsRepository;
         $this->sectionService= $sectionService;
         $this->categoryRepository= $categoryRepository;
+        $this->validator = $validator;
     }
 
     /**
@@ -64,6 +75,8 @@ class FAQService
 
     public function createCategory(FAQCategory &$categoryBean, User $user)
     {
+        $this->validator->validateOrThrowException($categoryBean, ['create_faq_category']);
+
         if ($categoryBean->getSectionId() === null) {
             /** @var FAQSection $faqSection */
             $faqSection = $this->sectionService->findByCode('main-faq');
@@ -93,9 +106,24 @@ class FAQService
         return $category;
     }
 
-    public function createQuestion(QuestionAnswered $questionBean, int $categoryId, User $user)
+    public function findQuestionByIdOrException(int $questionId): QuestionAnswered
     {
+        $question = $this->questionsRepository->find($questionId);
+        if ($question === null) {
+            throw new NotFoundHttpException("Question/answer does not exist");
+        }
+        return $question;
+    }
+
+    public function createQuestion(QuestionAnswered $questionBean, User $user)
+    {
+        $this->validator->validateOrThrowException($questionBean, ['create_question_answered']);
+        $categoryId = $questionBean->getCategoryId();
+        if ($categoryId === null) {
+            throw new BadRequestHttpException("Category ID must be specified.");
+        }
         $category = $this->findCategoryByIdOrException($categoryId);
+
         $category->getFaqSection()
             ->setUpdatedAt(new \DateTime())
             ->setLastWriter($user);
@@ -103,6 +131,19 @@ class FAQService
         $this->em->persist($category->getFaqSection());
         $this->em->flush();
         return $questionBean;
+    }
+
+    public function updateQuestion(QuestionAnswered $questionBean): QuestionAnswered
+    {
+        $this->validator->validateOrThrowException($questionBean, ['update_question_answered']);
+        $questionFromDB = $this->findQuestionByIdOrException($questionBean->getId());
+
+        $questionFromDB->setQuestion($questionBean->getQuestion())
+            ->setAnswer($questionBean->getAnswer());
+
+        $this->em->persist($questionFromDB);
+        $this->em->flush();
+        return $questionFromDB;
     }
 
 

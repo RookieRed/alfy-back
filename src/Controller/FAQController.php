@@ -38,12 +38,10 @@ class FAQController extends JsonAbstractController
 
     public function __construct(JsonSerializer $serializer,
                                 FAQService $faqService,
-                                UserService $userService,
-                                ValidationService $validator) {
+                                UserService $userService) {
         parent::__construct($serializer);
         $this->faqService = $faqService;
         $this->userService = $userService;
-        $this->validator = $validator;
     }
 
     /**
@@ -85,8 +83,6 @@ class FAQController extends JsonAbstractController
             FAQCategory::class,
             ['create_faq_category']
         );
-        $this->validator->validateOrThrowException($categoryBean, ['create_faq_category']);
-
         $category = $this->faqService->createCategory($categoryBean, $user);
         return $this->jsonOK($category, ["get_page"]);
     }
@@ -106,22 +102,22 @@ class FAQController extends JsonAbstractController
     public function removeCategory() {}
 
     /*
-     * @Route(path="/categories", name="", methods={""})
+     * @Route(path="/faq/questions", name="", methods={""})
      * @Doc\Tag(name="FAQ", description="Gestion des questions fréquentes")
      * @Doc\Response(response=200, description="[A CHANGER] OK")
      */
     public function removeQuestion() {}
 
     /**
-     * @Route(path="/faq/categories/{categoryId}/questions", name="", methods={"PUT"})
+     * @Route(path="/faq/questions", name="", methods={"PUT"})
      * @Doc\Tag(name="FAQ", description="Gestion des questions fréquentes")
-     * @Doc\Parameter(description="ID catégorie", in="path", required=true, name="categoryId", type="integer")
      * @Doc\Parameter(description="Nouvelle question", in="body", required=true, name="question",
      *     @Model(type=App\Entity\QuestionAnswered::class, groups={"create_question_answered"})))
      * @Doc\Response(response=200, description="Question-Réponse ajoutée.",
      *     @Model(type=App\Entity\QuestionAnswered::class, groups={"get_page"})))
      * @Doc\Response(response=400, description="Erreur dans la requête.")
      * @Doc\Response(response=403, description="Non authorisé.")
+     * @Doc\Response(response=404, description="Catégorie non trouvée.")
      */
     public function addQuestion(Request $request)
     {
@@ -129,28 +125,45 @@ class FAQController extends JsonAbstractController
         $user = $this->userService->checkConnectedUserPrivilegedOrThrowException(
             UserRoles::ADMIN, "You must be administrator to do that.");
          // Check params
-        try {
-            $categoryId = +$request->get("categoryId");
-        } catch (\Exception $e) {
-            throw new BadRequestHttpException("The category ID can not be read.");
-        }
         /** @var QuestionAnswered $questionBean */
         $questionBean = $this->serializer->jsonDeserialize(
             $request->getContent(),
             QuestionAnswered::class,
             ['create_question_answered']
         );
+        $this->validator->validateOrThrowException();
         return $this->jsonOK(
-            $this->faqService->createQuestion($questionBean, $categoryId, $user),
+            $this->faqService->createQuestion($questionBean, $user),
             ['get_page']
         );
     }
 
-    /*
-     * @Route(path="/categories", name="", methods={""})
+    /**
+     * @Route(path="/faq/questions", name="update_question_answered", methods={"POST"})
      * @Doc\Tag(name="FAQ", description="Gestion des questions fréquentes")
-     * @Doc\Response(response=200, description="[A CHANGER] OK")
+     * @Doc\Parameter(description="Question", in="body", required=true, name="question",
+     *     @Model(type=App\Entity\QuestionAnswered::class, groups={"update_question_answered"})))
+     * @Doc\Response(response=200, description="Modifications enregistrées.",
+     *     @Model(type=App\Entity\QuestionAnswered::class, groups={"get_page"}) )
+     * @Doc\Response(response=400, description="Erreur dans la requête.")
+     * @Doc\Response(response=403, description="Non authorisé.")
+     * @Doc\Response(response=404, description="Question non trouvée.")
      */
-    public function updateQuestion() {}
+    public function updateQuestion(Request $request)
+    {
+        // Check rights
+        $user = $this->userService->checkConnectedUserPrivilegedOrThrowException(
+            UserRoles::ADMIN, "You must be administrator to do that.");
+
+        // Check param
+        /** @var QuestionAnswered $questionBean */
+        $questionBean = $this->serializer->jsonDeserialize(
+            $request->getContent(),
+            QuestionAnswered::class,
+            ['update_question_answered']
+        );
+
+        return $this->jsonOK($this->faqService->updateQuestion($questionBean), ['get_page']);
+    }
 
 }

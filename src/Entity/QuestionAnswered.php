@@ -15,6 +15,8 @@ class QuestionAnswered
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"update_question_answered", "get_page"})
+     * @Assert\NotNull()
      */
     private $id;
 
@@ -35,8 +37,8 @@ class QuestionAnswered
 
     /**
      * @ORM\Column(type="integer", length=511, options={"default" = 0})
-     * @Assert\Positive()
-     * @Groups({"get_page", "update_question_answered"})
+     * @Assert\PositiveOrZero()
+     * @Groups({"get_page"})
      */
     private $orderIndex;
 
@@ -46,9 +48,23 @@ class QuestionAnswered
      */
     private $category;
 
+    /**
+     * @var int
+     * @Groups({"create_question_answered"})
+     * @Assert\NotNull()
+     * @Assert\PositiveOrZero()
+     */
+    private $categoryId;
+
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setId(?int $id): self
+    {
+        $this->id = $id;
+        return $this;
     }
 
     public function getQuestion(): ?string
@@ -96,6 +112,23 @@ class QuestionAnswered
     {
         $this->category = $category;
 
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCategoryId(): ?int
+    {
+        return $this->categoryId;
+    }
+
+    /**
+     * @param int $categoryId
+     */
+    public function setCategoryId(?int $categoryId): self
+    {
+        $this->categoryId = $categoryId;
         return $this;
     }
 }
