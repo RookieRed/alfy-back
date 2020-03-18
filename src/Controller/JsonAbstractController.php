@@ -4,8 +4,10 @@
 namespace App\Controller;
 
 
+use App\HttpCacheKernelWrapper;
 use App\Utils\JsonSerializer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -54,5 +56,11 @@ abstract class JsonAbstractController extends AbstractController
      */
     public function noContent($headers = []) {
         return $this->json('', Response::HTTP_NO_CONTENT, [], $headers);
+    }
+
+    protected function purgeCache(string $uri) {
+        $client = HttpClient::create();
+        $response = $client->request('PURGE', 'http://' . $_SERVER['SERVER_NAME'] . '/' . $uri);
+        return $response->getStatusCode() == Response::HTTP_OK;
     }
 }

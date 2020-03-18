@@ -132,6 +132,9 @@
     "ocramius/proxy-manager": {
         "version": "2.2.0"
     },
+    "php": {
+        "version": "7.3"
+    },
     "phpdocumentor/reflection-common": {
         "version": "2.0.0"
     },
@@ -233,6 +236,12 @@
             "version": "3.3",
             "ref": "1279df12895f20d8076324036431833181eb6645"
         }
+    },
+    "symfony/http-client": {
+        "version": "v4.4.5"
+    },
+    "symfony/http-client-contracts": {
+        "version": "v2.0.1"
     },
     "symfony/http-foundation": {
         "version": "v4.1.0"

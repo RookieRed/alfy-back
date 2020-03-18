@@ -17,6 +17,7 @@ use App\Service\UserService;
 use App\Service\ValidationService;
 use App\Utils\JsonSerializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
+use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -85,6 +86,8 @@ class FAQController extends JsonAbstractController
             ['create_faq_category']
         );
         $category = $this->faqService->createCategory($categoryBean, $user);
+        // Cache invalidation
+        $this->purgeCache("/pages/faq");
         return $this->json($category, Response::HTTP_CREATED, ["get_page"]);
     }
 
@@ -111,6 +114,8 @@ class FAQController extends JsonAbstractController
             FAQCategory::class,
             ['update_faq_category']
         );
+        // Cache invalidation
+        $this->purgeCache("/pages/faq");
         return $this->jsonOK($this->faqService->updateCategory($categoryBean), ['get_page']);
     }
 
@@ -130,6 +135,8 @@ class FAQController extends JsonAbstractController
         $this->userService->checkConnectedUserPrivilegedOrThrowException(
             UserRoles::ADMIN, "You must be administrator to do that.");
         $this->faqService->deleteCategory(+$request->get("categoriyId"));
+        // Cache invalidation
+        $this->purgeCache("/pages/faq");
         return $this->noContent();
     }
 
@@ -156,6 +163,8 @@ class FAQController extends JsonAbstractController
             QuestionAnswered::class,
             ['create_question_answered']
         );
+        // Cache invalidation
+        $this->purgeCache("/pages/faq");
         return $this->json($this->faqService->createQuestion($questionBean, $user),
             Response::HTTP_CREATED, ['get_page']);
     }
@@ -185,6 +194,8 @@ class FAQController extends JsonAbstractController
             ['update_question_answered']
         );
 
+        // Cache invalidation
+        $this->purgeCache("/pages/faq");
         return $this->jsonOK($this->faqService->updateQuestion($questionBean), ['get_page']);
     }
 
@@ -204,6 +215,8 @@ class FAQController extends JsonAbstractController
         $this->userService->checkConnectedUserPrivilegedOrThrowException(
             UserRoles::ADMIN, "You must be administrator to do that.");
         $this->faqService->deleteQuestion(+$request->get("questionId"));
+        // Cache invalidation
+        $this->purgeCache("/pages/faq");
         return $this->noContent();
     }
 
@@ -230,6 +243,8 @@ class FAQController extends JsonAbstractController
         $categoryId = +$request->get('categoryId');
         $newOrderIndex = +$request->get('newOrderIndex');
         $page = $this->faqService->setCategoryOrderIndex($categoryId, $newOrderIndex);
+        // Cache invalidation
+        $this->purgeCache("/pages/faq");
         return $this->jsonOK($page, ['get_page']);
     }
 
@@ -254,6 +269,8 @@ class FAQController extends JsonAbstractController
         $questionId = +$request->get('questionId');
         $newOrderIndex = +$request->get('newOrderIndex');
         $page = $this->faqService->setQuestionOrderIndex($questionId, $newOrderIndex);
+        // Cache invalidation
+        $this->purgeCache("/pages/faq");
         return $this->jsonOK($page, ['get_page']);
     }
 }

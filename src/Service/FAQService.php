@@ -107,7 +107,7 @@ class FAQService
         return $category;
     }
 
-    public function findQuestionByIdOrException(int $questionId): QuestionAnswered
+    public function findQuestionByIdOrException(?int $questionId): QuestionAnswered
     {
         $question = $this->questionsRepository->find($questionId);
         if ($question === null) {
