@@ -27,6 +27,7 @@ class FileConstants
     const DEFAULT_NO_IMAGE_FILE = '/files/pictures/default.png';
 
     const PROFILE_PICTURES_DIR = '/files/pictures/profiles/';
+    const COVER_PICTURES_DIR = '/files/pictures/covers/';
     const PAGES_PICTURES_DIR = '/files/pictures/pages/';
     const SLIDE_SHOW_DIR = '/files/slide-show/';
     const TILES_PICTURE_DIR = '/files/tiles-pictures/';

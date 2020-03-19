@@ -98,7 +98,7 @@ class FAQService
         return $categoryBean;
     }
 
-    public function findCategoryByIdOrException(int $categoryId): FAQCategory
+    public function findCategoryByIdOrException(?int $categoryId): FAQCategory
     {
         $category = $this->categoryRepository->find($categoryId);
         if ($category === null) {
@@ -150,14 +150,14 @@ class FAQService
         return $questionFromDB;
     }
 
-    public function deleteQuestion(int $id)
+    public function deleteQuestion(?int $id)
     {
         $question = $this->findQuestionByIdOrException($id);
         $this->em->remove($question);
         $this->em->flush();
     }
 
-    public function deleteCategory(int $id)
+    public function deleteCategory(?int $id)
     {
         $category = $this->findCategoryByIdOrException($id);
         $this->em->remove($category);

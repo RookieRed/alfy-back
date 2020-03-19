@@ -69,7 +69,7 @@ class FAQController extends JsonAbstractController
      * @Doc\Parameter(description="Nouvelle catégorie", in="body", required=true, name="category",
      *     @Model(type=App\Entity\FAQCategory::class, groups={"create_faq_category"})))
      * @Doc\Response(response=400, description="Erreur dans la requête.")
-     * @Doc\Response(response=403, description="Non authorisé.")
+     * @Doc\Response(response=401, description="Non authorisé.")
      * @Doc\Response(response=201, description="Enregistré.",
      *     @Model(type=App\Entity\FAQCategory::class, groups={"get_page"}))
      */
@@ -99,7 +99,7 @@ class FAQController extends JsonAbstractController
      * @Doc\Response(response=200, description="Modifications enregistrées.",
      *     @Model(type=App\Entity\FAQCategory::class, groups={"get_page"}) )
      * @Doc\Response(response=400, description="Erreur dans la requête.")
-     * @Doc\Response(response=403, description="Non authorisé.")
+     * @Doc\Response(response=401, description="Non authorisé.")
      * @Doc\Response(response=404, description="Catégorie non trouvée.")
      */
     public function updateCategory(Request $request)
@@ -127,7 +127,7 @@ class FAQController extends JsonAbstractController
      *     name="categoriyId", type="integer")
      * @Doc\Response(response=204, description="Question supprimée")
      * @Doc\Response(response=404, description="Question non trouvée")
-     * @Doc\Response(response=403, description="Non authorisé")
+     * @Doc\Response(response=401, description="Non authorisé")
      */
     public function deleteCategory(Request $request)
     {
@@ -148,7 +148,7 @@ class FAQController extends JsonAbstractController
      * @Doc\Response(response=201, description="Question-Réponse ajoutée.",
      *     @Model(type=App\Entity\QuestionAnswered::class, groups={"get_page"})))
      * @Doc\Response(response=400, description="Erreur dans la requête.")
-     * @Doc\Response(response=403, description="Non authorisé.")
+     * @Doc\Response(response=401, description="Non authorisé.")
      * @Doc\Response(response=404, description="Catégorie non trouvée.")
      */
     public function addQuestion(Request $request)
@@ -177,7 +177,7 @@ class FAQController extends JsonAbstractController
      * @Doc\Response(response=200, description="Modifications enregistrées.",
      *     @Model(type=App\Entity\QuestionAnswered::class, groups={"get_page"}) )
      * @Doc\Response(response=400, description="Erreur dans la requête.")
-     * @Doc\Response(response=403, description="Non authorisé.")
+     * @Doc\Response(response=401, description="Non authorisé.")
      * @Doc\Response(response=404, description="Question non trouvée.")
      */
     public function updateQuestion(Request $request)
@@ -207,7 +207,7 @@ class FAQController extends JsonAbstractController
      *     name="questionId", type="integer")
      * @Doc\Response(response=204, description="Question supprimée")
      * @Doc\Response(response=404, description="Question non trouvée")
-     * @Doc\Response(response=403, description="Non authorisé")
+     * @Doc\Response(response=401, description="Non authorisé")
      */
     public function deleteQuestion(Request $request)
     {
@@ -232,7 +232,7 @@ class FAQController extends JsonAbstractController
      * @Doc\Response(response=200, description="Nouvel ordre enregistré",
      *     @Model(type=App\Entity\Page::class, groups={"get_page"}))
      * @Doc\Response(response=404, description="Catégorie non trouvée")
-     * @Doc\Response(response=403, description="Non authorisé")
+     * @Doc\Response(response=401, description="Non authorisé")
      */
     public function setCategoryOrderIndex(Request $request)
     {
@@ -258,7 +258,7 @@ class FAQController extends JsonAbstractController
      * @Doc\Parameter(description="Nouvel index", in="path", required=true,
      *     name="newOrderIndex", type="integer")
      * @Doc\Response(response=404, description="Question non trouvée")
-     * @Doc\Response(response=403, description="Non authorisé")
+     * @Doc\Response(response=401, description="Non authorisé")
      */
     public function setQuestionOrderIndex(Request $request)
     {

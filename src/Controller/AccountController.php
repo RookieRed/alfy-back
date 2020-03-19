@@ -268,6 +268,39 @@ class AccountController extends JsonAbstractController
      */
     public function updateProfilePicture(Request $request)
     {
+        list($user, $file) = $this->picturePreprocess($request);
+
+        $picture = $this->fileService->saveFile($file, $user,
+            FileConstants::PROFILE_PICTURES_DIR . $user->getUsername() . '/');
+        $user->setProfilePicture($picture);
+        $this->em->flush();
+        return $this->jsonOK($picture, ['user_get']);
+    }
+
+    /**
+     * @Route(path="/cover-pictures",
+     *     methods={"POST"},
+     *     name="update_profile_picture"
+     * )
+     * @Doc\Tag(name="Comptes utilisateur", description="Gestion des connections / inscriptions / comptes utilisateur.")
+     * @Doc\Response(response=400, description="Le fichier image 'est pas trouvée ou invalide")
+     * @Doc\Response(response=200, description="Photo de profil enregistré",
+     *     @Model(type=App\Entity\File::class, groups={"user_get", "user_get_list"}))
+     */
+    public function updateCoverPicture(Request $request)
+    {
+        list($user, $file) = $this->picturePreprocess($request);
+
+        $picture = $this->fileService->saveFile($file, $user,
+            FileConstants::COVER_PICTURES_DIR . $user->getUsername() . '/');
+        $user->setCoverPicture($picture);
+        $this->em->flush();
+        return $this->jsonOK($picture, ['user_get']);
+    }
+
+
+    private function picturePreprocess(Request $request): array
+    {
         $user = $this->userService->getConnectedUserOrThrowException();
 
         /** @var File $file */
@@ -275,11 +308,6 @@ class AccountController extends JsonAbstractController
         if ($file == null) {
             throw new BadRequestHttpException('No picture found');
         }
-
-        $picture = $this->fileService->saveFile($file, $user,
-            FileConstants::PROFILE_PICTURES_DIR . $user->getUsername() . '/');
-        $user->setProfilePicture($picture);
-        $this->em->flush();
-        return $this->jsonOK($picture, ['user_get']);
+        return array($user, $file);
     }
 }

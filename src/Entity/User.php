@@ -104,6 +104,14 @@ class User implements UserInterface
     private $profilePicture;
 
     /**
+     * @var File|null
+     * @ORM\OneToOne(targetEntity="App\Entity\File")
+     * @ORM\JoinColumn(name="cover_picture_id", referencedColumnName="id", nullable=true, onDelete="SET NULL")
+     * @Groups({"user_get"})
+     */
+    private $coverPicture;
+
+    /**
      * @var string|null
      * @ORM\Column(type="string", length=150, nullable=true)
      * @Assert\Url()
@@ -130,13 +138,21 @@ class User implements UserInterface
     /**
      * @var Baccalaureate
      * @ORM\ManyToOne(targetEntity="App\Entity\Baccalaureate", fetch="EAGER")
+     * @Groups({"user_get"})
      */
     private $baccalaureate;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\University", inversedBy="users")
+     * @Groups({"user_get"})
      */
     private $universities;
+
+    /**
+     * @ORM\Column(type="string", length=128, nullable=true)
+     * @Groups({"user_get", "user_update"})
+     */
+    private $jobTitle;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\User", mappedBy="sponsor")
@@ -153,7 +169,6 @@ class User implements UserInterface
     {
         $this->universities = new ArrayCollection();
         $this->sponsoredUsers = new ArrayCollection();
-        $this->pageContents = new ArrayCollection();
     }
 
     public function getId()
@@ -532,6 +547,28 @@ class User implements UserInterface
     {
         $this->salt = $salt;
 
+        return $this;
+    }
+
+    public function getJobTitle(): ?string
+    {
+        return $this->jobTitle;
+    }
+
+    public function setJobTitle(?string $jobTitle): self
+    {
+        $this->jobTitle = $jobTitle;
+        return $this;
+    }
+
+    public function getCoverPicture(): ?File
+    {
+        return $this->coverPicture;
+    }
+
+    public function setCoverPicture(?File $coverPicture): self
+    {
+        $this->coverPicture = $coverPicture;
         return $this;
     }
 }
