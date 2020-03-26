@@ -22,13 +22,18 @@ class University
     private $id;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\User", mappedBy="universities")
+     * @ORM\Column(type="string", length=128)
      */
-    private $users;
+    private $name;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Study", mappedBy="university", orphanRemoval=true)
+     */
+    private $studentYears;
 
     public function __construct()
     {
-        $this->users = new ArrayCollection();
+        $this->studentYears = new ArrayCollection();
     }
 
     public function getId()
@@ -37,28 +42,31 @@ class University
     }
 
     /**
-     * @return Collection|User[]
+     * @return Collection|Study[]
      */
-    public function getUsers(): Collection
+    public function getStudentYears(): Collection
     {
-        return $this->users;
+        return $this->studentYears;
     }
 
-    public function addUser(User $user): self
+    public function addStudentYear(Study $study): self
     {
-        if (!$this->users->contains($user)) {
-            $this->users[] = $user;
-            $user->addUniversity($this);
+        if (!$this->studentYears->contains($study)) {
+            $this->studentYears[] = $study;
+            $study->setUniversity($this);
         }
 
         return $this;
     }
 
-    public function removeUser(User $user): self
+    public function removeStudentYear(Study $study): self
     {
-        if ($this->users->contains($user)) {
-            $this->users->removeElement($user);
-            $user->removeUniversity($this);
+        if ($this->studentYears->contains($study)) {
+            $this->studentYears->removeElement($study);
+            // set the owning side to null (unless already changed)
+            if ($study->getUniversity() === $this) {
+                $study->setUniversity(null);
+            }
         }
 
         return $this;

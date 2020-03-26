@@ -1,0 +1,20 @@
+version: '3.1'
+
+services:
+  mailhog:
+    image: mailhog/mailhog
+    hostname: mailhog
+    ports:
+      - '8025:8025'
+    links:
+      - php
+
+  pma:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      PMA_HOST: ${MYSQL_HOSTNAME}
+    links:
+      - mysql
+    ports:
+      - "8080:80"

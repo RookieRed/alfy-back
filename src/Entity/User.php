@@ -143,10 +143,9 @@ class User implements UserInterface
     private $baccalaureate;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\University", inversedBy="users")
-     * @Groups({"user_get"})
+     * @ORM\OneToMany(targetEntity="App\Entity\Study", mappedBy="student")
      */
-    private $universities;
+    private $studies;
 
     /**
      * @ORM\Column(type="string", length=128, nullable=true)
@@ -167,8 +166,8 @@ class User implements UserInterface
 
     public function __construct()
     {
-        $this->universities = new ArrayCollection();
         $this->sponsoredUsers = new ArrayCollection();
+        $this->studies = new ArrayCollection();
     }
 
     public function getId()
@@ -325,32 +324,6 @@ class User implements UserInterface
     public function setBaccalaureate(?Baccalaureate $baccalaureate): self
     {
         $this->baccalaureate = $baccalaureate;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|University[]
-     */
-    public function getUniversities(): Collection
-    {
-        return $this->universities;
-    }
-
-    public function addUniversity(University $university): self
-    {
-        if (!$this->universities->contains($university)) {
-            $this->universities[] = $university;
-        }
-
-        return $this;
-    }
-
-    public function removeUniversity(University $university): self
-    {
-        if ($this->universities->contains($university)) {
-            $this->universities->removeElement($university);
-        }
 
         return $this;
     }
@@ -569,6 +542,35 @@ class User implements UserInterface
     public function setCoverPicture(?File $coverPicture): self
     {
         $this->coverPicture = $coverPicture;
+        return $this;
+    }
+
+    public function getStudies(): ArrayCollection
+    {
+        return $this->studies;
+    }
+
+
+    public function addStudy(Study $study): self
+    {
+        if (!$this->studies->contains($study)) {
+            $this->studies[] = $study;
+            $study->setStudent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStudy(Study $study): self
+    {
+        if ($this->studies->contains($study)) {
+            $this->studies->removeElement($study);
+            // set the owning side to null (unless already changed)
+            if ($study->getStudent() === $this) {
+                $study->setStudent(null);
+            }
+        }
+
         return $this;
     }
 }
