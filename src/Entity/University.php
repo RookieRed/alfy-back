@@ -22,7 +22,7 @@ class University
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=128)
+     * @ORM\Column(type="string", length=255)
      */
     private $name;
 
@@ -70,5 +70,23 @@ class University
         }
 
         return $this;
+    }
+
+    /**
+     * @param mixed $name
+     * @return University
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getName()
+    {
+        return $this->name;
     }
 }

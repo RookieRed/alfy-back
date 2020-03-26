@@ -11,7 +11,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -136,14 +135,21 @@ class User implements UserInterface
     private $twitter;
 
     /**
-     * @var Baccalaureate
-     * @ORM\ManyToOne(targetEntity="App\Entity\Baccalaureate", fetch="EAGER")
+     * @var string|null
+     * @ORM\Column(type="string", length=150, nullable=true)
+     * @Assert\Url()
+     * @Groups({"user_get", "user_update"})
+     */
+    private $instagram;
+
+    /**
+     * @ORM\Column(type="string", length=50, nullable=true)
      * @Groups({"user_get"})
      */
     private $baccalaureate;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Study", mappedBy="student")
+     * @ORM\OneToMany(targetEntity="App\Entity\Study", mappedBy="student", fetch="EAGER", cascade={"persist", "remove"}, orphanRemoval=true)
      */
     private $studies;
 
@@ -165,7 +171,7 @@ class User implements UserInterface
     private $sponsor;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Project", mappedBy="owner", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\Project", mappedBy="owner", orphanRemoval=true, cascade={"persist", "remove"})
      */
     private $projects;
 
@@ -318,16 +324,15 @@ class User implements UserInterface
     /**
      * @return Baccalaureate
      */
-    public function getBaccalaureate(): ?Baccalaureate
+    public function getBaccalaureate(): ?string
     {
         return $this->baccalaureate;
     }
 
     /**
-     * @param Baccalaureate $baccalaureate
      * @return User
      */
-    public function setBaccalaureate(?Baccalaureate $baccalaureate): self
+    public function setBaccalaureate(?string $baccalaureate): self
     {
         $this->baccalaureate = $baccalaureate;
 
@@ -608,6 +613,17 @@ class User implements UserInterface
             }
         }
 
+        return $this;
+    }
+
+    public function getInstagram(): ?string
+    {
+        return $this->instagram;
+    }
+
+    public function setInstagram(?string $instagram): self
+    {
+        $this->instagram = $instagram;
         return $this;
     }
 }

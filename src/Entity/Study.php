@@ -26,6 +26,12 @@ class Study
     private $student;
 
     /**
+     * @ORM\Column(type="string", length=255)
+     * @Assert\NotNull()
+     */
+    private $type;
+
+    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\University", inversedBy="studentYears", fetch="EAGER")
      * @ORM\JoinColumn(nullable=false)
      */
@@ -41,7 +47,7 @@ class Study
      * @ORM\Column(type="integer")
      * @Assert\Positive()
      */
-    private $duration;
+    private $monthsDuration;
 
     /**
      * @ORM\Column(type="string", length=1024, nullable=true)
@@ -85,14 +91,14 @@ class Study
         return $this;
     }
 
-    public function getDuration(): ?int
+    public function getMonthsDuration(): ?int
     {
-        return $this->duration;
+        return $this->monthsDuration;
     }
 
-    public function setDuration(int $duration): self
+    public function setMonthsDuration(int $monthsDuration): self
     {
-        $this->duration = $duration;
+        $this->monthsDuration = $monthsDuration;
 
         return $this;
     }
@@ -124,16 +130,32 @@ class Study
     /**
      * @return mixed
      */
-    public function getStartedAt()
+    public function getStartedAt(): ?\DateTime
     {
         return $this->startedAt;
     }
 
-    /**
-     * @param mixed $startedAt
-     */
-    public function setStartedAt($startedAt): void
+    public function setStartedAt(\DateTime $startedAt): self
     {
         $this->startedAt = $startedAt;
+        return $this;
+    }
+
+    /**
+     * @param mixed $type
+     * @return Study
+     */
+    public function setType(string $type): self
+    {
+        $this->type = $type;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getType(): ?string
+    {
+        return $this->type;
     }
 }

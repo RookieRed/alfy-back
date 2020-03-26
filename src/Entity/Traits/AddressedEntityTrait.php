@@ -11,7 +11,7 @@ trait AddressedEntityTrait
     /**
      * @var Address|null
      * @ORM\OneToOne(targetEntity="App\Entity\Address", fetch="LAZY")
-     * @ORM\JoinColumn(name="address_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="address_id", referencedColumnName="id", nullable=true)
      */
     protected $address;
 

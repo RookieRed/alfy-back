@@ -25,7 +25,12 @@ class Project
     /**
      * @ORM\Column(type="date")
      */
-    private $date;
+    private $startedAt;
+
+    /**
+     * @ORM\Column(type="date", nullable=true)
+     */
+    private $endedAt;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -54,14 +59,26 @@ class Project
         return $this;
     }
 
-    public function getDate(): ?\DateTimeInterface
+    public function getStartedAt(): ?\DateTimeInterface
     {
-        return $this->date;
+        return $this->startedAt;
     }
 
-    public function setDate(\DateTimeInterface $date): self
+    public function setStartedAt(\DateTimeInterface $startedAt): self
     {
-        $this->date = $date;
+        $this->startedAt = $startedAt;
+
+        return $this;
+    }
+
+    public function getEndedAt(): ?\DateTimeInterface
+    {
+        return $this->endedAt;
+    }
+
+    public function setEndedAt(?\DateTimeInterface $endedAt): self
+    {
+        $this->endedAt = $endedAt;
 
         return $this;
     }

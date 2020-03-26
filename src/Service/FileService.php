@@ -10,7 +10,6 @@ namespace App\Service;
 
 use App\Constants\FileConstants;
 use App\Constants\UserRoles;
-use App\Entity\Baccalaureate;
 use App\Entity\File;
 use App\Entity\ImportReport;
 use App\Entity\User;
@@ -135,9 +134,6 @@ class FileService
                 $birthDay = $birthDay != null
                     ? DateTime::createFromFormat('d/m/Y', $birthDay)
                     : null;
-                $bacEntity = $bac === null
-                    ? null
-                    : $this->em->getRepository(Baccalaureate::class)->findOneBy(['name' => $bac]);
                 $phone = trim($phone);
                 $phone = strlen($phone) > 0 ? $phone : null;
 
@@ -146,7 +142,7 @@ class FileService
                     ->setLastName($lastName)
                     ->setUsername($username)
                     ->setPassword(null)
-                    ->setBaccalaureate($bacEntity)
+                    ->setBaccalaureate($bac)
                     ->setBirthDay($birthDay != null
                         ? DateTime::createFromFormat('d/m/Y', $birthDay)
                         : null)
@@ -199,7 +195,7 @@ class FileService
                 $user->getBirthDay()->format('d/m/Y'),
                 $user->getEmail(),
                 $user->getPhone(),
-                ($user->getBaccalaureate() == null) ? '' : $user->getBaccalaureate()->getName(),
+                $user->getBaccalaureate(),
                 $user->getUsername(),
             ];
             $sheet->fromArray($userArray, null, 'A' . $i);
