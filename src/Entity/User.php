@@ -164,10 +164,16 @@ class User implements UserInterface
      */
     private $sponsor;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Project", mappedBy="owner", orphanRemoval=true)
+     */
+    private $projects;
+
     public function __construct()
     {
         $this->sponsoredUsers = new ArrayCollection();
         $this->studies = new ArrayCollection();
+        $this->projects = new ArrayCollection();
     }
 
     public function getId()
@@ -568,6 +574,37 @@ class User implements UserInterface
             // set the owning side to null (unless already changed)
             if ($study->getStudent() === $this) {
                 $study->setStudent(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Project[]
+     */
+    public function getProjects(): Collection
+    {
+        return $this->projects;
+    }
+
+    public function addProject(Project $project): self
+    {
+        if (!$this->projects->contains($project)) {
+            $this->projects[] = $project;
+            $project->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProject(Project $project): self
+    {
+        if ($this->projects->contains($project)) {
+            $this->projects->removeElement($project);
+            // set the owning side to null (unless already changed)
+            if ($project->getOwner() === $this) {
+                $project->setOwner(null);
             }
         }
 
