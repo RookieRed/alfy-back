@@ -91,7 +91,7 @@ class AccountController extends JsonAbstractController
     /**
      * @Route(path="/my-info",
      *     methods={"GET"},
-     *     name="account_get_mine"
+     *     name="account_get_miy_infos"
      * )
      * @Doc\Tag(name="Comptes utilisateur", description="Gestion des connections / inscriptions / comptes utilisateur.")
      * @Doc\Response(response=200, description="Tout va bien.",
