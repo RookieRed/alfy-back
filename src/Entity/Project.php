@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ProjectRepository")
@@ -24,21 +25,25 @@ class Project
 
     /**
      * @ORM\Column(type="date")
+     * @Groups({"user_get"})
      */
     private $startedAt;
 
     /**
      * @ORM\Column(type="date", nullable=true)
+     * @Groups({"user_get"})
      */
     private $endedAt;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"user_get"})
      */
     private $title;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"user_get"})
      */
     private $details;
 

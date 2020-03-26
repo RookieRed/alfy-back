@@ -89,6 +89,21 @@ class AccountController extends JsonAbstractController
     }
 
     /**
+     * @Route(path="/my-info",
+     *     methods={"GET"},
+     *     name="account_get_mine"
+     * )
+     * @Doc\Tag(name="Comptes utilisateur", description="Gestion des connections / inscriptions / comptes utilisateur.")
+     * @Doc\Response(response=200, description="Tout va bien.",
+     *     @Model(type=App\Entity\User::class, groups={"user_get"}))
+     */
+    public function getInfo()
+    {
+        $user = $this->userService->getConnectedUserOrThrowException();
+        return $this->jsonOK($user, ['user_get_info']);
+    }
+
+    /**
      * @Route(path="/{id}",
      *     methods={"GET"},
      *     name="account_get_by_id",

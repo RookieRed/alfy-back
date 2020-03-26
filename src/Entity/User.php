@@ -24,28 +24,28 @@ class User implements UserInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"user_get", "user_get_list"})
+     * @Groups({"user_get", "user_get_list", "user_get_info"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
      * @Assert\NotBlank()
-     * @Groups({"account_create", "user_connect", "user_get", "user_update", "user_get_list", "get_page"})
+     * @Groups({"account_create", "user_connect", "user_get", "user_update", "user_get_list", "get_page", "user_get_info"})
      */
     private $username;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
-     * @Groups({"account_create", "user_get", "user_update", "user_get_list", "get_page"})
+     * @Groups({"account_create", "user_get", "user_update", "user_get_list", "get_page", "user_get_info"})
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
-     * @Groups({"account_create", "user_get", "user_update", "user_get_list", "get_page"})
+     * @Groups({"account_create", "user_get", "user_update", "user_get_list", "get_page", "user_get_info"})
      */
     private $lastName;
 
@@ -75,7 +75,7 @@ class User implements UserInterface
      * @var string
      * @ORM\Column(type="string", length=255, unique=true, nullable=true)
      * @Assert\Email()
-     * @Groups({"account_create", "user_get", "user_update"})
+     * @Groups({"account_create", "user_get", "user_update", "user_get_info"})
      */
     private $email;
 
@@ -90,7 +90,7 @@ class User implements UserInterface
      * @ORM\Column(type="string", length=50)
      * @Assert\NotBlank()
      * @var string
-     * @Groups({"user_get"})
+     * @Groups({"user_get", "user_get_info"})
      */
     private $role;
 
@@ -150,6 +150,7 @@ class User implements UserInterface
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Study", mappedBy="student", fetch="EAGER", cascade={"persist", "remove"}, orphanRemoval=true)
+     * @Groups({"user_get"})
      */
     private $studies;
 
@@ -172,6 +173,7 @@ class User implements UserInterface
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Project", mappedBy="owner", orphanRemoval=true, cascade={"persist", "remove"})
+     * @Groups({"user_get"})
      */
     private $projects;
 
@@ -321,9 +323,6 @@ class User implements UserInterface
         return $this;
     }
 
-    /**
-     * @return Baccalaureate
-     */
     public function getBaccalaureate(): ?string
     {
         return $this->baccalaureate;
@@ -556,7 +555,7 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getStudies(): ArrayCollection
+    public function getStudies(): Collection
     {
         return $this->studies;
     }

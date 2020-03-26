@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -16,6 +17,7 @@ class Study
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"user_get"})
      */
     private $id;
 
@@ -28,34 +30,40 @@ class Study
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotNull()
+     * @Groups({"user_get"})
      */
     private $type;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\University", inversedBy="studentYears", fetch="EAGER")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"user_get"})
      */
     private $university;
 
     /**
      * @ORM\Column(type="date")
      * @Assert\NotNull()
+     * @Groups({"user_get"})
      */
     private $startedAt;
 
     /**
      * @ORM\Column(type="integer")
      * @Assert\Positive()
+     * @Groups({"user_get"})
      */
     private $monthsDuration;
 
     /**
      * @ORM\Column(type="string", length=1024, nullable=true)
+     * @Groups({"user_get"})
      */
     private $comment;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
+     * @Groups({"user_get"})
      */
     private $notation;
 
