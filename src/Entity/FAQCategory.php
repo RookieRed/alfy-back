@@ -43,7 +43,7 @@ class FAQCategory
 
     /**
      * @var integer
-     * @Groups({"create_faq_category", "update_faq_category"})
+     * @Groups({"create_faq_category"})
      */
     private $sectionId;
 

@@ -171,7 +171,6 @@ class FAQService
 
         $categoryFromDB->setName($categoryBean->getName())
             ->setDescription($categoryBean->getDescription())
-            ->setFaqSection($this->sectionService->findByIdOr404($categoryBean->getSectionId()))
             ->setOrderIndex($categoryBean->getOrderIndex());
         $this->em->persist($categoryFromDB);
         $this->em->flush();
