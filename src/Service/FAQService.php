@@ -80,7 +80,7 @@ class FAQService
         /** @var FAQSection $faqSection */
         $faqSection = $this->sectionService->findById($categoryBean->getSectionId());
 
-        if ($faqSection === null) {
+        if ($faqSection === null || get_class($faqSection) !== FAQSection::class) {
             throw new BadRequestHttpException("FAQ Section object not found");
         }
 
