@@ -295,7 +295,7 @@ class AccountController extends JsonAbstractController
     /**
      * @Route(path="/cover-pictures",
      *     methods={"POST"},
-     *     name="update_profile_picture"
+     *     name="update_cover_picture"
      * )
      * @Doc\Tag(name="Comptes utilisateur", description="Gestion des connections / inscriptions / comptes utilisateur.")
      * @Doc\Response(response=400, description="Le fichier image 'est pas trouvée ou invalide")
