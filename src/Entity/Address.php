@@ -25,7 +25,7 @@ class Address
 
     /**
      * @ORM\ManyToOne(targetEntity="City", cascade={"persist"})
-     * @Groups({"user_get", "user_update"})
+     * @Groups({"user_update"})
      * @var City
      */
     private $city;
