@@ -36,6 +36,7 @@ class FAQCategory
     private $description;
 
     /**
+     * @var FAQSection
      * @ORM\ManyToOne(targetEntity="App\Entity\FAQSection", inversedBy="categories")
      * @Assert\NotNull()
      * @Groups({"update_page_section"})
@@ -176,5 +177,9 @@ class FAQCategory
     public function setSectionId(int $sectionId): void
     {
         $this->sectionId = $sectionId;
+    }
+
+    public function getPage(): Page {
+        return $this->faqSection->getPage();
     }
 }

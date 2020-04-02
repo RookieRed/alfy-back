@@ -88,8 +88,7 @@ class FAQService
         $faqSection->addCategory($categoryBean);
         $faqSection->setLastWriter($user);
         $faqSection->setUpdatedAt(new \DateTime());
-        $this->em->persist($categoryBean);
-        $this->em->persist($faqSection);
+        $this->em->persist($faqSection->getPage()->setUpdatedAt(new \DateTime()));
         $this->em->flush();
         return $categoryBean;
     }
@@ -123,11 +122,9 @@ class FAQService
         $category = $this->findCategoryByIdOrException($categoryId);
         $questionBean->setOrderIndex($category->getQuestions()->count() + 1);
 
-        $category->getFaqSection()
-            ->setUpdatedAt(new \DateTime())
-            ->setLastWriter($user);
+        $category->getFaqSection()->setLastWriter($user);
         $category->addQuestion($questionBean);
-        $this->em->persist($category->getFaqSection());
+        $this->em->persist($category->getPage()->setUpdatedAt(new \DateTime()));
         $this->em->flush();
         return $questionBean;
     }
@@ -137,10 +134,13 @@ class FAQService
         $this->validator->validateOrThrowException($questionBean, ['update_question_answered']);
         $questionFromDB = $this->findQuestionByIdOrException($questionBean->getId());
 
-        $questionFromDB->setCategory($this->findCategoryByIdOrException($questionBean->getCategoryId()))
+        $questionFromDB->setCategory(
+            $questionBean->getCategoryId() === null
+                ? $questionFromDB->getCategory()
+                : $this->findCategoryByIdOrException($questionBean->getCategoryId()))
             ->setQuestion($questionBean->getQuestion())
             ->setAnswer($questionBean->getAnswer());
-        $this->em->persist($questionFromDB);
+        $this->em->persist($questionFromDB->getPage()->setUpdatedAt(new \DateTime()));
 
         if ($questionBean->getOrderIndex() !== null) {
             $this->setQuestionOrderIndex($questionFromDB->getId(), $questionBean->getOrderIndex());
@@ -151,14 +151,18 @@ class FAQService
     public function deleteQuestion(?int $id)
     {
         $question = $this->findQuestionByIdOrException($id);
+        $page = $question->getPage();
         $this->em->remove($question);
+        $this->em->persist($page);
         $this->em->flush();
     }
 
     public function deleteCategory(?int $id)
     {
         $category = $this->findCategoryByIdOrException($id);
+        $page = $category->getPage();
         $this->em->remove($category);
+        $this->em->persist($page);
         $this->em->flush();
     }
 
@@ -169,7 +173,7 @@ class FAQService
 
         $categoryFromDB->setName($categoryBean->getName())
             ->setDescription($categoryBean->getDescription());
-        $this->em->persist($categoryFromDB);
+        $this->em->persist($categoryFromDB->getPage()->setUpdatedAt(new \DateTime()));
         $this->setCategoryOrderIndex($categoryFromDB->getId(), $categoryBean->getOrderIndex());
         return $categoryBean;
     }
@@ -181,7 +185,7 @@ class FAQService
         $this->reorderCollection($category->getQuestions(), $question, $newOrderIndex);
 
         $this->validator->validateOrThrowException($category);
-        $this->em->persist($category);
+        $this->em->persist($category->getPage()->setUpdatedAt(new \DateTime()));
         $this->em->flush();
         return $this->pageService->findByLinkOrThrowException($category->getFaqSection()->getPage()->getLink());
     }
@@ -193,7 +197,7 @@ class FAQService
 
         $this->reorderCollection($section->getCategories(), $category, $newOrderIndex);
         $this->validator->validateOrThrowException($section);
-        $this->em->persist($section);
+        $this->em->persist($section->getPage()->setUpdatedAt(new \DateTime()));
         $this->em->flush();
         return $this->pageService->findByLinkOrThrowException($section->getPage()->getLink());
     }

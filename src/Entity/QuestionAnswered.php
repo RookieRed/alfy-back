@@ -22,7 +22,6 @@ class QuestionAnswered
 
     /**
      * @ORM\Column(type="string", length=511)
-     * @Assert\Unique(groups={"create_question_answered", "update_question_answered"})
      * @Assert\NotBlank(groups={"create_question_answered", "update_question_answered"})
      * @Groups({"get_page", "update_question_answered", "create_question_answered"})
      */
@@ -44,6 +43,7 @@ class QuestionAnswered
     private $orderIndex;
 
     /**
+     * @var FAQCategory
      * @ORM\ManyToOne(targetEntity="FAQCategory", inversedBy="questions", fetch="LAZY")
      * @ORM\JoinColumn(nullable=false)
      */
@@ -52,8 +52,8 @@ class QuestionAnswered
     /**
      * @var int
      * @Groups({"create_question_answered", "update_question_answered"})
-     * @Assert\NotNull(groups={"create_question_answered", "update_question_answered"})
-     * @Assert\PositiveOrZero(groups={"create_question_answered", "update_question_answered"})
+     * @Assert\NotNull(groups={"create_question_answered"})
+     * @Assert\PositiveOrZero(groups={"create_question_answered"})
      */
     private $categoryId;
 
@@ -116,20 +116,18 @@ class QuestionAnswered
         return $this;
     }
 
-    /**
-     * @return int
-     */
     public function getCategoryId(): ?int
     {
         return $this->categoryId;
     }
 
-    /**
-     * @param int $categoryId
-     */
     public function setCategoryId(?int $categoryId): self
     {
         $this->categoryId = $categoryId;
         return $this;
+    }
+
+    public function getPage(): Page {
+        return $this->category->getPage();
     }
 }

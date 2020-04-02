@@ -61,6 +61,7 @@ class StaticWebsiteFixture extends Fixture implements ContainerAwareInterface
         // About page
         $aboutPage = new Page();
         $aboutPage->setLink("/about")
+            ->setCreatedAt(new \DateTime())
             ->setName("Accueil")
             ->addSection(
                 (new HTMLSection())
@@ -125,12 +126,14 @@ class StaticWebsiteFixture extends Fixture implements ContainerAwareInterface
         // High school page
         $highSchoolPage = new Page();
         $highSchoolPage->setName("Le lycée")
+            ->setCreatedAt(new \DateTime())
             ->setLink("/school");
         assert(count($this->validator->validate($highSchoolPage)) == 0, "High school page entity is not valid.");
 
         // TODO Association page
         $assoPage = new Page();
         $assoPage->setName("L'association'")
+            ->setCreatedAt(new \DateTime())
             ->setLink("/association")
             ->addSection((new TilesEventsSection())
                 ->setTitle("Evenements importants")
@@ -231,6 +234,7 @@ class StaticWebsiteFixture extends Fixture implements ContainerAwareInterface
 
         $pageFAQ = new Page();
         $pageFAQ
+            ->setCreatedAt(new \DateTime())
             ->setName("Frequently Asked Questions")
             ->setLink("/faq")
             ->addSection((new HTMLSection())

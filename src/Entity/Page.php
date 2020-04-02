@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Traits\TimedEntityTrait;
 use App\Service\FileService;
 use App\Service\UserService;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -16,6 +17,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Page
 {
+    use TimedEntityTrait;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()

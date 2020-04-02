@@ -54,7 +54,7 @@ class User implements UserInterface
      * @Assert\Length(min="8", minMessage="Password must be at least 8 characters long.", groups={"user_update", "password_update"})
      * @Assert\NotCompromisedPassword(groups={"user_update", "password_update"})
      * @Assert\Regex(message="Password must contain at least one lower case letter, one upper case letter and one digit.",
-     *     pattern="^(.*[0-9].*[a-z].*[A-Z].*)|(.*[0-9].*[A-Z].*[a-z].*)|(.*[a-z].*[0-9].*[A-Z].*)|(.*[a-z].*[A-Z].*[0-9].*)|(.*[A-Z].*[a-z].*[0-9].*)|(.*[A-Z].*[0-9].*[a-z].*)$",
+     *     pattern="/^(.*[0-9].*[a-z].*[A-Z].*)|(.*[0-9].*[A-Z].*[a-z].*)|(.*[a-z].*[0-9].*[A-Z].*)|(.*[a-z].*[A-Z].*[0-9].*)|(.*[A-Z].*[a-z].*[0-9].*)|(.*[A-Z].*[0-9].*[a-z].*)$/",
      *     groups={"user_update", "account_create", "password_update"}, )
      * @Groups({"account_create", "user_connect", "user_update"})
      */
@@ -90,7 +90,7 @@ class User implements UserInterface
     /**
      * @var string
      * @ORM\Column(type="string", length=20, nullable=true)
-     * @Assert\Regex(pattern="^\+?(\d+|\ )+$", message="Phone number can contain a + digits and spaces.",
+     * @Assert\Regex(pattern="/^\+?(\d+|\ )+$/", message="Phone number can contain a + digits and spaces.",
      *     groups={"account_create", "user_update"})
      * @Groups({"account_create", "user_get", "user_update"})
      */

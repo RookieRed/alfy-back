@@ -217,16 +217,15 @@ class UserService
 
     public function createAccount(User $user, ?string $role = null, $createJWT = true)
     {
-        $this->validationService->validateOrThrowException($user, ["account_create"]);
-        $encryptedPassword = $this->encoder->encodePassword($user, $user->getPassword());
-        $user->setPassword($encryptedPassword);
-
         if ($role === null || ($role !== UserRoles::STUDENT && $role !== UserRoles::ADMIN && $role !== UserRoles::SPONSOR)) {
             $user->setRole(UserRoles::STUDENT);
         } else {
             $user->setRole($role);
         }
+        $this->validationService->validateOrThrowException($user, ["account_create"]);
 
+        $encryptedPassword = $this->encoder->encodePassword($user, $user->getPassword());
+        $user->setPassword($encryptedPassword);
         $this->em->persist($user);
         if ($createJWT) {
             return $this->jwtManager->create($this->unaccentUsername($user));

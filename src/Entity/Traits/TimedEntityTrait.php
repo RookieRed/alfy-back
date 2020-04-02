@@ -16,6 +16,11 @@ trait TimedEntityTrait
      */
     private $updatedAt;
 
+    public function __construct()
+    {
+        $this->createdAt = new DateTime();
+    }
+
     /**
      * @return mixed
      */
@@ -55,6 +60,7 @@ trait TimedEntityTrait
     }
 
     /**
+     * @ORM\PrePersist()
      * @ORM\PreUpdate()
      */
     public function onPersistEntity() {
