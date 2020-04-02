@@ -30,27 +30,32 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
-     * @Assert\NotBlank()
+     * @Assert\NotBlank(groups={"account_create", "user_update"})
      * @Groups({"account_create", "user_connect", "user_get", "user_update", "user_get_list", "get_page", "user_get_info"})
      */
     private $username;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank()
+     * @Assert\NotBlank(groups={"account_create", "user_update"})
      * @Groups({"account_create", "user_get", "user_update", "user_get_list", "get_page", "user_get_info"})
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank()
+     * @Assert\NotBlank(groups={"account_create", "user_update"})
      * @Groups({"account_create", "user_get", "user_update", "user_get_list", "get_page", "user_get_info"})
      */
     private $lastName;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Assert\Length(min="8", minMessage="Password must be at least 8 characters long.", groups={"user_update", "password_update"})
+     * @Assert\NotCompromisedPassword(groups={"user_update", "password_update"})
+     * @Assert\Regex(message="Password must contain at least one lower case letter, one upper case letter and one digit.",
+     *     pattern="^(.*[0-9].*[a-z].*[A-Z].*)|(.*[0-9].*[A-Z].*[a-z].*)|(.*[a-z].*[0-9].*[A-Z].*)|(.*[a-z].*[A-Z].*[0-9].*)|(.*[A-Z].*[a-z].*[0-9].*)|(.*[A-Z].*[0-9].*[a-z].*)$",
+     *     groups={"user_update", "account_create", "password_update"}, )
      * @Groups({"account_create", "user_connect", "user_update"})
      */
     private $password;
@@ -67,6 +72,8 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="date", nullable=true)
+     * @Assert\Date(groups={"account_create", "user_update"})
+     * @Assert\LessThan(value="today", message="Your birthday date can not be in the future.", groups={"account_create", "user_update"})
      * @Groups({"account_create", "user_get", "user_update"})
      */
     private $birthDay;
@@ -74,21 +81,24 @@ class User implements UserInterface
     /**
      * @var string
      * @ORM\Column(type="string", length=255, unique=true, nullable=true)
-     * @Assert\Email()
-     * @Groups({"account_create", "user_get", "user_update", "user_get_info"})
+     * @Assert\NotNull(groups={"account_create"})
+     * @Assert\Email(groups={"account_create"})
+     * @Groups({"account_create", "user_get", "user_get_info"})
      */
     private $email;
 
     /**
      * @var string
      * @ORM\Column(type="string", length=20, nullable=true)
+     * @Assert\Regex(pattern="^\+?(\d+|\ )+$", message="Phone number can contain a + digits and spaces.",
+     *     groups={"account_create", "user_update"})
      * @Groups({"account_create", "user_get", "user_update"})
      */
     private $phone;
 
     /**
      * @ORM\Column(type="string", length=50)
-     * @Assert\NotBlank()
+     * @Assert\NotBlank(groups={"account_create", "user_update"})
      * @var string
      * @Groups({"user_get", "user_get_info"})
      */
@@ -113,7 +123,7 @@ class User implements UserInterface
     /**
      * @var string|null
      * @ORM\Column(type="string", length=150, nullable=true)
-     * @Assert\Url()
+     * @Assert\Url(groups={"user_update"})
      * @Groups({"user_get", "user_update"})
      */
     private $facebook;
@@ -121,7 +131,7 @@ class User implements UserInterface
     /**
      * @var string|null
      * @ORM\Column(type="string", length=150, nullable=true)
-     * @Assert\Url()
+     * @Assert\Url(groups={"user_update"})
      * @Groups({"user_get", "user_update"})
      */
     private $linkedIn;
@@ -129,7 +139,7 @@ class User implements UserInterface
     /**
      * @var string|null
      * @ORM\Column(type="string", length=150, nullable=true)
-     * @Assert\Url()
+     * @Assert\Url(groups={"user_update"})
      * @Groups({"user_get", "user_update"})
      */
     private $twitter;
@@ -137,14 +147,14 @@ class User implements UserInterface
     /**
      * @var string|null
      * @ORM\Column(type="string", length=150, nullable=true)
-     * @Assert\Url()
+     * @Assert\Url(groups={"user_update"})
      * @Groups({"user_get", "user_update"})
      */
     private $instagram;
 
     /**
      * @ORM\Column(type="string", length=50, nullable=true)
-     * @Groups({"user_get"})
+     * @Groups({"user_get", "user_update"})
      */
     private $baccalaureate;
 
@@ -156,6 +166,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=128, nullable=true)
+     * @Assert\NotBlank()
      * @Groups({"user_get", "user_update"})
      */
     private $jobTitle;
@@ -286,7 +297,7 @@ class User implements UserInterface
      */
     public function setPhone(?string $phone): self
     {
-        $this->phone = $phone;
+        $this->phone = trim($phone);
 
         return $this;
     }

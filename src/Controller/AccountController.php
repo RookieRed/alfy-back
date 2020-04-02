@@ -141,7 +141,7 @@ class AccountController extends JsonAbstractController
      * )
      * @Doc\Tag(name="Comptes utilisateur", description="Gestion des connections / inscriptions / comptes utilisateur.")
      * @Doc\Response(response=200, description="Utilisateur modifié avec succès.",
-     *     @Model(type=App\Entity\User::class, groups={"user_get"}))
+     *     @Model(type=App\Entity\User::class, groups={"user_update"}))
      */
     public function updateMine(Request $request)
     {

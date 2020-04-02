@@ -16,6 +16,7 @@ class FAQCategory
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
+     * @Assert\NotNull(groups={"update_faq_category"})
      * @ORM\Column(type="integer")
      * @Groups({"get_categories_list", "get_page", "update_faq_category"})
      */
@@ -23,7 +24,7 @@ class FAQCategory
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank()
+     * @Assert\NotBlank(groups={"get_page", "update_page_section", "get_categories_list", "create_faq_category", "update_faq_category"})
      * @Groups({"get_page", "update_page_section", "get_categories_list", "create_faq_category", "update_faq_category"})
      */
     private $name;
@@ -43,13 +44,16 @@ class FAQCategory
 
     /**
      * @var integer
+     * @Assert\NotNull(groups={"create_faq_category"})
+     * @Assert\Positive(groups={"create_faq_category"})
      * @Groups({"create_faq_category"})
      */
     private $sectionId;
 
     /**
      * @ORM\Column(type="integer", nullable=false)
-     * @Assert\PositiveOrZero()
+     * @Assert\NotNull(groups={"get_page", "update_order_index", "update_faq_category", "get_categories_list"})
+     * @Assert\PositiveOrZero(groups={"get_page", "update_order_index", "update_faq_category", "get_categories_list"})
      * @Groups({"get_page", "update_order_index", "update_faq_category", "get_categories_list"})
      */
     private $orderIndex;

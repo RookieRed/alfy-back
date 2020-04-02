@@ -77,21 +77,17 @@ class FAQService
     public function createCategory(FAQCategory &$categoryBean, User $user)
     {
         $this->validator->validateOrThrowException($categoryBean, ['create_faq_category']);
-
-        if ($categoryBean->getSectionId() === null) {
-            /** @var FAQSection $faqSection */
-            $faqSection = $this->sectionService->findByCode('main-faq');
-        } else {
-            /** @var FAQSection $faqSection */
-            $faqSection = $this->sectionService->findById($categoryBean->getSectionId());
-        }
+        /** @var FAQSection $faqSection */
+        $faqSection = $this->sectionService->findById($categoryBean->getSectionId());
 
         if ($faqSection === null) {
             throw new BadRequestHttpException("FAQ Section object not found");
         }
+
+        $categoryBean->setOrderIndex($faqSection->getCategories()->count() + 1);
         $faqSection->addCategory($categoryBean);
         $faqSection->setLastWriter($user);
-        $faqSection->setUpdatedAt(new Date());
+        $faqSection->setUpdatedAt(new \DateTime());
         $this->em->persist($categoryBean);
         $this->em->persist($faqSection);
         $this->em->flush();
@@ -125,6 +121,7 @@ class FAQService
             throw new BadRequestHttpException("Category ID must be specified.");
         }
         $category = $this->findCategoryByIdOrException($categoryId);
+        $questionBean->setOrderIndex($category->getQuestions()->count() + 1);
 
         $category->getFaqSection()
             ->setUpdatedAt(new \DateTime())
@@ -141,12 +138,13 @@ class FAQService
         $questionFromDB = $this->findQuestionByIdOrException($questionBean->getId());
 
         $questionFromDB->setCategory($this->findCategoryByIdOrException($questionBean->getCategoryId()))
-            ->setOrderIndex($questionBean->getOrderIndex())
             ->setQuestion($questionBean->getQuestion())
             ->setAnswer($questionBean->getAnswer());
-
         $this->em->persist($questionFromDB);
-        $this->em->flush();
+
+        if ($questionBean->getOrderIndex() !== null) {
+            $this->setQuestionOrderIndex($questionFromDB->getId(), $questionBean->getOrderIndex());
+        }
         return $questionFromDB;
     }
 
@@ -170,10 +168,9 @@ class FAQService
         $categoryFromDB = $this->findCategoryByIdOrException($categoryBean->getId());
 
         $categoryFromDB->setName($categoryBean->getName())
-            ->setDescription($categoryBean->getDescription())
-            ->setOrderIndex($categoryBean->getOrderIndex());
+            ->setDescription($categoryBean->getDescription());
         $this->em->persist($categoryFromDB);
-        $this->em->flush();
+        $this->setCategoryOrderIndex($categoryFromDB->getId(), $categoryBean->getOrderIndex());
         return $categoryBean;
     }
 

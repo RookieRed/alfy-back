@@ -16,28 +16,29 @@ class QuestionAnswered
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      * @Groups({"update_question_answered", "get_page"})
-     * @Assert\NotNull()
+     * @Assert\NotNull(groups={"update_question_answered"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=511)
-     * @Assert\Unique()
-     * @Assert\NotBlank()
+     * @Assert\Unique(groups={"create_question_answered", "update_question_answered"})
+     * @Assert\NotBlank(groups={"create_question_answered", "update_question_answered"})
      * @Groups({"get_page", "update_question_answered", "create_question_answered"})
      */
     private $question;
 
     /**
      * @ORM\Column(type="string", length=511)
-     * @Assert\NotBlank()
+     * @Assert\NotBlank(groups={"create_question_answered", "update_question_answered"})
      * @Groups({"get_page", "update_question_answered", "create_question_answered"})
      */
     private $answer;
 
     /**
      * @ORM\Column(type="integer", length=511, options={"default" = 0})
-     * @Assert\PositiveOrZero()
+     * @Assert\PositiveOrZero(groups={"update_question_answered"})
+     * @Assert\NotNull(groups={"update_question_answered"})
      * @Groups({"get_page", "update_question_answered"})
      */
     private $orderIndex;
@@ -51,8 +52,8 @@ class QuestionAnswered
     /**
      * @var int
      * @Groups({"create_question_answered", "update_question_answered"})
-     * @Assert\NotNull()
-     * @Assert\PositiveOrZero()
+     * @Assert\NotNull(groups={"create_question_answered", "update_question_answered"})
+     * @Assert\PositiveOrZero(groups={"create_question_answered", "update_question_answered"})
      */
     private $categoryId;
 

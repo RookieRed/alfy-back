@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\AddressRepository")
@@ -25,10 +26,17 @@ class Address
 
     /**
      * @ORM\ManyToOne(targetEntity="City", cascade={"persist"})
-     * @Groups({"user_update"})
      * @var City
      */
     private $city;
+
+    /**
+     * @var int|null
+     * @Assert\NotNull(groups={"user_update"})
+     * @Assert\Positive(groups={"user_update"})
+     * @Groups({"user_update"})
+     */
+    private $cityId;
 
     public function getId()
     {
@@ -85,5 +93,16 @@ class Address
      */
     public function getCountryEnName(): ?string {
         return $this->city !== null ? $this->city->getCountryEnName() : null;
+    }
+
+    public function getCityId(): ?int
+    {
+        return $this->cityId;
+    }
+
+    public function setId(int $id): self
+    {
+        $this->id = $id;
+        return $this;
     }
 }

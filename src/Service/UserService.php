@@ -280,9 +280,7 @@ class UserService
                 $actualAddress = new Address();
             }
             $actualAddress->setLine1($newAddress->getLine1());
-            $actualAddress->setRegion($newAddress->getRegion());
             $actualAddress->setCity($newAddress->getCity());
-            $actualAddress->setCountry($country);
 
             $target->setAddress($actualAddress);
             $this->em->persist($actualAddress);
