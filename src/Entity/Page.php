@@ -41,7 +41,7 @@ class Page
     private $link;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Section", mappedBy="page",
+     * @ORM\OneToMany(targetEntity="App\Entity\Section", mappedBy="page", indexBy="code",
      *     cascade={"persist"}, orphanRemoval=true, fetch="EAGER")
      * @Groups({"get_page"})
      * @var Section[]

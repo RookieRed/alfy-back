@@ -33,11 +33,6 @@ abstract class Section
     private $id;
 
     /**
-     * @Groups({"get_page"})
-     */
-    private $updatedAt;
-
-    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User")
      * @ORM\JoinColumn(nullable=true)
      * @Groups({"get_page"})
@@ -64,8 +59,12 @@ abstract class Section
     private $title;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=false, unique=true)
-     * @Assert\NotBlank()
+     * @ORM\Column(type="string", length=60, nullable=false, unique=true)
+     * @Assert\NotBlank(groups={"section_create", "section_update"})
+     * @Assert\Length(min="2", minMessage="Code must be at least 2 chars long",
+     *     max="60", maxMessage="Code must be at most 30 chars long",
+     *     groups={"section_create", "section_update"})
+     * @Assert\Regex("/^([a-z]-?)+$/", groups={"section_create", "section_update"})
      */
     private $code;
 
@@ -184,12 +183,19 @@ abstract class Section
         return $this;
     }
 
+    public function generateCode(): self
+    {
+        $this->code = strtolower($this->getCode() . '-' .
+            trim(strtr(str_replace([' ', '_', "'", ")", "("], '-', $this->title), UserService::ACCENTED_CHAR_MAP)));
+        return $this;
+    }
+
     /**
      * @ORM\PrePersist()
      */
     public function onPrePersist()  {
         if ($this->code == null) {
-            $this->code = strtolower(strtr(str_replace(' ', '-', $this->title), UserService::ACCENTED_CHAR_MAP));
+            $this->generateCode();
         }
     }
 }

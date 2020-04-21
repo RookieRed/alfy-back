@@ -29,15 +29,15 @@ class File
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"user_get", "user_get_list", "get_page"})
-     * @Assert\NotBlank()
+     * @Assert\NotBlank(groups={"file_create", "file_update"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"user_get", "user_get_list", "get_page"})
-     * @Assert\NotBlank()
-     * @Assert\Regex("/^\/((.+)\/)?$/")
+     * @Groups({"user_get", "user_get_list", "get_page", "file_create", "file_update"})
+     * @Assert\NotBlank(groups={"file_create", "file_update"})
+     * @Assert\Regex("/^\/((.+)\/)?$/", groups={"file_create", "file_update"})
      */
     private $path;
 

@@ -10,10 +10,11 @@ use App\Entity\Page;
 use App\Entity\File;
 use App\Entity\EventTile;
 use App\Entity\QuestionAnswered;
+use App\Entity\SlideShowSection;
 use App\Entity\TilesEventsSection;
 use Doctrine\Bundle\FixturesBundle\Fixture;
-use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\ORMException;
+use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -57,6 +58,15 @@ class StaticWebsiteFixture extends Fixture implements ContainerAwareInterface
 
     private function createPages(ObjectManager $manager) {
         $manager->beginTransaction();
+
+        $slideShowSection = (new SlideShowSection())
+            ->setTitle("Diapositives page d'accueil")
+            ->setCode("about-slideshow");
+        foreach ($manager->getRepository(File::class)->findBy([
+                'path' => '/files/pictures/silde-show/default/'
+            ]) as $photo) {
+            $slideShowSection->addPhoto($photo);
+        }
 
         // About page
         $aboutPage = new Page();
@@ -120,7 +130,8 @@ class StaticWebsiteFixture extends Fixture implements ContainerAwareInterface
                     ->setPhoto($this->files[FileConstants::DEFAULT_NO_IMAGE_FILE])
                     ->setDate(new \DateTime("2019-12-25"))
                 )
-            );
+            )
+            ->addSection($slideShowSection);
         assert(count($this->validator->validate($aboutPage)) == 0, "About page entity is not valid.");
 
         // High school page

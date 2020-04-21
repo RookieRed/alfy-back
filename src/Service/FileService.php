@@ -13,6 +13,7 @@ use App\Constants\UserRoles;
 use App\Entity\File;
 use App\Entity\ImportReport;
 use App\Entity\User;
+use App\Repository\FileRepository;
 use App\Repository\UserRepository;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
@@ -25,6 +26,9 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Row;
 use PhpOffice\PhpSpreadsheet\Worksheet\RowCellIterator;
 use PhpOffice\PhpSpreadsheet\Writer\Xls;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class FileService
 {
@@ -48,16 +52,22 @@ class FileService
      * @var ValidationService
      */
     private $validationService;
+    /**
+     * @var FileRepository
+     */
+    private $fileRepository;
 
     public function __construct(EntityManagerInterface $em,
                                 UserService $userService,
                                 ValidationService $validationService,
+                                FileRepository $fileRepo,
                                 ContainerInterface $container,
                                 UserRepository $userRepo)
     {
         $this->em = $em;
         $this->validationService = $validationService;
         $this->container = $container;
+        $this->fileRepository = $fileRepo;
         $this->userService = $userService;
         $this->userRepo = $userRepo;
     }
@@ -80,7 +90,7 @@ class FileService
         if ($owner !== null) {
             $file->setOwner($owner);
         }
-        $this->validationService->validateOrThrowException($file);
+        $this->validationService->validateOrThrowException($file, ["file_create"]);
 
         $this->em->persist($file);
         return $file;
@@ -248,5 +258,55 @@ class FileService
             function ($carry, $actual) use ($getterName, $value) {
                 return $carry && ($actual->$getterName() != $value);
             }, true);
+    }
+
+    public function findByPath(string $fullPath, bool $flushOperations = true): ?File
+    {
+        $publicRoot = $this->container->getParameter('kernel.project_dir') . '/public';
+        $filesystem = new Filesystem();
+
+        $basename = basename($fullPath);
+        $dirname = dirname($fullPath);
+        $fileFromDB = $this->fileRepository->findOneBy([
+            'name' => $basename,
+            'path' => $dirname,
+        ]);
+
+        if ($filesystem->exists($publicRoot . $fullPath)) {
+
+            if ($fileFromDB === null) {
+                $newFile = new File();
+                $newFile->setName($basename)
+                    ->setPath($dirname)
+                    ->setOwner(null)
+                    ->setCreatedAt(new DateTime());
+
+                $this->validationService->validateOrThrowException($newFile, ["file_create"]);
+                $this->em->persist($newFile);
+                if ($flushOperations)
+                    $this->em->flush();
+
+                return $newFile;
+            }
+
+            return $fileFromDB;
+        }
+
+        if ($fileFromDB !== null) {
+            $this->em->remove($fileFromDB);
+            if ($flushOperations)
+                $this->em->flush();
+        }
+
+        return null;
+    }
+
+    public function findByPathOrThrowException(string $fullPath, bool $flushOperations = true): File {
+        $file = $this->findByPath($fullPath, $flushOperations);
+        if ($file === null) {
+            throw  new NotFoundHttpException("File with path '$fullPath' is not found.");
+        }
+
+        return $file;
     }
 }
