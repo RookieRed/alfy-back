@@ -76,7 +76,7 @@ abstract class Section
 
     /**
      * @ORM\Column(type="integer")
-     * @Groups({"get_page", "update_page_section", "create_page_section"})
+     * @Groups({"update_page_section", "create_page_section"})
      */
     private $orderIndex;
 

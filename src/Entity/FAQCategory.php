@@ -55,7 +55,7 @@ class FAQCategory
      * @ORM\Column(type="integer", nullable=false)
      * @Assert\NotNull(groups={"get_page", "update_order_index", "update_faq_category", "get_categories_list"})
      * @Assert\PositiveOrZero(groups={"get_page", "update_order_index", "update_faq_category", "get_categories_list"})
-     * @Groups({"get_page", "update_order_index", "update_faq_category", "get_categories_list"})
+     * @Groups({"update_order_index", "update_faq_category", "get_categories_list"})
      */
     private $orderIndex;
 
