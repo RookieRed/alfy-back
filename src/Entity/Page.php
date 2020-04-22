@@ -115,4 +115,9 @@ class Page
 
         return $this;
     }
+
+    public function getType()
+    {
+        // TODO: Implement getType() method.
+    }
 }
