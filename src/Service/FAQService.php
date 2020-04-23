@@ -174,7 +174,6 @@ class FAQService
         $categoryFromDB->setName($categoryBean->getName())
             ->setDescription($categoryBean->getDescription());
         $this->em->persist($categoryFromDB->getPage()->setUpdatedAt(new \DateTime()));
-        $this->setCategoryOrderIndex($categoryFromDB->getId(), $categoryBean->getOrderIndex());
         return $categoryBean;
     }
 
