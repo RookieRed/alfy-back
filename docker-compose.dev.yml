@@ -1,4 +1,4 @@
-version: '3.1'
+version: '3.4'
 
 services:
   mailhog:
@@ -18,3 +18,21 @@ services:
       - mysql
     ports:
       - "8080:80"
+
+  php_dev:
+    container_name: alfy_php_dev
+    # Next line must match the fastcgi_pass balue in docker/nginx/alfy-back.conf
+    hostname: alfy_php
+    build:
+      context: './'
+      dockerfile: './docker/php/Dockerfile'
+      target: 'php_debug'
+    working_dir: '/web'
+    volumes:
+      - "./:/web"
+    ports:
+      - '8000:8000'
+      - '9000:9000'
+#    command: 'php bin/console --env=dev server:run 0.0.0.0:8000'
+    links:
+      - mysql
