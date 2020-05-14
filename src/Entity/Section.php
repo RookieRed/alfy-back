@@ -60,11 +60,11 @@ abstract class Section
 
     /**
      * @ORM\Column(type="string", length=60, nullable=false, unique=true)
-     * @Assert\NotBlank(groups={"section_create", "section_update"})
+     * @Assert\NotBlank(groups={"section_create"})
      * @Assert\Length(min="2", minMessage="Code must be at least 2 chars long",
      *     max="60", maxMessage="Code must be at most 30 chars long",
-     *     groups={"section_create", "section_update"})
-     * @Assert\Regex("/^([a-z]-?)+$/", groups={"section_create", "section_update"})
+     *     groups={"section_create"})
+     * @Assert\Regex("/^([a-z]-?)+$/", groups={"section_create"})
      */
     private $code;
 
@@ -89,6 +89,12 @@ abstract class Section
     public function __construct()
     {
         $this->setCreatedAt(null);
+    }
+
+    public function setId(?int $id): self
+    {
+        $this->id = $id;
+        return $this;
     }
 
     public function getId()

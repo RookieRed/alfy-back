@@ -124,6 +124,7 @@ class UsersDataFixture extends Fixture implements ContainerAwareInterface
                 ->setBaccalaureate("Scientifique")
                 ->setLinkedIn("https://www.linkedin.com/in/c%C3%A9dric-eloundou-181a05105/")
                 ->setFacebook("https://www.facebook.com/cedric.eloundou3")
+                ->setPersonalWebsite("https://www.rookie.red/")
                 ->setInstagram("https://www.instagram.com/celoundou/")
                 ->setPhone("+33 6 12 34 65 78");
             $cedric->addProject($alfyWebSite);

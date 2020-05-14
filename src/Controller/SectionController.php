@@ -2,8 +2,11 @@
 
 namespace App\Controller;
 
+use App\Constants\UserRoles;
 use App\Entity\HTMLSection;
+use App\Entity\Section;
 use App\Service\SectionService;
+use App\Service\UserService;
 use App\Service\ValidationService;
 use App\Utils\JsonSerializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
@@ -30,15 +33,21 @@ class SectionController extends JsonAbstractController
      * @var ValidationService
      */
     private $validationService;
+    /**
+     * @var UserService
+     */
+    private $userService;
 
     public function __construct(
         JsonSerializer $serializer,
         ValidationService $validationService,
+        UserService $userService,
         SectionService $sectionService)
     {
         parent::__construct($serializer);
         $this->sectionService = $sectionService;
         $this->validationService = $validationService;
+        $this->userService = $userService;
     }
 
     /**
@@ -63,7 +72,7 @@ class SectionController extends JsonAbstractController
     }
 
     /**
-     * @Route(path="/{sectionId}", methods={"PUT"},  requirements={"id"="\d+"}, name="update_page_section")
+     * @Route(path="/html/{sectionId}", methods={"PUT"},  requirements={"id"="\d+"}, name="update_page_section")
      * @Doc\Tag(name="Pages", description="Gestion des pages du site.")
      * @Doc\Parameter(
      *     in="path", required=true, name="sectionId", type="integer",
@@ -82,15 +91,13 @@ class SectionController extends JsonAbstractController
      * @Doc\Response(response=400, description="Argument ou bean incorrect.")
      * @Doc\Response(response=404, description="Section de page non trouvée.")
      */
-    public function updatePageSection(Request $request)
+    public function updateHtmlSection(Request $request)
     {
-        $sectionId = $request->get('sectionId');
-        $sectionToUpdate = $this->sectionService->findByIdOr404(+$sectionId);
-
-        $sectionBean = json_decode($request->getContent());
-        $this->validationService->validateOrThrowException($sectionBean);
-
-        $updatedSection = $this->sectionService->updateSection($sectionBean, $sectionToUpdate);
+        $this->userService->checkConnectedUserPrivilegedOrThrowException(UserRoles::ADMIN);
+        $sectionBean = $this->serializer->jsonDeserialize(
+            $request->getContent(), HTMLSection::class, ['update_page_section']);
+        $sectionBean->setId(+$request->get('sectionId'));
+        $updatedSection = $this->sectionService->updateHtmlSection($sectionBean);
 
         return $this->json($updatedSection, Response::HTTP_OK, ["get_page"]);
     }

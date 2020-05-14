@@ -153,6 +153,14 @@ class User implements UserInterface
     private $instagram;
 
     /**
+     * @var string|null
+     * @ORM\Column(type="string", length=200, nullable=true)
+     * @Assert\Url(groups={"user_update"})
+     * @Groups({"user_get", "user_update"})
+     */
+    private $personalWebsite;
+
+    /**
      * @ORM\Column(type="string", length=50, nullable=true)
      * @Groups({"user_get", "user_update"})
      */
@@ -508,6 +516,20 @@ class User implements UserInterface
     {
         $path = parse_url($twitter, PHP_URL_PATH);
         $this->twitter = strlen($path) > 1 ? $path : null;
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getPersonalWebsite(): ?string
+    {
+        return $this->personalWebsite;
+    }
+
+    public function setPersonalWebsite(?string $personalWebsite): self
+    {
+        $this->personalWebsite = $personalWebsite;
         return $this;
     }
 

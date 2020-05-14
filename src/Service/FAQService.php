@@ -174,7 +174,7 @@ class FAQService
 
         $categoryFromDB->setName($categoryBean->getName())
             ->setDescription($categoryBean->getDescription());
-        $this->em->persist($categoryFromDB->getPage()->setUpdatedAt(new \DateTime()));
+        $this->em->persist($categoryFromDB->getPage()->setUpUdatedAt(new \DateTime()));
         $this->em->flush();
         return $categoryBean;
     }
